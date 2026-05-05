@@ -3,42 +3,40 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-              android:padding="24dp"
-              android:gravity="center">
+              android:gravity="center"
+              android:padding="24dp">
 
+    <!-- CAMPO EMAIL (Este es el que te faltaba) -->
     <EditText
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/email_hint"
-            android:inputType="textEmailAddress"
-            android:autofillHints="emailAddress"
-            android:importantForAutofill="yes" />
+            android:hint="Correo electrónico"
+            android:inputType="textEmailAddress" />
 
+    <!-- CAMPO CONTRASEÑA -->
     <EditText
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/password_hint"
+            android:hint="Contraseña"
             android:inputType="textPassword"
-            android:autofillHints="password"
-            android:importantForAutofill="yes"
-            android:layout_marginTop="12dp" />
+            android:layout_marginTop="8dp" />
 
+    <!-- BOTÓN -->
     <Button
             android:id="@+id/btnLogin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/login_button"
-            android:layout_marginTop="16dp" />
-
-    <TextView
-            android:id="@+id/tvMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textColor="#D32F2F"
-            android:textSize="14sp"
-            android:visibility="gone" />
+            android:text="Iniciar Sesión"
+            android:layout_marginTop="16dp" />
+
+    <!-- TEXTO MENSAJE -->
+    <TextView
+            android:id="@+id/tvMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:textColor="#FF0000" />
 
 </LinearLayout>

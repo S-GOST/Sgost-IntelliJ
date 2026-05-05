@@ -1,4 +1,4 @@
-package com.example.sgost.loginActivity
+package com.example.sgost
 
 import android.content.Intent
 import android.os.Bundle
