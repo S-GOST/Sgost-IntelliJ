@@ -1,19 +1,69 @@
-*.iml
-.kotlin
-.gradle
+# =========================
+# ANDROID + INTELLIJ (OK)
+# =========================
+
+# Gradle
+.gradle/
 **/build/
-xcuserdata
-!src/**/build/
+build/
+
+# Archivos locales (SDK, rutas)
 local.properties
-.idea
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Archivos de sistema
 .DS_Store
-captures
-.externalNativeBuild
-.cxx
-*.xcodeproj/*
-!*.xcodeproj/project.pbxproj
-!*.xcodeproj/xcshareddata/
-!*.xcodeproj/project.xcworkspace/
-!*.xcworkspace/contents.xcworkspacedata
-**/xcshareddata/WorkspaceSettings.xcsettings
-node_modules/
+Thumbs.db
+
+# Logs
+*.log
+
+# APK / AAB (salidas)
+*.apk
+*.aab
+
+# Archivos generados
+captures/
+outputs/
+out/
+
+# Kotlin
+*.kotlin_module
+
+# NDK / C++
+.externalNativeBuild/
+.cxx/
+
+# Lint
+lint/
+lint-results.xml
+
+# Keystore (CLAVES → NUNCA subir)
+*.jks
+*.keystore
+
+# Firebase (solo ignora si no quieres subir config)
+google-services.json
+
+# Pruebas
+test_output/
+
+# Navegación temporal
+.navigation/
+
+# =========================
+# OPCIONAL (depende tu caso)
+# =========================
+
+# Si usas Room o bases locales
+*.db
+*.sqlite
+
+# Si usas archivos temporales
+*.tmp
+*.temp

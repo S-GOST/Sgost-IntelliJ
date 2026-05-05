@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">sgost</string>
+    <string name="email_hint">Correo electrónico</string>
+    <string name="password_hint">Contraseña</string>
+    <string name="login_button">Iniciar Sesión</string>
+    <string name="login_success">Inicio de sesión exitoso</string>
+    <string name="login_error">Error en las credenciales</string>
+    <string name="connection_error">Error de conexión</string>
+</resources>
