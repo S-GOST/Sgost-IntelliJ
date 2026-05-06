@@ -1,6 +1,8 @@
 package com.example.sgost.model
 
+import com.google.gson.annotations.SerializedName
+
 data class LoginRequest(
-    val email: String,
-    val password: String
+    @SerializedName("usuario") val usuario: String,
+    @SerializedName("contrasena") val contrasena: String
 )

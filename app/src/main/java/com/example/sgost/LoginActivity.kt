@@ -7,10 +7,9 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.sgost.MainActivity
-import com.example.sgost.R
 import com.example.sgost.api.ApiClient
 import com.example.sgost.model.LoginRequest
+import com.example.sgost.model.LoginResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -26,7 +25,6 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // Referencias a vistas
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
         btnLogin = findViewById(R.id.btnLogin)
@@ -47,33 +45,43 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun llamarApiLogin(email: String, password: String) {
-        val request = LoginRequest(email, password)
+    private fun llamarApiLogin(usuario: String, contrasena: String) {
+        val request = LoginRequest(usuario, contrasena)
 
-        ApiClient.apiService.login(request).enqueue(object : Callback<com.example.sgost.model.LoginResponse> {
-            override fun onResponse(call: Call<com.example.sgost.model.LoginResponse>, response: Response<com.example.sgost.model.LoginResponse>) {
+        ApiClient.apiService.loginAdmin(request).enqueue(object : Callback<LoginResponse> {
+            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                 btnLogin.isEnabled = true
-                if (response.isSuccessful && response.body() != null) {
-                    // ✅ ÉXITO: Navegar a MainActivity y guardar token si lo necesitas
-                    val token = response.body()!!.token
-                    Toast.makeText(this@LoginActivity, "Login exitoso: $token", Toast.LENGTH_SHORT).show()
 
-                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                if (response.isSuccessful && response.body() != null) {
+                    val data = response.body()!!
+
+                    // ✅ Tu backend ya valida y devuelve rol: "admin"
+                    if (data.success && data.rol == "admin") {
+                        guardarToken(data.token)
+                        Toast.makeText(this@LoginActivity, "Bienvenido, ${data.nombre}", Toast.LENGTH_SHORT).show()
+
+                        val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        showErrorMessage(data.message.ifEmpty { "Credenciales incorrectas" })
+                    }
                 } else {
-                    // ❌ Error del servidor (401, 400, 500, etc.)
-                    showErrorMessage("Credenciales incorrectas o error del servidor (${response.code()})")
+                    showErrorMessage("Error del servidor (${response.code()})")
                 }
             }
 
-            override fun onFailure(call: Call<com.example.sgost.model.LoginResponse>, t: Throwable) {
-                // ❌ Error de red / conexión
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
                 btnLogin.isEnabled = true
-                showErrorMessage("Error de conexión: Verifica que tu backend esté encendido y accesible.")
+                showErrorMessage("Error de red: Verifica IP y puerto del backend")
                 android.util.Log.e("API_ERROR", t.message ?: "Desconocido", t)
             }
         })
+    }
+
+    private fun guardarToken(token: String) {
+        val prefs = getSharedPreferences("sgost_prefs", MODE_PRIVATE)
+        prefs.edit().putString("jwt_token", token).apply()
     }
 
     private fun showErrorMessage(message: String) {

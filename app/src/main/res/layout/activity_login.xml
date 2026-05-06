@@ -1,42 +1,195 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:gravity="center"
-              android:padding="24dp">
+<ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:background="#0D0D0D"
+        tools:context="com.example.sgost.LoginActivity">
 
-    <!-- CAMPO EMAIL (Este es el que te faltaba) -->
-    <EditText
-            android:id="@+id/etEmail"
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Correo electrónico"
-            android:inputType="textEmailAddress" />
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:padding="24dp">
 
-    <!-- CAMPO CONTRASEÑA -->
-    <EditText
-            android:id="@+id/etPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Contraseña"
-            android:inputType="textPassword"
-            android:layout_marginTop="8dp" />
+        <!-- ══════════════ HEADER KTM ══════════════ -->
+        <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:layout_marginBottom="8dp">
 
-    <!-- BOTÓN -->
-    <Button
-            android:id="@+id/btnLogin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Iniciar Sesión"
-            android:layout_marginTop="16dp" />
+            <!-- Círculo decorativo naranja (efecto spotlight) -->
+            <View
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/bg_circle_orange_glow"/>
+        </FrameLayout>
 
-    <!-- TEXTO MENSAJE -->
-    <TextView
-            android:id="@+id/tvMessage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:textColor="#FF0000" />
+        <!-- Logo / Título KTM -->
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="KTM"
+                android:textSize="56sp"
+                android:textStyle="bold"
+                android:textColor="#FF6600"
+                android:letterSpacing="0.15"
+                android:fontFamily="sans-serif-black"
+                android:shadowColor="#FF6600"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="8"
+                android:layout_marginBottom="4dp"/>
 
-</LinearLayout>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SGO ST"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:letterSpacing="0.5"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="12dp"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ride. Connect. Conquer."
+                android:textSize="12sp"
+                android:textColor="#888888"
+                android:fontFamily="sans-serif-light"
+                android:layout_marginBottom="40dp"/>
+
+        <!-- ══════════════ FORMULARIO ══════════════ -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card_dark"
+                android:padding="28dp">
+
+            <!-- ── Email ── -->
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CORREO ELECTRÓNICO"
+                    android:textSize="11sp"
+                    android:textColor="#FF6600"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="8dp"/>
+
+            <EditText
+                    android:id="@+id/etEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:hint="rider@ktm.com"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#555555"
+                    android:background="@drawable/bg_input_dark"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:inputType="textEmailAddress"
+                    android:fontFamily="sans-serif"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="20dp"/>
+
+            <!-- ── Contraseña ── -->
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CONTRASEÑA"
+                    android:textSize="11sp"
+                    android:textColor="#FF6600"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="8dp"/>
+
+            <EditText
+                    android:id="@+id/etPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:hint="••••••••"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#555555"
+                    android:background="@drawable/bg_input_dark"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:inputType="textPassword"
+                    android:fontFamily="sans-serif"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="24dp"/>
+
+            <!-- ── Botón Login ── -->
+            <Button
+                    android:id="@+id/btnLogin"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="INICIAR SESIÓN"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:fontFamily="sans-serif-black"
+                    android:background="@drawable/bg_btn_ktm"
+                    android:backgroundTint="#FF6600"
+                    android:stateListAnimator="@null"
+                    android:elevation="6dp"/>
+
+            <!-- ── Mensaje de error ── -->
+            <TextView
+                    android:id="@+id/tvMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textColor="#FF4444"
+                    android:textSize="13sp"
+                    android:gravity="center"
+                    android:fontFamily="sans-serif-medium"
+                    android:visibility="gone"
+                    android:layout_marginTop="16dp"
+                    android:padding="8dp"
+                    android:background="@drawable/bg_error_box"/>
+        </LinearLayout>
+
+        <!-- ══════════════ FOOTER ══════════════ -->
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Since 1934 • Mattighofen, Austria"
+                android:textSize="11sp"
+                android:textColor="#444444"
+                android:fontFamily="sans-serif-light"
+                android:letterSpacing="0.05"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="8dp"/>
+
+        <!-- Línea decorativa KTM -->
+        <View
+                android:layout_width="80dp"
+                android:layout_height="3dp"
+                android:background="@drawable/bg_gradient_line"
+                android:layout_marginBottom="8dp"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="READY TO RACE"
+                android:textSize="10sp"
+                android:textColor="#FF6600"
+                android:textStyle="bold"
+                android:letterSpacing="0.3"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="24dp"/>
+
+    </LinearLayout>
+</ScrollView>
