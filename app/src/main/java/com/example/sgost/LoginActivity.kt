@@ -31,17 +31,19 @@ class LoginActivity : AppCompatActivity() {
         tvMessage = findViewById(R.id.tvMessage)
 
         btnLogin.setOnClickListener {
-            val email = etEmail.text.toString().trim()
-            val password = etPassword.text.toString().trim()
+            val usuario = etEmail.text.toString().trim()
+            val contrasena = etPassword.text.toString().trim()
 
-            if (email.isEmpty() || password.isEmpty()) {
+            if (usuario.isEmpty() || contrasena.isEmpty()) {
                 showErrorMessage("Por favor, completa todos los campos")
                 return@setOnClickListener
             }
 
+            // 🟡 UI: Deshabilitar botón y cambiar texto
             btnLogin.isEnabled = false
+            btnLogin.text = "CARGANDO..."
             tvMessage.visibility = TextView.GONE
-            llamarApiLogin(email, password)
+            llamarApiLogin(usuario, contrasena)
         }
     }
 
@@ -50,14 +52,16 @@ class LoginActivity : AppCompatActivity() {
 
         ApiClient.apiService.loginAdmin(request).enqueue(object : Callback<LoginResponse> {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                // 🔙 Restaurar botón
                 btnLogin.isEnabled = true
+                btnLogin.text = "INICIAR SESIÓN"
 
                 if (response.isSuccessful && response.body() != null) {
                     val data = response.body()!!
 
-                    // ✅ Tu backend ya valida y devuelve rol: "admin"
+                    // ✅ Tu backend valida y devuelve rol: "admin"
                     if (data.success && data.rol == "admin") {
-                        guardarToken(data.token)
+                        guardarSesion(data.token, data.nombre)
                         Toast.makeText(this@LoginActivity, "Bienvenido, ${data.nombre}", Toast.LENGTH_SHORT).show()
 
                         val intent = Intent(this@LoginActivity, MainActivity::class.java)
@@ -72,16 +76,22 @@ class LoginActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                // 🔙 Restaurar botón en caso de error
                 btnLogin.isEnabled = true
+                btnLogin.text = "INICIAR SESIÓN"
                 showErrorMessage("Error de red: Verifica IP y puerto del backend")
                 android.util.Log.e("API_ERROR", t.message ?: "Desconocido", t)
             }
         })
     }
 
-    private fun guardarToken(token: String) {
+    // 💾 Guarda Token Y Nombre para usarlos en MainActivity
+    private fun guardarSesion(token: String, nombre: String) {
         val prefs = getSharedPreferences("sgost_prefs", MODE_PRIVATE)
-        prefs.edit().putString("jwt_token", token).apply()
+        prefs.edit()
+            .putString("jwt_token", token)
+            .putString("admin_nombre", nombre)
+            .apply()
     }
 
     private fun showErrorMessage(message: String) {
