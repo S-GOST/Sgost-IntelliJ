@@ -14,42 +14,38 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // 1. Referenciar elementos del diseño (KTM Menu)
+        // 1. Referenciar vistas (usando ? para evitar crash si el ID no existe)
         val tvAdminName = findViewById<TextView>(R.id.tvAdminName)
         val btnLogout = findViewById<Button>(R.id.btnLogout)
-
-        // Tarjetas del menú (usando la clase correcta de Material Design)
-        val cardUsuarios = findViewById<MaterialCardView>(R.id.cardUsuarios)
         val cardDashboard = findViewById<MaterialCardView>(R.id.cardDashboard)
+        val cardUsuarios = findViewById<MaterialCardView>(R.id.cardUsuarios)
+        val cardVentas = findViewById<MaterialCardView>(R.id.cardVentas)
+        val cardReportes = findViewById<MaterialCardView>(R.id.cardReportes)
+        val cardConfig = findViewById<MaterialCardView>(R.id.cardConfig)
+        val cardSoporte = findViewById<MaterialCardView>(R.id.cardSoporte)
 
-        // 2. Obtener el nombre del admin guardado en el Login
+        // 2. Cargar nombre del admin
         val prefs = getSharedPreferences("sgost_prefs", MODE_PRIVATE)
-        // Si no hay nombre, muestra "Administrador" por defecto
-        val nombre = prefs.getString("admin_nombre", "Administrador")
+        val adminNombre = prefs.getString("admin_nombre", "Administrador") ?: "Administrador"
 
-        // 3. Mostrar el nombre en pantalla
-        tvAdminName.text = "Hola, $nombre"
+        // Usamos ? para que no falle si tvAdminName es null
+        tvAdminName?.text = "Hola, $adminNombre"
 
-        // 4. Configurar Botón de Cerrar Sesión
-        btnLogout.setOnClickListener {
-            // Borrar sesión
+        // 3. Botón Logout
+        btnLogout?.setOnClickListener {
             prefs.edit().clear().apply()
-
             Toast.makeText(this, "Sesión cerrada", Toast.LENGTH_SHORT).show()
-
-            // Volver al Login
-            val intent = Intent(this, LoginActivity::class.java)
+            val intent = Intent(this@MainActivity, LoginActivity::class.java)
             startActivity(intent)
-            finish() // Importante: cierra MainActivity para que el botón ATRÁS no regrese
+            finish()
         }
 
-        // 5. Configurar clics de las tarjetas (Ejemplos)
-        cardDashboard?.setOnClickListener {
-            Toast.makeText(this, "Abriendo Dashboard...", Toast.LENGTH_SHORT).show()
-        }
-
-        cardUsuarios?.setOnClickListener {
-            Toast.makeText(this, "Gestión de Usuarios...", Toast.LENGTH_SHORT).show()
-        }
+        // 4. Clicks de tarjetas (Ejemplos)
+        cardDashboard?.setOnClickListener { Toast.makeText(this, "Dashboard", Toast.LENGTH_SHORT).show() }
+        cardUsuarios?.setOnClickListener { Toast.makeText(this, "Usuarios", Toast.LENGTH_SHORT).show() }
+        cardVentas?.setOnClickListener { Toast.makeText(this, "Ventas", Toast.LENGTH_SHORT).show() }
+        cardReportes?.setOnClickListener { Toast.makeText(this, "Reportes", Toast.LENGTH_SHORT).show() }
+        cardConfig?.setOnClickListener { Toast.makeText(this, "Config", Toast.LENGTH_SHORT).show() }
+        cardSoporte?.setOnClickListener { Toast.makeText(this, "Soporte", Toast.LENGTH_SHORT).show() }
     }
 }

@@ -20,7 +20,7 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SGO ST ADMIN"
+                android:text="SGOST ADMIN"
                 android:textSize="28sp"
                 android:textStyle="bold"
                 android:textColor="#FF6600"
@@ -56,7 +56,6 @@
                     android:padding="16dp"
                     android:gravity="center_vertical">
 
-                <!-- Avatar placeholder -->
                 <View
                         android:layout_width="48dp"
                         android:layout_height="48dp"
@@ -101,7 +100,7 @@
                 android:columnOrderPreserved="false"
                 android:layout_marginBottom="24dp">
 
-            <!-- Item 1: Dashboard -->
+            <!-- Dashboard -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardDashboard"
                     android:layout_width="0dp"
@@ -122,14 +121,13 @@
                         android:orientation="vertical"
                         android:gravity="center"
                         android:padding="12dp">
-
-                    <TextView android:text="📊" android:textSize="28sp" android:layout_marginBottom="8dp"/>
-                    <TextView android:text="DASHBOARD" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
-                    <TextView android:text="Resumen general" android:textColor="#888888" android:textSize="10sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📊" android:textSize="28sp" android:layout_marginBottom="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DASHBOARD" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Resumen general" android:textColor="#888888" android:textSize="10sp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Item 2: Usuarios -->
+            <!-- Usuarios -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardUsuarios"
                     android:layout_width="0dp"
@@ -150,14 +148,13 @@
                         android:orientation="vertical"
                         android:gravity="center"
                         android:padding="12dp">
-
-                    <TextView android:text="👥" android:textSize="28sp" android:layout_marginBottom="8dp"/>
-                    <TextView android:text="USUARIOS" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
-                    <TextView android:text="Gestión de cuentas" android:textColor="#888888" android:textSize="10sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="👥" android:textSize="28sp" android:layout_marginBottom="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="USUARIOS" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Gestión de cuentas" android:textColor="#888888" android:textSize="10sp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Item 3: Ventas -->
+            <!-- Ventas -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardVentas"
                     android:layout_width="0dp"
@@ -178,14 +175,13 @@
                         android:orientation="vertical"
                         android:gravity="center"
                         android:padding="12dp">
-
-                    <TextView android:text="💰" android:textSize="28sp" android:layout_marginBottom="8dp"/>
-                    <TextView android:text="VENTAS" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
-                    <TextView android:text="Facturación y pedidos" android:textColor="#888888" android:textSize="10sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="💰" android:textSize="28sp" android:layout_marginBottom="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="VENTAS" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Facturación y pedidos" android:textColor="#888888" android:textSize="10sp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Item 4: Reportes -->
+            <!-- Reportes -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardReportes"
                     android:layout_width="0dp"
@@ -206,14 +202,13 @@
                         android:orientation="vertical"
                         android:gravity="center"
                         android:padding="12dp">
-
-                    <TextView android:text="📈" android:textSize="28sp" android:layout_marginBottom="8dp"/>
-                    <TextView android:text="REPORTES" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
-                    <TextView android:text="Análisis y métricas" android:textColor="#888888" android:textSize="10sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📈" android:textSize="28sp" android:layout_marginBottom="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="REPORTES" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Análisis y métricas" android:textColor="#888888" android:textSize="10sp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Item 5: Configuración -->
+            <!-- Configuración -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardConfig"
                     android:layout_width="0dp"
@@ -234,14 +229,13 @@
                         android:orientation="vertical"
                         android:gravity="center"
                         android:padding="12dp">
-
-                    <TextView android:text="⚙️" android:textSize="28sp" android:layout_marginBottom="8dp"/>
-                    <TextView android:text="CONFIGURACIÓN" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
-                    <TextView android:text="Ajustes del sistema" android:textColor="#888888" android:textSize="10sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⚙️" android:textSize="28sp" android:layout_marginBottom="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CONFIGURACIÓN" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ajustes del sistema" android:textColor="#888888" android:textSize="10sp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Item 6: Soporte / Logs -->
+            <!-- Soporte -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardSoporte"
                     android:layout_width="0dp"
@@ -262,10 +256,9 @@
                         android:orientation="vertical"
                         android:gravity="center"
                         android:padding="12dp">
-
-                    <TextView android:text="🔧" android:textSize="28sp" android:layout_marginBottom="8dp"/>
-                    <TextView android:text="SOPORTE" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
-                    <TextView android:text="Logs y mantenimiento" android:textColor="#888888" android:textSize="10sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔧" android:textSize="28sp" android:layout_marginBottom="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SOPORTE" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Logs y mantenimiento" android:textColor="#888888" android:textSize="10sp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
