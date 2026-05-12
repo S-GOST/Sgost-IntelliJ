@@ -1,5 +1,8 @@
 package com.example.sgost
 
+// ✅ IMPORTACIÓN CRÍTICA FALTANTE
+import com.example.sgost.model.Cliente
+
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -21,9 +24,9 @@ class ClientesActivity : AppCompatActivity() {
     private lateinit var btnEliminar: Button
 
     // Base de datos temporal en memoria (simulación)
-    // Usamos el documento como clave única (Key)
-    private val clientesDB = mutableMapOf<String, Cliente>()
-    private var documentoEditando: String? = null
+    // Usamos TipoDocumento como clave única (Key)
+    private val registrosDB = mutableMapOf<String, Cliente>()
+    private var tipoDocEditando: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,110 +44,100 @@ class ClientesActivity : AppCompatActivity() {
         btnEliminar = findViewById(R.id.btnEliminar)
 
         // Configurar acciones
-        btnGuardar.setOnClickListener { guardarCliente() }
-        btnBuscar.setOnClickListener { buscarCliente() }
-        btnEditar.setOnClickListener { editarCliente() }
-        btnEliminar.setOnClickListener { eliminarCliente() }
+        btnGuardar.setOnClickListener { guardarRegistro() }
+        btnBuscar.setOnClickListener { buscarRegistro() }
+        btnEditar.setOnClickListener { editarRegistro() }
+        btnEliminar.setOnClickListener { eliminarRegistro() }
 
         // Cancelar modo edición si el usuario cambia el documento manualmente
         txtTipoDocumento.doAfterTextChanged {
-            if (documentoEditando != null && !txtTipoDocumento.text.isNullOrBlank()) {
-                documentoEditando = null
+            if (tipoDocEditando != null && !txtTipoDocumento.text.isNullOrBlank()) {
+                tipoDocEditando = null
                 Toast.makeText(this@ClientesActivity, "Modo edición cancelado", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun guardarCliente() {
-        val documento = txtTipoDocumento.text.toString().trim()
+    private fun guardarRegistro() {
         val nombre = txtNombre.text.toString().trim()
         val correo = txtCorreo.text.toString().trim()
         val tipoDocumento = txtTipoDocumento.text.toString().trim()
         val telefono = txtTelefono.text.toString().trim()
 
-        if (documento.isEmpty() || nombre.isEmpty() || correo.isEmpty() || tipoDocumento.isEmpty() || telefono.isEmpty()) {
+        if (nombre.isEmpty() || correo.isEmpty() || tipoDocumento.isEmpty() || telefono.isEmpty()) {
             Toast.makeText(this, "⚠️ Todos los campos son obligatorios", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Si estamos editando y el documento cambió, eliminamos el registro antiguo
-        if (documentoEditando != null && documentoEditando != documento) {
-            clientesDB.remove(documentoEditando)
-            documentoEditando = null
+        // Si estamos editando y el TipoDocumento cambió, eliminamos el registro antiguo
+        if (tipoDocEditando != null && tipoDocEditando != tipoDocumento) {
+            registrosDB.remove(tipoDocEditando)
+            tipoDocEditando = null
         }
 
-        // Guardar o actualizar
-        clientesDB[documento] = Cliente(documento, nombre, correo, tipoDocumento, telefono)
-        Toast.makeText(this, "✅ Cliente guardado correctamente", Toast.LENGTH_SHORT).show()
+        // ✅ CORREGIDO: Solo 4 parámetros, coincidiendo con tu data class
+        registrosDB[tipoDocumento] = Cliente(nombre, correo, tipoDocumento, telefono)
+        Toast.makeText(this, "✅ Registro guardado correctamente", Toast.LENGTH_SHORT).show()
         limpiarCampos()
     }
 
-    private fun buscarCliente() {
-        val documento = txtTipoDocumento.text.toString().trim()
-        if (documento.isEmpty()) {
-            Toast.makeText(this, "🔍 Ingresa un documento para buscar", Toast.LENGTH_SHORT).show()
+    private fun buscarRegistro() {
+        val tipoDocumento = txtTipoDocumento.text.toString().trim()
+        if (tipoDocumento.isEmpty()) {
+            Toast.makeText(this, "🔍 Ingresa un TipoDocumento para buscar", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val cliente = clientesDB[documento]
-        if (cliente != null) {
-            txtNombre.setText(cliente.nombre)
-            txtCorreo.setText(cliente.correo)
-            txtTipoDocumento.setText(cliente.tipoDocumento)
-            txtTelefono.setText(cliente.telefono) // Corregido a minúscula
-            documentoEditando = documento
-            Toast.makeText(this, "Cliente encontrado. Puedes editar y guardar.", Toast.LENGTH_LONG).show()
+        val registro = registrosDB[tipoDocumento]
+        if (registro != null) {
+            txtNombre.setText(registro.Nombre)
+            txtCorreo.setText(registro.Correo)
+            txtTipoDocumento.setText(registro.TipoDocumento)
+            txtTelefono.setText(registro.Telefono)
+            tipoDocEditando = tipoDocumento
+            Toast.makeText(this, "Registro encontrado. Puedes editar y guardar.", Toast.LENGTH_LONG).show()
         } else {
-            Toast.makeText(this, "❌ Cliente no encontrado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "❌ Registro no encontrado", Toast.LENGTH_SHORT).show()
             limpiarCampos()
-            documentoEditando = null
+            tipoDocEditando = null
         }
     }
 
-    private fun editarCliente() {
-        val documento = txtTipoDocumento.text.toString().trim()
-        if (documento.isEmpty()) {
-            Toast.makeText(this, "Primero busca un cliente o ingresa un documento", Toast.LENGTH_SHORT).show()
+    private fun editarRegistro() {
+        val tipoDocumento = txtTipoDocumento.text.toString().trim()
+        if (tipoDocumento.isEmpty()) {
+            Toast.makeText(this, "Primero busca un registro o ingresa un TipoDocumento", Toast.LENGTH_SHORT).show()
             return
         }
-        val cliente = clientesDB[documento]
-        if (cliente != null) {
-            documentoEditando = documento
+        val registro = registrosDB[tipoDocumento]
+        if (registro != null) {
+            tipoDocEditando = tipoDocumento
             Toast.makeText(this, "Modo edición activado. Modifica los datos y presiona GUARDAR.", Toast.LENGTH_LONG).show()
         } else {
-            Toast.makeText(this, "No existe un cliente con ese documento. Usa BUSCAR primero.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "No existe un registro con ese TipoDocumento. Usa BUSCAR primero.", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun eliminarCliente() {
-        val documento = txtTipoDocumento.text.toString().trim()
-        if (documento.isEmpty()) {
-            Toast.makeText(this, "Ingresa el documento del cliente a eliminar", Toast.LENGTH_SHORT).show()
+    private fun eliminarRegistro() {
+        val tipoDocumento = txtTipoDocumento.text.toString().trim()
+        if (tipoDocumento.isEmpty()) {
+            Toast.makeText(this, "Ingresa el TipoDocumento del registro a eliminar", Toast.LENGTH_SHORT).show()
             return
         }
-        val eliminado = clientesDB.remove(documento)
+        val eliminado = registrosDB.remove(tipoDocumento)
         if (eliminado != null) {
-            Toast.makeText(this, "🗑️ Cliente eliminado: ${eliminado.nombre}", Toast.LENGTH_SHORT).show() // Corregido a minúscula
+            Toast.makeText(this, "🗑️ Registro eliminado: ${eliminado.Nombre}", Toast.LENGTH_SHORT).show()
             limpiarCampos()
-            documentoEditando = null
+            tipoDocEditando = null // ✅ CORREGIDO: antes decía TipoDocumentoEditando
         } else {
-            Toast.makeText(this, "No se encontró cliente con ese documento", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "No se encontró registro con ese TipoDocumento", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun limpiarCampos() {
-        txtTipoDocumento.text.clear()
         txtNombre.text.clear()
         txtCorreo.text.clear()
+        txtTipoDocumento.text.clear()
         txtTelefono.text.clear()
     }
-
-    // Clase de datos que coincide con tu esquema de base de datos
-    data class Cliente(
-        val documento: String,       // Equivale a ID o Número de Documento
-        val nombre: String,          // Columna: Nombre
-        val correo: String,          // Columna: Correo
-        val tipoDocumento: String,   // Columna: TipoDocumento (ej: CC, TI)
-        val telefono: String         // Columna: Telefono
-    )
 }

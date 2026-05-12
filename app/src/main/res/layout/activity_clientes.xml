@@ -64,7 +64,7 @@
                         android:textColor="#FF6600"
                         android:textSize="28sp"
                         android:textStyle="bold"
-                        android:fontFamily="sans-serif-black" />
+                        android:fontFamily="sans-serif-black"/>
 
                 <TextView
                         android:layout_width="wrap_content"
@@ -72,7 +72,7 @@
                         android:layout_marginTop="4dp"
                         android:text="Gestión de clientes"
                         android:textColor="#CCCCCC"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"/>
 
                 <TextView
                         android:layout_width="wrap_content"
@@ -81,7 +81,7 @@
                         android:text="Ride, Comment, Conquer"
                         android:textColor="#FF884D"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"/>
 
                 <!-- Campo DOCUMENTO -->
                 <com.google.android.material.textfield.TextInputLayout
@@ -98,7 +98,7 @@
                             android:layout_height="wrap_content"
                             android:hint="DOCUMENTO"
                             android:textColor="#FFFFFF"
-                            android:inputType="text" />
+                            android:inputType="text"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Campo NOMBRE -->
@@ -116,7 +116,7 @@
                             android:layout_height="wrap_content"
                             android:hint="NOMBRE COMPLETO"
                             android:textColor="#FFFFFF"
-                            android:inputType="textPersonName" />
+                            android:inputType="textPersonName"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Campo TELÉFONO -->
@@ -134,7 +134,7 @@
                             android:layout_height="wrap_content"
                             android:hint="TELÉFONO"
                             android:textColor="#FFFFFF"
-                            android:inputType="phone" />
+                            android:inputType="phone"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- ✅ NUEVO CAMPO: CORREO ELECTRÓNICO -->
@@ -152,7 +152,7 @@
                             android:layout_height="wrap_content"
                             android:hint="CORREO ELECTRÓNICO"
                             android:textColor="#FFFFFF"
-                            android:inputType="textEmailAddress" />
+                            android:inputType="textEmailAddress"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Botones en fila (Guardar + Buscar) -->
@@ -171,7 +171,7 @@
                             android:text="GUARDAR"
                             android:textColor="#FFFFFF"
                             android:backgroundTint="#FF6600"
-                            app:cornerRadius="12dp" />
+                            app:cornerRadius="12dp"/>
 
                     <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnBuscar"
@@ -182,7 +182,7 @@
                             android:text="BUSCAR"
                             android:textColor="#FFFFFF"
                             android:backgroundTint="#333333"
-                            app:cornerRadius="12dp" />
+                            app:cornerRadius="12dp"/>
                 </LinearLayout>
 
                 <!-- Botones en fila (Editar + Eliminar) -->
@@ -201,7 +201,7 @@
                             android:text="EDITAR"
                             android:textColor="#FFFFFF"
                             android:backgroundTint="#555555"
-                            app:cornerRadius="12dp" />
+                            app:cornerRadius="12dp"/>
 
                     <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnEliminar"
@@ -212,7 +212,7 @@
                             android:text="ELIMINAR"
                             android:textColor="#FFFFFF"
                             android:backgroundTint="#AA3333"
-                            app:cornerRadius="12dp" />
+                            app:cornerRadius="12dp"/>
                 </LinearLayout>
 
                 <!-- Footer racing -->
@@ -223,7 +223,7 @@
                         android:layout_marginTop="40dp"
                         android:text="Since 1994 • Multigolfers, Austria"
                         android:textColor="#777777"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"/>
 
                 <TextView
                         android:layout_width="wrap_content"
@@ -234,7 +234,7 @@
                         android:textColor="#FF6600"
                         android:textSize="14sp"
                         android:textStyle="bold"
-                        android:letterSpacing="0.1" />
+                        android:letterSpacing="0.1"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </androidx.constraintlayout.widget.ConstraintLayout>

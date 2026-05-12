@@ -16,7 +16,7 @@
             android:padding="20dp"
             android:gravity="center_horizontal">
 
-        <!-- ══════════════ HEADER KTM ══════════════ -->
+        <!-- ══════════════ HEADER SGOST ══════════════ -->
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -90,7 +90,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ══════════════ GRID DE MENÚ (2 COLUMNAS) ══════════════ -->
+        <!-- ══════════════ GRID DE MENÚ (FLUJO ADMIN) ══════════════ -->
         <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -100,7 +100,7 @@
                 android:columnOrderPreserved="false"
                 android:layout_marginBottom="24dp">
 
-            <!-- Dashboard -->
+            <!-- 1. DASHBOARD -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardDashboard"
                     android:layout_width="0dp"
@@ -123,121 +123,13 @@
                         android:padding="12dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📊" android:textSize="28sp" android:layout_marginBottom="8dp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DASHBOARD" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Resumen general" android:textColor="#888888" android:textSize="10sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vista general del sistema" android:textColor="#888888" android:textSize="10sp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Usuarios -->
+            <!-- 2. TÉCNICOS (Crear cuentas) -->
             <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardUsuarios"
-                    android:layout_width="0dp"
-                    android:layout_height="110dp"
-                    android:layout_columnWeight="1"
-                    android:layout_rowWeight="1"
-                    android:layout_margin="6dp"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="#1A1A1A"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="3dp"
-                    app:strokeColor="#2A2A2A"
-                    app:strokeWidth="1dp">
-
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="12dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="👥" android:textSize="28sp" android:layout_marginBottom="8dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="USUARIOS" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Gestión de cuentas" android:textColor="#888888" android:textSize="10sp"/>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Ventas -->
-            <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardVentas"
-                    android:layout_width="0dp"
-                    android:layout_height="110dp"
-                    android:layout_columnWeight="1"
-                    android:layout_rowWeight="1"
-                    android:layout_margin="6dp"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="#1A1A1A"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="3dp"
-                    app:strokeColor="#2A2A2A"
-                    app:strokeWidth="1dp">
-
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="12dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="💰" android:textSize="28sp" android:layout_marginBottom="8dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="VENTAS" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Facturación y pedidos" android:textColor="#888888" android:textSize="10sp"/>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Reportes -->
-            <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardReportes"
-                    android:layout_width="0dp"
-                    android:layout_height="110dp"
-                    android:layout_columnWeight="1"
-                    android:layout_rowWeight="1"
-                    android:layout_margin="6dp"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="#1A1A1A"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="3dp"
-                    app:strokeColor="#2A2A2A"
-                    app:strokeWidth="1dp">
-
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="12dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📈" android:textSize="28sp" android:layout_marginBottom="8dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="REPORTES" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Análisis y métricas" android:textColor="#888888" android:textSize="10sp"/>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Configuración -->
-            <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardConfig"
-                    android:layout_width="0dp"
-                    android:layout_height="110dp"
-                    android:layout_columnWeight="1"
-                    android:layout_rowWeight="1"
-                    android:layout_margin="6dp"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardBackgroundColor="#1A1A1A"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="3dp"
-                    app:strokeColor="#2A2A2A"
-                    app:strokeWidth="1dp">
-
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="12dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⚙️" android:textSize="28sp" android:layout_marginBottom="8dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CONFIGURACIÓN" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ajustes del sistema" android:textColor="#888888" android:textSize="10sp"/>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Soporte -->
-            <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardSoporte"
+                    android:id="@+id/cardTecnicos"
                     android:layout_width="0dp"
                     android:layout_height="110dp"
                     android:layout_columnWeight="1"
@@ -257,15 +149,123 @@
                         android:gravity="center"
                         android:padding="12dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔧" android:textSize="28sp" android:layout_marginBottom="8dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SOPORTE" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Logs y mantenimiento" android:textColor="#888888" android:textSize="10sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TÉCNICOS" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Crear y gestionar cuentas" android:textColor="#888888" android:textSize="10sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 3. ÓRDENES (Gestionar trabajos) -->
+            <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardOrdenes"
+                    android:layout_width="0dp"
+                    android:layout_height="110dp"
+                    android:layout_columnWeight="1"
+                    android:layout_rowWeight="1"
+                    android:layout_margin="6dp"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="#1A1A1A"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="3dp"
+                    app:strokeColor="#2A2A2A"
+                    app:strokeWidth="1dp">
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="12dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📋" android:textSize="28sp" android:layout_marginBottom="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="ÓRDENES" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trabajos activos y pendientes" android:textColor="#888888" android:textSize="10sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 4. INFORMES (Revisar reportes técnicos) -->
+            <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardInformes"
+                    android:layout_width="0dp"
+                    android:layout_height="110dp"
+                    android:layout_columnWeight="1"
+                    android:layout_rowWeight="1"
+                    android:layout_margin="6dp"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="#1A1A1A"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="3dp"
+                    app:strokeColor="#2A2A2A"
+                    app:strokeWidth="1dp">
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="12dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📄" android:textSize="28sp" android:layout_marginBottom="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="INFORMES" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Reportes generados por técnicos" android:textColor="#888888" android:textSize="10sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 5. COMPROBANTES (Facturar clientes) -->
+            <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardComprobantes"
+                    android:layout_width="0dp"
+                    android:layout_height="110dp"
+                    android:layout_columnWeight="1"
+                    android:layout_rowWeight="1"
+                    android:layout_margin="6dp"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="#1A1A1A"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="3dp"
+                    app:strokeColor="#2A2A2A"
+                    app:strokeWidth="1dp">
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="12dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🧾" android:textSize="28sp" android:layout_marginBottom="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="COMPROBANTES" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Facturar y gestionar clientes" android:textColor="#888888" android:textSize="10sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 6. HISTORIAL (Trazabilidad) -->
+            <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardHistorial"
+                    android:layout_width="0dp"
+                    android:layout_height="110dp"
+                    android:layout_columnWeight="1"
+                    android:layout_rowWeight="1"
+                    android:layout_margin="6dp"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="#1A1A1A"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="3dp"
+                    app:strokeColor="#2A2A2A"
+                    app:strokeWidth="1dp">
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="12dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📜" android:textSize="28sp" android:layout_marginBottom="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="HISTORIAL" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Registros y trazabilidad" android:textColor="#888888" android:textSize="10sp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
         </GridLayout>
 
         <!-- ══════════════ BOTÓN LOGOUT ══════════════ -->
-        <Button
+        <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogout"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
@@ -278,9 +278,10 @@
                 android:backgroundTint="#8B0000"
                 android:stateListAnimator="@null"
                 android:elevation="4dp"
+                app:cornerRadius="12dp"
                 android:layout_marginBottom="24dp"/>
 
-        <!-- ══════════════ FOOTER RACING ══════════════ -->
+        <!-- ══════════════ FOOTER ══════════════ -->
         <View
                 android:layout_width="60dp"
                 android:layout_height="3dp"
@@ -290,7 +291,7 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="READY TO RACE • ADMIN PANEL"
+                android:text="SGOST • ADMIN PANEL"
                 android:textSize="10sp"
                 android:textColor="#FF6600"
                 android:textStyle="bold"
