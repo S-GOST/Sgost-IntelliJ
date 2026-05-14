@@ -1,76 +1,87 @@
 package com.example.sgost
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import com.example.sgost.api.ApiClient
 import com.example.sgost.model.LoginRequest
 import com.example.sgost.model.LoginResponse
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var etUsuario: TextInputEditText
+    private lateinit var etEmail: TextInputEditText
     private lateinit var etPassword: TextInputEditText
     private lateinit var btnLogin: MaterialButton
+    private lateinit var tvMessage: TextView
+    private val prefs by lazy { getSharedPreferences("sgost_prefs", MODE_PRIVATE) }
 
-    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        etUsuario = findViewById(R.id.etUsuario)
+        etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
         btnLogin = findViewById(R.id.btnLogin)
+        tvMessage = findViewById(R.id.tvMessage)
 
-        btnLogin.setOnClickListener {
-            val usuario = etUsuario.text.toString().trim()
-            val password = etPassword.text.toString().trim()
-
-            if (usuario.isNotEmpty() && password.isNotEmpty()) {
-                login(usuario, password)
-            } else {
-                Toast.makeText(this, "⚠️ Completa todos los campos", Toast.LENGTH_SHORT).show()
-            }
-        }
+        btnLogin.setOnClickListener { iniciarSesion() }
     }
 
-    // ✅ Versión corregida con lifecycleScope
-    private fun login(usuario: String, password: String) {
-        btnLogin.isEnabled = false
-        btnLogin.text = "Iniciando..."
+    private fun iniciarSesion() {
+        val email = etEmail.text.toString().trim()
+        val password = etPassword.text.toString().trim()
 
+        if (email.isEmpty() || password.isEmpty()) {
+            mostrarMensaje("⚠️ Ingrese correo y contraseña")
+            return
+        }
+
+        btnLogin.isEnabled = false
+        btnLogin.text = "Ingresando..."
+
+        val request = LoginRequest(usuario = email, contrasena = password)
+
+        // 🟢 Llamada Suspendida dentro de una Coroutine
         lifecycleScope.launch {
             try {
-                val request = LoginRequest(usuario, password)
-                val response: LoginResponse = ApiClient.apiService.loginAdmin(request)
-
-                // Guardar token y datos de sesión
-                val prefs = getSharedPreferences("sgost_prefs", Context.MODE_PRIVATE)
-                prefs.edit().apply {
-                    putString("auth_token", response.token)
-                    putString("user_name", response.nombre)
-                    apply()
+                // Se ejecuta en hilo de fondo automáticamente
+                val response = withContext(Dispatchers.IO) {
+                    // ⚠️ Si tu ApiClient usa 'apiService' en vez de 'api', cámbialo aquí
+                    ApiClient.apiService.loginAdmin(request)
                 }
 
-                Toast.makeText(this@LoginActivity, "✅ Bienvenido ${response.nombre}", Toast.LENGTH_SHORT).show()
+                if (response.success) {
+                    prefs.edit {
+                        putString("auth_token", response.token ?: "")
+                        putString("admin_nombre", response.nombre ?: "Admin")
+                    }
 
-                // Ir al MainActivity
-                val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                startActivity(intent)
-                finish()
-
+                    Toast.makeText(this@LoginActivity, "✅ Bienvenido", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                    finish()
+                } else {
+                    mostrarMensaje("❌ ${response.message ?: "Credenciales incorrectas"}")
+                }
             } catch (e: Exception) {
-                Toast.makeText(this@LoginActivity, "❌ Error: ${e.message}", Toast.LENGTH_LONG).show()
+                mostrarMensaje("⚠️ Error de red: ${e.message}")
+            } finally {
                 btnLogin.isEnabled = true
                 btnLogin.text = "INICIAR SESIÓN"
             }
         }
+    }
+
+    private fun mostrarMensaje(msg: String) {
+        tvMessage.text = msg
+        tvMessage.visibility = TextView.VISIBLE
     }
 }
