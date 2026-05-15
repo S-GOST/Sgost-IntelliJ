@@ -6,7 +6,7 @@
             android:layout_height="match_parent"
             android:background="#0D0D0D"
             android:fillViewport="true"
-            tools:context="com.example.sgost.LoginActivity">
+            tools:context="com.example.sgost.LoginActivityAdmin">
 
     <LinearLayout
             android:layout_width="match_parent"

@@ -77,13 +77,14 @@ class FormTecnicoActivity : AppCompatActivity() {
             layoutPassword.visibility = View.GONE
             layoutConfirmPassword.visibility = View.GONE
             btnGuardar.text = "ACTUALIZAR"
+            findViewById<TextView>(R.id.tvFormTitle)?.text = "Editar Técnico"
         } else {
-            findViewById<TextView>(R.id.tvFormTitle).text = "Nuevo Técnico"
+            findViewById<TextView>(R.id.tvFormTitle)?.text = "Nuevo Técnico"
         }
     }
 
     private fun setupButtons() {
-        findViewById<MaterialButton>(R.id.btnCancelar).setOnClickListener { finish() }
+        findViewById<MaterialButton>(R.id.btnCancelar)?.setOnClickListener { finish() }
         btnGuardar.setOnClickListener { if (validarFormulario()) guardarTecnico() }
     }
 
@@ -128,26 +129,29 @@ class FormTecnicoActivity : AppCompatActivity() {
         btnGuardar.isEnabled = false
         btnGuardar.text = "Guardando..."
 
-        val prefs = getSharedPreferences("sgost_prefs", Context.MODE_PRIVATE)
-        val token = prefs.getString("auth_token", "") ?: ""
-        val authHeader = if (token.startsWith("Bearer ")) token else "Bearer $token"
+        // ✅ Eliminada la lógica de authHeader manual (ahora usa Interceptor)
 
         lifecycleScope.launch {
             try {
+                val contrasena = if (!isEditMode) etPassword.text.toString() else tecnicoExistente?.contrasena
+
                 val tecnico = Tecnico(
-                    id = tecnicoExistente?.id ?: "",
+                    idTecnicos = tecnicoExistente?.idTecnicos,
                     nombre = etNombre.text.toString().trim(),
                     usuario = etUsuario.text.toString().trim(),
-                    contrasena = if (!isEditMode) etPassword.text.toString() else tecnicoExistente?.contrasena ?: "",
+                    contrasena = contrasena,
                     tipoDocumento = etTipoDoc.text.toString().trim(),
                     correo = etCorreo.text.toString().trim(),
                     telefono = etTelefono.text.toString().trim()
                 )
 
                 val response = if (isEditMode) {
-                    ApiClient.apiService.actualizarTecnico(authHeader, tecnico.id, tecnico)
+                    ApiClient.apiService.actualizarTecnico(
+                        id = tecnico.idTecnicos?.toString() ?: "",
+                        tecnico = tecnico
+                    )
                 } else {
-                    ApiClient.apiService.crearTecnico(authHeader, tecnico)
+                    ApiClient.apiService.crearTecnico(tecnico)
                 }
 
                 if (response.success) {
@@ -159,7 +163,7 @@ class FormTecnicoActivity : AppCompatActivity() {
                     restaurarBoton()
                 }
             } catch (e: Exception) {
-                mostrarError("❌ Error de red: ${e.message}")
+                mostrarError("❌ Error: ${e.message}")
                 restaurarBoton()
             }
         }

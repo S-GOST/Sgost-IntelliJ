@@ -7,24 +7,23 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Tecnico(
     @SerializedName("ID_TECNICOS")
-    val id: String,
+    val idTecnicos: Int?, // ⚠️ Cambiado a Int? (Nullable) para evitar crashes
 
     @SerializedName("Nombre")
-    val nombre: String,
+    val nombre: String?,
 
     @SerializedName("usuario")
-    val usuario: String,
+    val usuario: String?,
 
     @SerializedName("contrasena")
-    val contrasena: String,
+    val contrasena: String?,
 
     @SerializedName("TipoDocumento")
-    val tipoDocumento: String,
+    val tipoDocumento: String?,
 
     @SerializedName("Correo")
-    val correo: String,
+    val correo: String?,
 
     @SerializedName("Telefono")
-    val telefono: String
-
-) : Parcelable
+    val telefono: String?
+) : Parcelable // ✅ Implementa Parcelable para el Intent

@@ -4,7 +4,7 @@
 
     <!-- 🌐 Permisos de red -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- Detecta si hay conexión -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
             android:name=".MyApplication"
@@ -22,9 +22,9 @@
             android:enableOnBackInvokedCallback="true"
             tools:targetApi="31">
 
-        <!-- ✅ PANTALLA DE LOGIN (Entry Point) -->
+        <!-- ✅ ENTRY POINT: Login Admin (Pantalla principal al iniciar) -->
         <activity
-                android:name=".LoginActivity"
+                android:name=".LoginActivityAdmin"
                 android:exported="true"
                 android:screenOrientation="portrait">
             <intent-filter>
@@ -33,25 +33,29 @@
             </intent-filter>
         </activity>
 
-        <!-- 🔒 PANEL DE ADMIN (Protegida por Login) -->
+        <!-- 🔧 Login Técnico (Internamente accesible desde Admin o notificaciones) -->
         <activity
-                android:name=".MainActivity"
+                android:name=".LoginActivityTecnicos"
                 android:exported="false"
                 android:screenOrientation="portrait"
-                android:parentActivityName=".LoginActivity" />
+                android:parentActivityName=".LoginActivityAdmin" />
 
-        <!-- 🔒 GESTIÓN DE CLIENTES -->
-        <activity
-                android:name=".ClientesActivity"
-                android:exported="false"
-                android:screenOrientation="portrait"
-                android:parentActivityName=".MainActivity" />
+        <!-- 📊 DASHBOARDS -->
+        <activity android:name=".DasbohadActivityAdmin" android:exported="false" android:screenOrientation="portrait" android:parentActivityName=".LoginActivityAdmin" />
+        <activity android:name=".DashboardActivityTecnicos" android:exported="false" android:screenOrientation="portrait" android:parentActivityName=".LoginActivityTecnicos" />
 
-        <!-- 🔒 Carrito de Compras -->
-        <activity
-                android:name=".CarritoActivity"
-                android:exported="false" />
+        <!-- 👥 GESTIÓN ADMIN -->
+        <activity android:name=".ClientesActivity" android:exported="false" android:screenOrientation="portrait" android:parentActivityName=".DasbohadActivityAdmin" />
+        <activity android:name=".CarritoActivity" android:exported="false" />
+        <activity android:name=".FormTecnicoActivity" android:exported="false" />
+
+        <!-- 🔍 MÓDULOS TÉCNICO -->
+        <activity android:name=".MisOrdenesActivity" android:exported="false" />
+        <activity android:name=".ActualizarEstadoActivity" android:exported="false" />
+        <activity android:name=".HistorialTecnicoActivity" android:exported="false" />
+        <activity android:name=".PerfilTecnicoActivity" android:exported="false" />
+        <activity android:name=".NotificacionesActivity" android:exported="false" />
+        <activity android:name=".AyudaActivity" android:exported="false" />
 
     </application>
-
 </manifest>

@@ -9,14 +9,13 @@ import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import com.example.sgost.api.ApiClient
 import com.example.sgost.model.LoginRequest
-import com.example.sgost.model.LoginResponse
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivityAdmin : AppCompatActivity() {
 
     private lateinit var etEmail: TextInputEditText
     private lateinit var etPassword: TextInputEditText
@@ -65,8 +64,8 @@ class LoginActivity : AppCompatActivity() {
                         putString("admin_nombre", response.nombre ?: "Admin")
                     }
 
-                    Toast.makeText(this@LoginActivity, "✅ Bienvenido", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                    Toast.makeText(this@LoginActivityAdmin, "✅ Bienvenido", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this@LoginActivityAdmin, DasbohadActivityAdmin::class.java))
                     finish()
                 } else {
                     mostrarMensaje("❌ ${response.message ?: "Credenciales incorrectas"}")

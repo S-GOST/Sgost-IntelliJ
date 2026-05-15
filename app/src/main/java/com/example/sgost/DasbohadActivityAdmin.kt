@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.card.MaterialCardView
 
-class MainActivity : AppCompatActivity() {
+class DasbohadActivityAdmin : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
             prefs.edit().clear().apply()
 
             // 2. Volver al Login
-            val intent = Intent(this, LoginActivity::class.java)
+            val intent = Intent(this, LoginActivityAdmin::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(intent)
             finish()
