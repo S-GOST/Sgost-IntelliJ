@@ -52,45 +52,80 @@
             <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:gravity="center_vertical">
-
-                <View
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:background="@drawable/bg_circle_orange_glow"
-                        android:layout_marginEnd="12dp"/>
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                 <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
-                    <TextView
-                            android:id="@+id/tvAdminName"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Juan Parra"
-                            android:textColor="#FFFFFF"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:fontFamily="sans-serif-medium"/>
+                    <View
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_circle_orange_glow"
+                            android:layout_marginEnd="12dp"/>
 
-                    <TextView
-                            android:layout_width="wrap_content"
+                    <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="Administrador • Activo"
-                            android:textColor="#FF6600"
-                            android:textSize="12sp"
-                            android:fontFamily="sans-serif-medium"
-                            android:layout_marginTop="2dp"/>
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                        <TextView
+                                android:id="@+id/tvBienvenidaAdmin"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Hola, Admin"
+                                android:textColor="#FFFFFF"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:fontFamily="sans-serif-medium"/>
+
+                        <TextView
+                                android:id="@+id/tvNombreAdmin"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Administrador • Activo"
+                                android:textColor="#FF6600"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:layout_marginTop="2dp"/>
+                    </LinearLayout>
                 </LinearLayout>
+
+                <!-- 📊 Datos reales de BD -->
+                <TextView
+                        android:id="@+id/tvEmailAdmin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#CCCCCC"
+                        android:textSize="13sp"
+                        android:layout_marginTop="12dp"
+                        android:paddingStart="8dp"/>
+
+                <TextView
+                        android:id="@+id/tvTelefonoAdmin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#CCCCCC"
+                        android:textSize="13sp"
+                        android:layout_marginTop="4dp"
+                        android:paddingStart="8dp"/>
+
+                <TextView
+                        android:id="@+id/tvUbicacionAdmin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#CCCCCC"
+                        android:textSize="13sp"
+                        android:layout_marginTop="4dp"
+                        android:paddingStart="8dp"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ══════════════ GRID DE MENÚ (FLUJO ADMIN) ══════════════ -->
+        <!-- ══════════════ GRID DE GESTIÓN (6 Opciones) ══════════════ -->
         <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -127,7 +162,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 2. TÉCNICOS (Crear cuentas) -->
+            <!-- 2. TÉCNICOS -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardTecnicos"
                     android:layout_width="0dp"
@@ -154,7 +189,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 3. ÓRDENES (Gestionar trabajos) -->
+            <!-- 3. ÓRDENES -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardOrdenes"
                     android:layout_width="0dp"
@@ -181,7 +216,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 4. INFORMES (Revisar reportes técnicos) -->
+            <!-- 4. INFORMES -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardInformes"
                     android:layout_width="0dp"
@@ -208,7 +243,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 5. COMPROBANTES (Facturar clientes) -->
+            <!-- 5. COMPROBANTES -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardComprobantes"
                     android:layout_width="0dp"
@@ -235,7 +270,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 6. HISTORIAL (Trazabilidad) -->
+            <!-- 6. HISTORIAL -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardHistorial"
                     android:layout_width="0dp"
@@ -266,7 +301,7 @@
 
         <!-- ══════════════ BOTÓN LOGOUT ══════════════ -->
         <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnLogout"
+                android:id="@+id/btnLogoutAdmin"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:text="CERRAR SESIÓN"

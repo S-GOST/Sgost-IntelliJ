@@ -38,8 +38,10 @@
                 android:contentDescription="Carrito"
                 app:layout_constraintBottom_toBottomOf="@id/tvTitle"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tvTitle" android:layout_marginEnd="12dp"
+                app:layout_constraintTop_toTopOf="@id/tvTitle"
+                android:layout_marginEnd="12dp"
                 app:layout_constraintVertical_bias="0.0"/>
+
         <TextView
                 android:id="@+id/tvItemCount"
                 android:layout_width="wrap_content"
@@ -107,8 +109,22 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginBottom="8dp">
-                    <TextView android:text="Subtotal" android:textColor="#AAAAAA" android:textSize="14sp" android:layout_weight="1" android:fontFamily="sans-serif-medium"/>
-                    <TextView android:id="@+id/tvSubtotal" android:text="$0.00" android:textColor="#FFFFFF" android:textSize="14sp" android:fontFamily="sans-serif-medium"/>
+                    <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Subtotal"
+                            android:textColor="#AAAAAA"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium"/>
+                    <TextView
+                            android:id="@+id/tvSubtotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="$0.00"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium"/>
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#333333" android:layout_marginBottom="8dp"/>
@@ -119,8 +135,24 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginBottom="16dp">
-                    <TextView android:text="TOTAL" android:textColor="#FF6600" android:textSize="16sp" android:textStyle="bold" android:layout_weight="1" android:fontFamily="sans-serif-black"/>
-                    <TextView android:id="@+id/tvTotal" android:text="$0.00" android:textColor="#FF6600" android:textSize="18sp" android:textStyle="bold" android:fontFamily="sans-serif-black"/>
+                    <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="TOTAL"
+                            android:textColor="#FF6600"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif-black"/>
+                    <TextView
+                            android:id="@+id/tvTotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="$0.00"
+                            android:textColor="#FF6600"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif-black"/>
                 </LinearLayout>
 
                 <!-- Botón Checkout -->

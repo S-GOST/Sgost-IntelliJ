@@ -14,6 +14,7 @@ import retrofit2.http.Path
 
 interface ApiService {
 
+    // 🔐 AUTENTICACIÓN
     @POST("api/admins/login")
     suspend fun loginAdmin(@Body request: LoginRequest): LoginResponse
 
@@ -21,11 +22,30 @@ interface ApiService {
     suspend fun loginTecnico(@Body request: LoginRequest): LoginResponse
 
     @POST("api/clientes/login")
-    suspend fun loginClientes(@Body request: LoginRequest): LoginResponse
+    suspend fun loginCliente(@Body request: LoginRequest): LoginResponse // ✅ Corregido: nombre coincide con LoginActivityAdmin
 
+    // 👥 GESTIÓN DE CLIENTES
     @GET("api/clientes")
     suspend fun obtenerClientes(): List<Cliente>
 
+    @GET("api/clientes/{id}")
+    suspend fun obtenerClientePorId(@Path("id") id: String): Cliente
+
+    @POST("api/clientes")
+    suspend fun crearCliente(@Body cliente: Cliente): ApiResponse
+
+    @PUT("api/clientes/{id}")
+    suspend fun actualizarCliente(
+        @Path("id") id: String,
+        @Body cliente: Cliente
+    ): ApiResponse
+
+    @DELETE("api/clientes/{id}")
+    suspend fun eliminarCliente(
+        @Path("id") id: String
+    ): ApiResponse
+
+    // 🔧 GESTIÓN DE TÉCNICOS
     @GET("api/tecnicos")
     suspend fun obtenerTecnicos(): List<Tecnico>
 

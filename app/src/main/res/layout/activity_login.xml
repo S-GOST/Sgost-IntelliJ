@@ -10,9 +10,9 @@
 
     <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            android:gravity="center_horizontal"
+            android:gravity="center"
             android:padding="24dp">
 
         <!-- LOGO -->
@@ -25,7 +25,7 @@
                 android:contentDescription="Logo SGOST"
                 android:layout_marginBottom="12dp" />
 
-        <!-- TÍTULO SGOST -->
+        <!-- TÍTULO -->
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -36,15 +36,50 @@
                 android:letterSpacing="-0.02"
                 android:layout_marginBottom="4dp" />
 
-        <!-- SUBTÍTULO -->
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Iniciar Sesión"
+                android:text="Selecciona tu tipo de acceso"
                 android:textColor="#FFFFFF"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:fontFamily="sans-serif-light"
-                android:layout_marginBottom="40dp" />
+                android:layout_marginBottom="12dp" />
+
+        <!-- SELECTOR DE ROL -->
+        <RadioGroup
+                android:id="@+id/rgTipoUsuario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginBottom="24dp">
+
+            <androidx.appcompat.widget.AppCompatRadioButton
+                    android:id="@+id/rbAdmin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" Admin"
+                    android:textColor="#FFFFFF"
+                    android:buttonTint="#FF6600"
+                    android:layout_marginEnd="16dp" />
+
+            <androidx.appcompat.widget.AppCompatRadioButton
+                    android:id="@+id/rbTecnico"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Técnico"
+                    android:textColor="#FFFFFF"
+                    android:buttonTint="#FF6600"
+                    android:layout_marginEnd="16dp" />
+
+            <androidx.appcompat.widget.AppCompatRadioButton
+                    android:id="@+id/rbCliente"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cliente"
+                    android:textColor="#FFFFFF"
+                    android:buttonTint="#FF6600" />
+        </RadioGroup>
 
         <!-- TARJETA DE ACCESO -->
         <com.google.android.material.card.MaterialCardView
@@ -62,7 +97,7 @@
                     android:orientation="vertical"
                     android:padding="24dp">
 
-                <!-- CORREO -->
+                <!-- USUARIO -->
                 <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -76,11 +111,11 @@
                             android:id="@+id/etEmail"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Correo electrónico"
+                            android:hint="Usuario o correo"
                             android:textColor="#FFFFFF"
                             android:textColorHint="#666666"
                             android:textSize="16sp"
-                            android:inputType="textEmailAddress"
+                            android:inputType="text"
                             android:paddingTop="14dp"
                             android:paddingBottom="14dp" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -109,7 +144,7 @@
                             android:paddingBottom="14dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- BOTÓN (usa color sólido para evitar errores de drawable) -->
+                <!-- BOTÓN LOGIN -->
                 <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnLogin"
                         android:layout_width="match_parent"
