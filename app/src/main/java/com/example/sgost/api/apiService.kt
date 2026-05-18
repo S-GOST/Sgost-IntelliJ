@@ -5,6 +5,8 @@ import com.example.sgost.model.Cliente
 import com.example.sgost.model.LoginRequest
 import com.example.sgost.model.LoginResponse
 import com.example.sgost.model.Tecnico
+import com.example.sgost.model.RegistroRequest
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -14,7 +16,7 @@ import retrofit2.http.Path
 
 interface ApiService {
 
-    // 🔐 AUTENTICACIÓN
+    // 🔐 LOGIN
     @POST("api/admins/login")
     suspend fun loginAdmin(@Body request: LoginRequest): LoginResponse
 
@@ -22,44 +24,40 @@ interface ApiService {
     suspend fun loginTecnico(@Body request: LoginRequest): LoginResponse
 
     @POST("api/clientes/login")
-    suspend fun loginCliente(@Body request: LoginRequest): LoginResponse // ✅ Corregido: nombre coincide con LoginActivityAdmin
+    suspend fun loginCliente(@Body request: LoginRequest): LoginResponse
 
-    // 👥 GESTIÓN DE CLIENTES
-    @GET("api/clientes")
-    suspend fun obtenerClientes(): List<Cliente>
+    // 👥 TÉCNICOS
+    @GET("api/tecnicos/obtener")
+    suspend fun obtenerTecnicos(): ApiResponse<List<Tecnico>>
 
-    @GET("api/clientes/{id}")
-    suspend fun obtenerClientePorId(@Path("id") id: String): Cliente
+    @POST("api/tecnicos/insertar")
+    suspend fun crearTecnico(@Body tecnico: Tecnico): ApiResponse<Tecnico>
 
-    @POST("api/clientes")
-    suspend fun crearCliente(@Body cliente: Cliente): ApiResponse
-
-    @PUT("api/clientes/{id}")
-    suspend fun actualizarCliente(
-        @Path("id") id: String,
-        @Body cliente: Cliente
-    ): ApiResponse
-
-    @DELETE("api/clientes/{id}")
-    suspend fun eliminarCliente(
-        @Path("id") id: String
-    ): ApiResponse
-
-    // 🔧 GESTIÓN DE TÉCNICOS
-    @GET("api/tecnicos")
-    suspend fun obtenerTecnicos(): List<Tecnico>
-
-    @POST("api/tecnicos")
-    suspend fun crearTecnico(@Body tecnico: Tecnico): ApiResponse
-
-    @PUT("api/tecnicos/{id}")
+    @PUT("api/tecnicos/actualizar/{id}")
     suspend fun actualizarTecnico(
         @Path("id") id: String,
         @Body tecnico: Tecnico
-    ): ApiResponse
+    ): ApiResponse<Tecnico>
 
-    @DELETE("api/tecnicos/{id}")
-    suspend fun eliminarTecnico(
-        @Path("id") id: String
-    ): ApiResponse
+    @DELETE("api/tecnicos/eliminar/{id}")
+    suspend fun eliminarTecnico(@Path("id") id: String): ApiResponse<Unit>
+
+    // 🟢 CLIENTES
+    @POST("api/clientes/insertar")
+    suspend fun registrarCliente(@Body cliente: Cliente): Response<ApiResponse<Cliente>>
+
+    @GET("api/clientes/obtener")
+    suspend fun obtenerClientes(): Response<ApiResponse<List<Cliente>>> // 👈 CAMBIO AQUI
+
+    @GET("api/clientes/buscar/{id}")
+    suspend fun obtenerClientePorId(@Path("id") id: String): Response<ApiResponse<Cliente>> // 👈 CAMBIO AQUI
+
+    @PUT("api/clientes/actualizar/{id}")
+    suspend fun actualizarCliente(
+        @Path("id") id: String,
+        @Body cliente: Cliente
+    ): Response<ApiResponse<Cliente>> // 👈 CAMBIO AQUI
+
+    @DELETE("api/clientes/eliminar/{id}")
+    suspend fun eliminarCliente(@Path("id") id: String): Response<ApiResponse<Unit>>
 }

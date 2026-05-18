@@ -10,19 +10,20 @@ import java.util.concurrent.TimeUnit
 object ApiClient {
 
     lateinit var apiService: ApiService
+    var isReady = false
 
-    // 🌐 Para emulador: 10.0.2.2 | 📱 Para físico: Tu IP local
     private const val BASE_URL = "http://10.0.2.2:3000/"
 
     fun init(context: Context) {
-        // 🔍 Esto es lo nuevo: Registra todo el tráfico HTTP en Logcat
+        if (isReady) return
+
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
 
         val client = OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor(context)) // Inyecta el token
-            .addInterceptor(loggingInterceptor)       // 👈 AQUÍ VA EL LOG
+            .addInterceptor(AuthInterceptor(context))
+            .addInterceptor(loggingInterceptor)
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(15, TimeUnit.SECONDS)
             .build()
@@ -34,5 +35,6 @@ object ApiClient {
             .build()
 
         apiService = retrofit.create(ApiService::class.java)
+        isReady = true
     }
 }

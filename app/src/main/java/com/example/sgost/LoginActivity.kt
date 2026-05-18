@@ -42,7 +42,7 @@ class LoginActivity : AppCompatActivity() {
         val password = etPassword.text.toString().trim()
 
         if (usuario.isEmpty() || password.isEmpty()) {
-            mostrarMensaje("⚠️ Ingrese usuario/correo y contraseña")
+            mostrarMensaje("⚠️ Ingrese usuario y contraseña")
             return
         }
 
@@ -73,30 +73,25 @@ class LoginActivity : AppCompatActivity() {
                         putString("auth_token", response.token ?: "")
                         putString("user_nombre", response.nombre ?: "Usuario")
                         putString("user_type", tipoSeleccionado)
-
-                        // 👇 CAMBIADO: Usar minúsculas para coincidir con tu modelo LoginResponse
-                        putString("user_correo", response.correo ?: "")
-                        putString("user_telefono", response.telefono ?: "")
-                        putString("user_ubicacion", response.ubicacion ?: "")
                     }
-
                     Toast.makeText(this@LoginActivity, "✅ Bienvenido ${response.nombre}", Toast.LENGTH_SHORT).show()
 
+                    // ✅ REDIRECCIÓN REAL AL DASHBOARD CORRESPONDIENTE
                     val targetActivity = when(tipoSeleccionado) {
                         "admin"   -> DasbohadActivityAdmin::class.java
                         "tecnico" -> DashboardActivityTecnicos::class.java
                         "cliente" -> DashboardActivityClientes::class.java
                         else -> throw IllegalStateException("Dashboard no configurado")
                     }
-
                     startActivity(Intent(this@LoginActivity, targetActivity))
-                    finish()
+                    finish() // Cierra Login para que el botón "Atrás" no lo regrese
                 } else {
                     mostrarMensaje("❌ ${response.message ?: "Credenciales incorrectas"}")
                 }
             } catch (e: Exception) {
                 mostrarMensaje("⚠️ Error: ${e.message}")
             } finally {
+                // ✅ RESTAURA EL BOTÓN EN CUALQUIER CASO (ÉXITO O ERROR)
                 btnLogin.isEnabled = true
                 btnLogin.text = "INICIAR SESIÓN"
             }

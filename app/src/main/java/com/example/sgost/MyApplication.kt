@@ -6,6 +6,7 @@ import com.example.sgost.api.ApiClient
 class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        ApiClient.init(this) // 🔧 Inicializa Retrofit con el interceptor
+        // Inicializa Retrofit
+        ApiClient.init(this)
     }
 }

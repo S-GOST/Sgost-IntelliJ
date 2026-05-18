@@ -1,16 +1,14 @@
 package com.example.sgost
 
-import android.content.Context
-import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import com.example.sgost.api.ApiClient
-import com.example.sgost.model.ApiResponse
 import com.example.sgost.model.Tecnico
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -21,156 +19,143 @@ class FormTecnicoActivity : AppCompatActivity() {
 
     private lateinit var etNombre: TextInputEditText
     private lateinit var etUsuario: TextInputEditText
+    private lateinit var etTipoDoc: TextInputEditText
+    private lateinit var etDocumento: TextInputEditText
+    private lateinit var etCorreo: TextInputEditText
+    private lateinit var etTelefono: TextInputEditText
     private lateinit var etPassword: TextInputEditText
     private lateinit var etConfirmPassword: TextInputEditText
     private lateinit var layoutPassword: TextInputLayout
     private lateinit var layoutConfirmPassword: TextInputLayout
-    private lateinit var etTipoDoc: TextInputEditText
-    private lateinit var etCorreo: TextInputEditText
-    private lateinit var etTelefono: TextInputEditText
-    private lateinit var btnGuardar: MaterialButton
     private lateinit var tvError: TextView
+    private lateinit var btnGuardar: MaterialButton
+    private lateinit var tvFormTitle: TextView
 
-    private var isEditMode = false
-    private var tecnicoExistente: Tecnico? = null
+    private var tecnicoEditar: Tecnico? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_form_tecnico)
 
-        setupViews()
-        checkEditMode()
-        setupButtons()
+        setupToolbar()
+        bindViews()
+        cargarModoEdicion()
+        configurarBoton()
     }
 
-    private fun setupViews() {
+    private fun setupToolbar() {
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setHomeAsUpIndicator(getDrawable(android.R.drawable.ic_menu_revert))
+        }
+        toolbar.setNavigationOnClickListener { finish() }
+    }
+
+    private fun bindViews() {
         etNombre = findViewById(R.id.etNombre)
         etUsuario = findViewById(R.id.etUsuario)
+        etTipoDoc = findViewById(R.id.etTipoDoc)
+        etDocumento = findViewById(R.id.etDocumento)
+        etCorreo = findViewById(R.id.etCorreo)
+        etTelefono = findViewById(R.id.etTelefono)
         etPassword = findViewById(R.id.etPassword)
         etConfirmPassword = findViewById(R.id.etConfirmPassword)
         layoutPassword = findViewById(R.id.layoutPassword)
         layoutConfirmPassword = findViewById(R.id.layoutConfirmPassword)
-        etTipoDoc = findViewById(R.id.etTipoDocumento)
-        etCorreo = findViewById(R.id.etCorreo)
-        etTelefono = findViewById(R.id.etTelefono)
-        btnGuardar = findViewById(R.id.btnGuardar)
         tvError = findViewById(R.id.tvError)
+        btnGuardar = findViewById(R.id.btnGuardar)
+        tvFormTitle = findViewById(R.id.tvFormTitle)
     }
 
-    private fun checkEditMode() {
-        isEditMode = intent.getBooleanExtra("IS_EDIT", false)
-        if (isEditMode) {
-            tecnicoExistente = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableExtra("TECNICO_DATA", Tecnico::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                intent.getParcelableExtra("TECNICO_DATA") as? Tecnico
-            }
-
-            tecnicoExistente?.let {
-                etNombre.setText(it.nombre)
-                etUsuario.setText(it.usuario)
-                etTipoDoc.setText(it.tipoDocumento)
-                etCorreo.setText(it.correo)
-                etTelefono.setText(it.telefono)
-            }
+    private fun cargarModoEdicion() {
+        // ✅ Compatibilidad API 33+ (Android 13+)
+        tecnicoEditar = intent.getParcelableExtra("tecnico_extra", Tecnico::class.java)
+        if (tecnicoEditar != null) {
+            val t = tecnicoEditar!!
+            tvFormTitle.text = "Editar Técnico"
+            btnGuardar.text = "ACTUALIZAR"
             layoutPassword.visibility = View.GONE
             layoutConfirmPassword.visibility = View.GONE
-            btnGuardar.text = "ACTUALIZAR"
-            findViewById<TextView>(R.id.tvFormTitle)?.text = "Editar Técnico"
-        } else {
-            findViewById<TextView>(R.id.tvFormTitle)?.text = "Nuevo Técnico"
+
+            etNombre.setText(t.nombre)
+            etUsuario.setText(t.usuario)
+            etTipoDoc.setText(t.tipoDocumento)
+            etCorreo.setText(t.correo)
+            etTelefono.setText(t.telefono)
         }
     }
 
-    private fun setupButtons() {
-        findViewById<MaterialButton>(R.id.btnCancelar)?.setOnClickListener { finish() }
-        btnGuardar.setOnClickListener { if (validarFormulario()) guardarTecnico() }
+    private fun configurarBoton() {
+        findViewById<Button>(R.id.btnCancelar)?.setOnClickListener { finish() }
+
+        btnGuardar.setOnClickListener {
+            if (!validarFormulario()) return@setOnClickListener
+
+            btnGuardar.isEnabled = false
+            btnGuardar.text = if (tecnicoEditar != null) "Actualizando..." else "Guardando..."
+            tvError.visibility = View.GONE
+
+            lifecycleScope.launch {
+                try {
+                    val tecnico = Tecnico(
+                        idTecnicos = tecnicoEditar?.idTecnicos,
+                        nombre = etNombre.text.toString().trim(),
+                        usuario = etUsuario.text.toString().trim(),
+                        contrasena = if (tecnicoEditar == null) etPassword.text.toString().trim() else null,
+                        tipoDocumento = etTipoDoc.text.toString().trim(),
+                        correo = etCorreo.text.toString().trim(),
+                        telefono = etTelefono.text.toString().trim()
+                    )
+
+                    val resp = if (tecnicoEditar != null) {
+                        val id = tecnicoEditar!!.idTecnicos?.toString() ?: return@launch
+                        ApiClient.apiService.actualizarTecnico(id, tecnico)
+                    } else {
+                        ApiClient.apiService.crearTecnico(tecnico)
+                    }
+
+                    if (resp.success) {
+                        Toast.makeText(this@FormTecnicoActivity, "✅ Operación exitosa", Toast.LENGTH_SHORT).show()
+                        setResult(RESULT_OK)
+                        finish()
+                    } else {
+                        mostrarError(resp.message ?: "Error en el servidor")
+                    }
+                } catch (e: Exception) {
+                    mostrarError("Error de red: ${e.message}")
+                } finally {
+                    if (!isFinishing) {
+                        btnGuardar.isEnabled = true
+                        btnGuardar.text = if (tecnicoEditar != null) "ACTUALIZAR" else "GUARDAR"
+                    }
+                }
+            }
+        }
     }
 
     private fun validarFormulario(): Boolean {
         val nombre = etNombre.text.toString().trim()
         val usuario = etUsuario.text.toString().trim()
-        val tipoDoc = etTipoDoc.text.toString().trim()
         val correo = etCorreo.text.toString().trim()
-        val telefono = etTelefono.text.toString().trim()
-        val pass = etPassword.text.toString()
-        val confirmPass = etConfirmPassword.text.toString()
 
-        if (nombre.isEmpty() || usuario.isEmpty() || tipoDoc.isEmpty() || correo.isEmpty() || telefono.isEmpty()) {
-            mostrarError("⚠️ Todos los campos son obligatorios")
+        if (nombre.isEmpty() || usuario.isEmpty() || correo.isEmpty()) {
+            mostrarError("Completa los campos obligatorios.")
             return false
         }
-        if (!isEditMode) {
-            if (pass.length < 6) {
-                mostrarError("⚠️ La contraseña debe tener ≥ 6 caracteres")
-                return false
-            }
-            if (pass != confirmPass) {
-                mostrarError("⚠️ Las contraseñas no coinciden")
-                return false
-            }
+
+        if (tecnicoEditar == null) {
+            val p = etPassword.text.toString().trim()
+            val cp = etConfirmPassword.text.toString().trim()
+            if (p.isEmpty()) { mostrarError("La contraseña es obligatoria."); return false }
+            if (p != cp) { mostrarError("Las contraseñas no coinciden."); return false }
         }
-        tvError.visibility = View.GONE
         return true
     }
 
     private fun mostrarError(msg: String) {
         tvError.text = msg
         tvError.visibility = View.VISIBLE
-    }
-
-    private fun restaurarBoton() {
-        btnGuardar.isEnabled = true
-        btnGuardar.text = if (isEditMode) "ACTUALIZAR" else "GUARDAR"
-    }
-
-    private fun guardarTecnico() {
-        btnGuardar.isEnabled = false
-        btnGuardar.text = "Guardando..."
-
-        // ✅ Eliminada la lógica de authHeader manual (ahora usa Interceptor)
-
-        lifecycleScope.launch {
-            try {
-                val contrasena = if (!isEditMode) etPassword.text.toString() else tecnicoExistente?.contrasena
-
-                val tecnico = Tecnico(
-                    idTecnicos = tecnicoExistente?.idTecnicos,
-                    nombre = etNombre.text.toString().trim(),
-                    usuario = etUsuario.text.toString().trim(),
-                    contrasena = contrasena,
-                    tipoDocumento = etTipoDoc.text.toString().trim(),
-                    correo = etCorreo.text.toString().trim(),
-                    telefono = etTelefono.text.toString().trim()
-                )
-
-                val response = if (isEditMode) {
-                    ApiClient.apiService.actualizarTecnico(
-                        id = tecnico.idTecnicos?.toString() ?: "",
-                        tecnico = tecnico
-                    )
-                } else {
-                    ApiClient.apiService.crearTecnico(tecnico)
-                }
-
-                if (response.success) {
-                    Toast.makeText(this@FormTecnicoActivity, "✅ ${response.message}", Toast.LENGTH_SHORT).show()
-                    setResult(RESULT_OK)
-                    finish()
-                } else {
-                    mostrarError("❌ ${response.message}")
-                    restaurarBoton()
-                }
-            } catch (e: Exception) {
-                mostrarError("❌ Error: ${e.message}")
-                restaurarBoton()
-            }
-        }
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressedDispatcher.onBackPressed()
-        return true
     }
 }

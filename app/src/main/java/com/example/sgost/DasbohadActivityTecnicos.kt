@@ -16,6 +16,7 @@ class DashboardActivityTecnicos : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard_tecnicos)
 
+        // 📌 Referencias UI
         val tvBienvenida = findViewById<TextView>(R.id.tvBienvenidaTec)
         val tvNombre = findViewById<TextView>(R.id.tvNombreTec)
         val tvEmail = findViewById<TextView>(R.id.tvEmailTec)
@@ -27,6 +28,7 @@ class DashboardActivityTecnicos : AppCompatActivity() {
         val cardPerfil = findViewById<MaterialCardView>(R.id.cardPerfil)
         val btnLogout = findViewById<Button>(R.id.btnLogoutTec)
 
+        // 📊 Cargar datos reales de sesión
         val nombre = prefs.getString("user_nombre", "Técnico") ?: "Técnico"
         val email = prefs.getString("user_correo", "No registrado") ?: "No registrado"
         val telefono = prefs.getString("user_telefono", "No registrado") ?: "No registrado"
@@ -38,10 +40,18 @@ class DashboardActivityTecnicos : AppCompatActivity() {
         tvTelefono.text = telefono
         tvUbicacion.text = ubicacion
 
-        //cardOrdenes.setOnClickListener { startActivity(Intent(this, MisOrdenesActivity::class.java)) }
-        //cardHistorial.setOnClickListener { startActivity(Intent(this, HistorialTecnicoActivity::class.java)) }
-        //cardPerfil.setOnClickListener { startActivity(Intent(this, PerfilTecnicoActivity::class.java)) }
+        // 🚀 Navegación activa
+        //cardOrdenes.setOnClickListener {
+        //  startActivity(Intent(this, MisOrdenesActivity::class.java))
+        //}
+        //cardHistorial.setOnClickListener {
+        //    startActivity(Intent(this, HistorialTecnicoActivity::class.java))
+        //}
+        //cardPerfil.setOnClickListener {
+        //  startActivity(Intent(this, PerfilTecnicoActivity::class.java))
+        //}
 
+        // 🚪 Cerrar sesión
         btnLogout.setOnClickListener {
             prefs.edit { clear() }
             startActivity(Intent(this, LoginActivity::class.java).apply {

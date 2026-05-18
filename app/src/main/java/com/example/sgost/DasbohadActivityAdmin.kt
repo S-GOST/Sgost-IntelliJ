@@ -6,6 +6,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
+import com.example.sgost.adapter.TecnicoAdapter
 import com.google.android.material.card.MaterialCardView
 
 class DasbohadActivityAdmin : AppCompatActivity() {
@@ -59,7 +60,7 @@ class DasbohadActivityAdmin : AppCompatActivity() {
 
         // ✅ REDIRECCIÓN A GESTIÓN DE TÉCNICOS
         cardTecnicos.setOnClickListener {
-            startActivity(Intent(this, FormTecnicoActivity::class.java))
+            startActivity(Intent(this, TecnicosActivity::class.java))
         }
 
         cardOrdenes.setOnClickListener { /* startActivity(Intent(this, OrdenesActivity::class.java)) */ }
