@@ -135,9 +135,9 @@
                 android:columnOrderPreserved="false"
                 android:layout_marginBottom="24dp">
 
-            <!-- 1. DASHBOARD -->
+            <!-- 1. CLIENTES (antes DASHBOARD) -->
             <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardDashboard"
+                    android:id="@+id/cardClientes"
                     android:layout_width="0dp"
                     android:layout_height="110dp"
                     android:layout_columnWeight="1"
@@ -156,9 +156,9 @@
                         android:orientation="vertical"
                         android:gravity="center"
                         android:padding="12dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📊" android:textSize="28sp" android:layout_marginBottom="8dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DASHBOARD" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vista general del sistema" android:textColor="#888888" android:textSize="10sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="👥" android:textSize="28sp" android:layout_marginBottom="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CLIENTES" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:fontFamily="sans-serif-medium"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Gestión de clientes" android:textColor="#888888" android:textSize="10sp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

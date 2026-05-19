@@ -6,7 +6,6 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
-import com.example.sgost.adapter.TecnicoAdapter
 import com.google.android.material.card.MaterialCardView
 
 class DasbohadActivityAdmin : AppCompatActivity() {
@@ -25,7 +24,6 @@ class DasbohadActivityAdmin : AppCompatActivity() {
             return
         }
 
-        // ✅ CORREGIDO: Coincide exactamente con el nombre en res/layout/
         setContentView(R.layout.activity_dashboard_admin)
 
         // 📌 Referencias UI
@@ -35,7 +33,8 @@ class DasbohadActivityAdmin : AppCompatActivity() {
         val tvTelefono = findViewById<TextView>(R.id.tvTelefonoAdmin)
         val tvUbicacion = findViewById<TextView>(R.id.tvUbicacionAdmin)
 
-        val cardDashboard = findViewById<MaterialCardView>(R.id.cardDashboard)
+        // ✅ AGREGADO: Referencia a la tarjeta de Clientes
+        val cardClientes = findViewById<MaterialCardView>(R.id.cardClientes)
         val cardTecnicos = findViewById<MaterialCardView>(R.id.cardTecnicos)
         val cardOrdenes = findViewById<MaterialCardView>(R.id.cardOrdenes)
         val cardInformes = findViewById<MaterialCardView>(R.id.cardInformes)
@@ -55,8 +54,10 @@ class DasbohadActivityAdmin : AppCompatActivity() {
         tvTelefono.text = telefono
         tvUbicacion.text = ubicacion
 
-        // 🚀 Navegación por módulos
-        cardDashboard.setOnClickListener { /* Lógica de métricas */ }
+        // ✅ REDIRECCIÓN A GESTIÓN DE CLIENTES
+        cardClientes.setOnClickListener {
+            startActivity(Intent(this, ClientesActivity::class.java))
+        }
 
         // ✅ REDIRECCIÓN A GESTIÓN DE TÉCNICOS
         cardTecnicos.setOnClickListener {
@@ -76,7 +77,6 @@ class DasbohadActivityAdmin : AppCompatActivity() {
     }
 
     private fun redirectToLogin() {
-        // ✅ CORREGIDO: Usa LoginActivity (nombre real en tu proyecto)
         val intent = Intent(this, LoginActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }

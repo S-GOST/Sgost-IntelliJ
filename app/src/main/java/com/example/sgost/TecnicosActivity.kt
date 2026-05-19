@@ -5,24 +5,29 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sgost.adapter.TecnicoAdapter
+import com.example.sgost.TecnicoAdapter
 import com.example.sgost.api.ApiClient
 import com.example.sgost.model.Tecnico
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 
 class TecnicosActivity : AppCompatActivity() {
 
+    private lateinit var etSearchTecnicos: TextInputEditText
     private lateinit var rvTecnicos: RecyclerView
+    private lateinit var fabAgregarTecnico: FloatingActionButton
+    private lateinit var llEmptyState: LinearLayout // ✅ Nuevo ID del XML
+
     private lateinit var adapter: TecnicoAdapter
-    private lateinit var fabAdd: FloatingActionButton
+    // ✅ Lista que guardará todos los datos para poder filtrar sin perder info
     private var listaCompleta = mutableListOf<Tecnico>()
 
     private val registrarResultado = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -33,48 +38,93 @@ class TecnicosActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tecnicos)
 
-        setSupportActionBar(findViewById<Toolbar>(R.id.toolbar))
+        setupToolbar()
+        initViews()
+        setupAdapter()
+        setupSearch()
+        setupFab()
+
+        cargarTecnicos() // Iniciar carga de datos
+    }
+
+    private fun setupToolbar() {
+        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
             setHomeAsUpIndicator(getDrawable(android.R.drawable.ic_menu_revert))
         }
-        findViewById<Toolbar>(R.id.toolbar).setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+        toolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+    }
 
+    private fun initViews() {
+        etSearchTecnicos = findViewById(R.id.etSearchTecnicos)
         rvTecnicos = findViewById(R.id.rvTecnicos)
-        rvTecnicos.layoutManager = LinearLayoutManager(this)
+        fabAgregarTecnico = findViewById(R.id.fabAgregarTecnico)
+        llEmptyState = findViewById(R.id.llEmptyState)
+    }
 
-        // 🔗 Configurar Adapter
+    private fun setupAdapter() {
         adapter = TecnicoAdapter(
             onEdit = { tecnico -> abrirFormulario(tecnico) },
             onDelete = { tecnico -> confirmarEliminar(tecnico) }
         )
+        rvTecnicos.layoutManager = LinearLayoutManager(this)
         rvTecnicos.adapter = adapter
+    }
 
-        findViewById<FloatingActionButton>(R.id.fabAgregarTecnico).setOnClickListener {
+    private fun setupSearch() {
+        etSearchTecnicos.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun afterTextChanged(s: Editable?) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                filtrarLista(s.toString())
+            }
+        })
+    }
+
+    private fun setupFab() {
+        fabAgregarTecnico.setOnClickListener {
             abrirFormulario(null) // 🆕 Crear nuevo
         }
-
-        // 🔍 Buscador en tiempo real
-        findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etSearchTecnicos)
-            .addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun afterTextChanged(s: Editable?) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    filtrarLista(s.toString())
-                }
-            })
-
-        cargarTecnicos()
     }
 
     private fun cargarTecnicos() {
         lifecycleScope.launch {
             try {
+                // ✅ Verificar si ApiClient está listo
+                if (!ApiClient.isReady) {
+                    Toast.makeText(this@TecnicosActivity, "⚠️ Conexión API no lista", Toast.LENGTH_LONG).show()
+                    return@launch
+                }
+
+                // 🔍 Llamada a tu API
                 val resp = ApiClient.apiService.obtenerTecnicos()
+
                 if (resp.success && resp.data != null) {
+                    // ✅ FIX CRÍTICO: Guardar datos en la lista completa antes de filtrar
+                    listaCompleta.clear()
+                    listaCompleta.addAll(resp.data)
+
+                    // Mostrar lista en el Adapter
                     adapter.submitList(resp.data)
+
+                    // ✅ Mostrar/Ocultar Estado Vacío
+                    if (resp.data.isEmpty()) {
+                        llEmptyState.visibility = LinearLayout.VISIBLE
+                        rvTecnicos.visibility = RecyclerView.GONE
+                    } else {
+                        llEmptyState.visibility = LinearLayout.GONE
+                        rvTecnicos.visibility = RecyclerView.VISIBLE
+                    }
+
                 } else {
                     Toast.makeText(this@TecnicosActivity, resp.message ?: "No hay técnicos", Toast.LENGTH_SHORT).show()
+                    // Si falla o viene vacío, mostrar estado vacío
+                    llEmptyState.visibility = LinearLayout.VISIBLE
+                    rvTecnicos.visibility = RecyclerView.GONE
                 }
             } catch (e: Exception) {
                 Toast.makeText(this@TecnicosActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -82,10 +132,14 @@ class TecnicosActivity : AppCompatActivity() {
         }
     }
 
+    // ✅ Lógica corregida del Buscador
     private fun filtrarLista(query: String) {
-        val filtrada = listaCompleta.filter {
-            it.nombre?.contains(query, ignoreCase = true) == true ||
-                    it.usuario?.contains(query, ignoreCase = true) == true
+        // Filtramos sobre la listaCompleta (que tiene todos los datos)
+        val filtrada = listaCompleta.filter { tecnico ->
+            // Buscamos en nombre o en el campo documento/usuario
+            tecnico.nombre?.contains(query, ignoreCase = true) == true ||
+                    tecnico.tipoDocumento?.contains(query, ignoreCase = true) == true ||
+                    tecnico.usuario?.contains(query, ignoreCase = true) == true
         }
         adapter.submitList(filtrada)
     }
@@ -112,7 +166,7 @@ class TecnicosActivity : AppCompatActivity() {
                 val resp = ApiClient.apiService.eliminarTecnico(tecnico.idTecnicos.toString())
                 if (resp.success) {
                     Toast.makeText(this@TecnicosActivity, "Eliminado correctamente", Toast.LENGTH_SHORT).show()
-                    cargarTecnicos()
+                    cargarTecnicos() // Recargar lista y estado vacío
                 } else {
                     Toast.makeText(this@TecnicosActivity, resp.message ?: "Error al eliminar", Toast.LENGTH_SHORT).show()
                 }

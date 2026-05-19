@@ -1,4 +1,4 @@
-package com.example.sgost.adapter
+package com.example.sgost // ✅ ESTO DEBE COINCIDIR CON LA CARPETA DONDE ESTÁ EL ARCHIVO
 
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sgost.R
-import com.example.sgost.model.Tecnico // ✅ IMPORTACIÓN FALTANTE AGREGADA
+import com.example.sgost.model.Tecnico
 
 class TecnicoAdapter(
     private val onEdit: (Tecnico) -> Unit,

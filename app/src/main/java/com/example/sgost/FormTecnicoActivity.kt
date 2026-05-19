@@ -57,7 +57,6 @@ class FormTecnicoActivity : AppCompatActivity() {
         etNombre = findViewById(R.id.etNombre)
         etUsuario = findViewById(R.id.etUsuario)
         etTipoDoc = findViewById(R.id.etTipoDoc)
-        etDocumento = findViewById(R.id.etDocumento)
         etCorreo = findViewById(R.id.etCorreo)
         etTelefono = findViewById(R.id.etTelefono)
         etPassword = findViewById(R.id.etPassword)

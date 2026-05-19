@@ -79,7 +79,7 @@ class LoginActivity : AppCompatActivity() {
                     // ✅ REDIRECCIÓN REAL AL DASHBOARD CORRESPONDIENTE
                     val targetActivity = when(tipoSeleccionado) {
                         "admin"   -> DasbohadActivityAdmin::class.java
-                        "tecnico" -> DashboardActivityTecnicos::class.java
+                        "tecnico" -> DasbohadActivityTecnicos::class.java
                         "cliente" -> DashboardActivityClientes::class.java
                         else -> throw IllegalStateException("Dashboard no configurado")
                     }

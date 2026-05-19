@@ -1,32 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="#0A0A0A"
-              android:orientation="vertical">
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#0D0D0D"
+        tools:context="com.example.sgost.ClientesActivity">
 
+    <!-- BARRA SUPERIOR -->
+    <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#141414"
+            android:elevation="4dp"
+            app:title="Gestión de Clientes"
+            app:titleTextColor="#FFFFFF"
+            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
+            app:navigationIcon="?attr/homeAsUpIndicator"
+            app:navigationIconTint="#FF6600" />
+
+    <!-- BUSCADOR -->
+    <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundColor="#1A1A1A"
+            app:hintTextColor="#FF6600"
+            app:boxStrokeColor="#FF6600"
+            app:startIconTint="#888888">
+
+        <!-- IMPORTANTE: El ID coincide con el código Kotlin -->
+        <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etSearchClientes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Buscar por nombre o correo..."
+                android:textColor="#FFFFFF"
+                android:textColorHint="#666666"
+                android:textSize="15sp"
+                android:inputType="text"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- LISTA DE CLIENTES -->
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvClientes"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="8dp"
-            android:clipToPadding="false"/>
+            android:layout_marginTop="?attr/actionBarSize"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:clipToPadding="false"
+            android:paddingTop="84dp"
+            android:paddingBottom="100dp"
+            tools:listitem="@layout/item_cliente" />
 
-    <ProgressBar
-            android:id="@+id/progressBar"
+    <!-- ESTADO VACÍO (oculto por defecto) -->
+    <LinearLayout
+            android:id="@+id/llEmptyState"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:indeterminateTint="#FF6600"/>
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone">
 
-    <TextView
-            android:id="@+id/emptyState"
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="👥"
+                android:textSize="48sp"
+                android:layout_marginBottom="8dp" />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No hay clientes registrados"
+                android:textColor="#888888"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium" />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Usa el botón + para crear uno nuevo"
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp" />
+    </LinearLayout>
+
+    <!-- BOTÓN FLOTANTE PARA AGREGAR -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabAgregarCliente"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No hay clientes registrados"
-            android:textColor="#888888"
-            android:textSize="16sp"
-            android:visibility="gone"
-            android:layout_gravity="center"
-            android:layout_marginTop="48dp"/>
-</LinearLayout>
+            android:layout_gravity="bottom|end"
+            android:layout_margin="24dp"
+            android:contentDescription="Agregar Cliente"
+            android:src="@android:drawable/ic_input_add"
+            app:backgroundTint="#FF6600"
+            app:tint="#FFFFFF"
+            app:elevation="8dp"
+            app:fabSize="normal" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

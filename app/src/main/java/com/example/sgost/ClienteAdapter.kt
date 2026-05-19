@@ -1,4 +1,4 @@
-package com.example.sgost.adapter
+package com.example.sgost
 
 import android.view.LayoutInflater
 import android.view.View

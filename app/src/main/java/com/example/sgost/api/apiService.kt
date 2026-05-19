@@ -26,12 +26,18 @@ interface ApiService {
     @POST("api/clientes/login")
     suspend fun loginCliente(@Body request: LoginRequest): LoginResponse
 
-    // 👥 TÉCNICOS
-    @GET("api/tecnicos/obtener")
-    suspend fun obtenerTecnicos(): ApiResponse<List<Tecnico>>
+    //---------------------------------------------------------------------------------------------------------------------------------//
+
+    // TÉCNICOS
 
     @POST("api/tecnicos/insertar")
     suspend fun crearTecnico(@Body tecnico: Tecnico): ApiResponse<Tecnico>
+
+    @GET("api/tecnicos/obtener")
+    suspend fun obtenerTecnicos(): ApiResponse<List<Tecnico>>
+
+    @GET("api/tecnicos/buscar/{id}")
+    suspend fun obtenertecnicosPorId(@Path("id") id: String): Response<ApiResponse<Tecnico>>
 
     @PUT("api/tecnicos/actualizar/{id}")
     suspend fun actualizarTecnico(
@@ -42,15 +48,17 @@ interface ApiService {
     @DELETE("api/tecnicos/eliminar/{id}")
     suspend fun eliminarTecnico(@Path("id") id: String): ApiResponse<Unit>
 
-    // 🟢 CLIENTES
+    //---------------------------------------------------------------------------------------------------------------------------------//
+
+    // CLIENTES
     @POST("api/clientes/insertar")
     suspend fun registrarCliente(@Body cliente: Cliente): Response<ApiResponse<Cliente>>
 
     @GET("api/clientes/obtener")
-    suspend fun obtenerClientes(): Response<ApiResponse<List<Cliente>>> // 👈 CAMBIO AQUI
+    suspend fun obtenerClientes(): ApiResponse<List<Cliente>>
 
     @GET("api/clientes/buscar/{id}")
-    suspend fun obtenerClientePorId(@Path("id") id: String): Response<ApiResponse<Cliente>> // 👈 CAMBIO AQUI
+    suspend fun obtenerClientePorId(@Path("id") id: String): Response<ApiResponse<Cliente>>
 
     @PUT("api/clientes/actualizar/{id}")
     suspend fun actualizarCliente(

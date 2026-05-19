@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import com.google.android.material.card.MaterialCardView
 
-class DashboardActivityTecnicos : AppCompatActivity() {
+class DasbohadActivityTecnicos : AppCompatActivity() {
 
     private val prefs by lazy { getSharedPreferences("sgost_prefs", MODE_PRIVATE) }
 
