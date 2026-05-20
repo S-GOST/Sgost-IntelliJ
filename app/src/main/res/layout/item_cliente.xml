@@ -20,10 +20,12 @@
             android:gravity="center_vertical">
 
         <!-- AVATAR / ICONO -->
-        <View
+        <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:background="@drawable/bg_circle_orange_glow"
+                android:src="@mipmap/iconocliente"
+                android:scaleType="centerCrop"
+                android:contentDescription="Icono de usuario"
                 android:layout_marginEnd="12dp" />
 
         <!-- INFO CLIENTE -->
