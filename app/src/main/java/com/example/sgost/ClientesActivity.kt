@@ -12,25 +12,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sgost.ClienteAdapter // ✅ Ahora sí será reconocido
+import com.example.sgost.ClienteAdapter // 👈 IMPORTANTE: Tu adaptador de clientes
 import com.example.sgost.api.ApiClient
-import com.example.sgost.model.Cliente
+import com.example.sgost.model.Cliente // 👈 Tu modelo Cliente
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 
 class ClientesActivity : AppCompatActivity() {
 
-    private lateinit var etSearchClientes: TextInputEditText
-    private lateinit var rvClientes: RecyclerView
-    private lateinit var fabAgregarCliente: FloatingActionButton
+    private lateinit var etSearchClientes: TextInputEditText // ID actualizado
+    private lateinit var rvClientes: RecyclerView // ID actualizado
+    private lateinit var fabAgregarCliente: FloatingActionButton // ID actualizado
     private lateinit var llEmptyState: LinearLayout
 
     private lateinit var adapter: ClienteAdapter
     private var listaCompleta = mutableListOf<Cliente>()
 
     private val registrarResultado = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        cargarClientes() // 🔄 Refresca al volver del formulario
+        cargarClientes() // 🔄 Refresca la lista al volver
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +43,7 @@ class ClientesActivity : AppCompatActivity() {
         setupSearch()
         setupFab()
 
-        cargarClientes()
+        cargarClientes() // Iniciar carga de datos
     }
 
     private fun setupToolbar() {
@@ -86,7 +86,7 @@ class ClientesActivity : AppCompatActivity() {
 
     private fun setupFab() {
         fabAgregarCliente.setOnClickListener {
-            abrirFormulario(null) // 🆕 Crear nuevo
+            abrirFormulario(null) // 🆕 Crear nuevo cliente
         }
     }
 
@@ -98,13 +98,12 @@ class ClientesActivity : AppCompatActivity() {
                     return@launch
                 }
 
+                // 👇 Llamada a tu API de Clientes
                 val resp = ApiClient.apiService.obtenerClientes()
 
                 if (resp.success && resp.data != null) {
-                    // ✅ GUARDAR EN LA LISTA COMPLETA PARA PODER FILTRAR
                     listaCompleta.clear()
                     listaCompleta.addAll(resp.data)
-
                     adapter.submitList(resp.data)
 
                     // ✅ Mostrar/Ocultar Estado Vacío
@@ -128,6 +127,7 @@ class ClientesActivity : AppCompatActivity() {
 
     private fun filtrarLista(query: String) {
         val filtrada = listaCompleta.filter { cliente ->
+            // Busca en nombre, correo o teléfono
             cliente.nombre?.contains(query, ignoreCase = true) == true ||
                     cliente.correo?.contains(query, ignoreCase = true) == true ||
                     cliente.telefono?.contains(query, ignoreCase = true) == true
@@ -154,24 +154,25 @@ class ClientesActivity : AppCompatActivity() {
     private fun eliminarCliente(cliente: Cliente) {
         lifecycleScope.launch {
             try {
-                // 1. Hacemos la petición
-                val response = ApiClient.apiService.eliminarCliente(cliente.id?.toString() ?: "")
+                // ✅ CORRECCIÓN 1: Usar 'id' en lugar de 'idCliente'
+                // Verifica en Cliente.kt que la propiedad se llame 'id'.
+                val response = ApiClient.apiService.eliminarCliente(cliente.id.toString())
 
-                // 2. Verificamos si la respuesta HTTP fue exitosa (200 OK, etc.)
+                // ✅ CORRECCIÓN 2: Manejar correctamente el objeto Response de Retrofit
                 if (response.isSuccessful) {
-                    // 3. Obtenemos el cuerpo de la respuesta (tu objeto ApiResponse)
+                    // Obtenemos el cuerpo de la respuesta (tu objeto ApiResponse)
                     val apiResp = response.body()
 
-                    // 4. Verificamos el estado lógico de tu API
+                    // Verificamos el estado lógico de tu API
                     if (apiResp?.success == true) {
                         Toast.makeText(this@ClientesActivity, "Eliminado correctamente", Toast.LENGTH_SHORT).show()
-                        cargarClientes() // Recarga la lista
+                        cargarClientes() // Recargar la lista
                     } else {
-                        // La petición HTTP funcionó, pero la API devolvió success: false
+                        // Si la petición HTTP funcionó, pero la API devolvió error lógico
                         Toast.makeText(this@ClientesActivity, apiResp?.message ?: "Error al eliminar", Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    // Error HTTP (404, 500, etc.)
+                    // Error HTTP (ej: 404 No encontrado, 500 Error del servidor)
                     Toast.makeText(this@ClientesActivity, "Error servidor: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
 

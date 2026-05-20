@@ -2,19 +2,22 @@ package com.example.sgost
 
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.textfield.TextInputEditText
-import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
 import com.example.sgost.api.ApiClient
 import com.example.sgost.model.Cliente
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.launch
 
 class FormClienteActivity : AppCompatActivity() {
 
+    private lateinit var tvFormTitle: TextView
     private lateinit var etNombre: TextInputEditText
     private lateinit var etUsuario: TextInputEditText
     private lateinit var etContrasena: TextInputEditText
@@ -22,7 +25,12 @@ class FormClienteActivity : AppCompatActivity() {
     private lateinit var etTelefono: TextInputEditText
     private lateinit var etTipoDoc: TextInputEditText
     private lateinit var etUbicacion: TextInputEditText
+    private lateinit var layoutPassword: TextInputLayout
+    private lateinit var layoutConfirmPassword: TextInputLayout
     private lateinit var btnGuardar: MaterialButton
+    private lateinit var btnCancelar: MaterialButton // ✅ AGREGADO
+
+    private var clienteEditar: Cliente? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +38,7 @@ class FormClienteActivity : AppCompatActivity() {
 
         setupToolbar()
         initViews()
+        cargarModoEdicion()
         setupListeners()
     }
 
@@ -48,6 +57,7 @@ class FormClienteActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
+        tvFormTitle = findViewById(R.id.tvFormTitle)
         etNombre = findViewById(R.id.etNombre)
         etUsuario = findViewById(R.id.etUsuario)
         etContrasena = findViewById(R.id.etContrasena)
@@ -55,61 +65,120 @@ class FormClienteActivity : AppCompatActivity() {
         etTelefono = findViewById(R.id.etTelefono)
         etTipoDoc = findViewById(R.id.etTipoDoc)
         etUbicacion = findViewById(R.id.etUbicacion)
+        layoutPassword = findViewById(R.id.layoutPassword)
+        layoutConfirmPassword = findViewById(R.id.layoutConfirmPassword)
         btnGuardar = findViewById(R.id.btnGuardar)
+        btnCancelar = findViewById(R.id.btnCancelar) // ✅ AGREGADO
+    }
+
+    private fun cargarModoEdicion() {
+        clienteEditar = intent.getParcelableExtra<Cliente>("cliente_extra", Cliente::class.java)
+
+        if (clienteEditar != null) {
+            val c = clienteEditar!!
+            tvFormTitle.text = "Editar Cliente"
+            btnGuardar.text = "ACTUALIZAR"
+
+            layoutPassword.visibility = View.GONE
+            layoutConfirmPassword.visibility = View.GONE
+
+            etNombre.setText(c.nombre)
+            etUsuario.setText(c.usuario)
+            etCorreo.setText(c.correo)
+            etTelefono.setText(c.telefono)
+            etTipoDoc.setText(c.tipoDocumento)
+            etUbicacion.setText(c.ubicacion)
+        } else {
+            tvFormTitle.text = "Crear Cliente"
+            btnGuardar.text = "GUARDAR"
+            layoutPassword.visibility = View.VISIBLE
+            layoutConfirmPassword.visibility = View.VISIBLE
+        }
     }
 
     private fun setupListeners() {
         btnGuardar.setOnClickListener { guardarCliente() }
+
+        // ✅ BOTÓN CANCELAR FUNCIONAL
+        btnCancelar.setOnClickListener {
+            finish() // Cierra la actividad y vuelve a la anterior
+            // Alternativa: onBackPressedDispatcher.onBackPressed()
+        }
     }
 
     private fun guardarCliente() {
         val nombre = etNombre.text.toString().trim()
         val usuario = etUsuario.text.toString().trim()
-        val contrasena = etContrasena.text.toString().trim()
         val correo = etCorreo.text.toString().trim()
         val telefono = etTelefono.text.toString().trim()
         val tipoDoc = etTipoDoc.text.toString().trim()
         val ubicacion = etUbicacion.text.toString().trim()
+        val contrasena = etContrasena.text.toString().trim()
 
-        if (nombre.isEmpty() || correo.isEmpty() || contrasena.isEmpty()) {
-            Toast.makeText(this, "❌ Nombre, correo y contraseña son obligatorios", Toast.LENGTH_SHORT).show()
+        if (nombre.isEmpty() || correo.isEmpty()) {
+            Toast.makeText(this, "❌ Nombre y correo son obligatorios", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (clienteEditar == null && contrasena.isEmpty()) {
+            Toast.makeText(this, "❌ La contraseña es obligatoria para registrar", Toast.LENGTH_SHORT).show()
             return
         }
 
         btnGuardar.isEnabled = false
-        btnGuardar.text = "Guardando..."
+        btnCancelar.isEnabled = false // 🔒 Bloquear cancelar mientras guarda
+        btnGuardar.text = if (clienteEditar != null) "Actualizando..." else "Guardando..."
 
         lifecycleScope.launch {
             try {
-                // 1. Construir el objeto Cliente
-                val nuevoCliente = Cliente(
-                    nombre = nombre,
-                    usuario = usuario,
-                    contrasena = contrasena,
-                    correo = correo,
-                    telefono = telefono,
-                    tipoDocumento = tipoDoc,
-                    ubicacion = ubicacion
-                )
+                if (clienteEditar != null) {
+                    val clienteActualizar = clienteEditar!!.copy(
+                        nombre = nombre,
+                        usuario = usuario,
+                        correo = correo,
+                        telefono = telefono,
+                        tipoDocumento = tipoDoc,
+                        ubicacion = ubicacion
+                    )
+                    val response = ApiClient.apiService.actualizarCliente(
+                        clienteActualizar.id.toString(),
+                        clienteActualizar
+                    )
 
-                // 2. Llamar a la API (ajusta el nombre del método según tu ApiService)
-                val response = ApiClient.apiService.registrarCliente(nuevoCliente)
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        Toast.makeText(this@FormClienteActivity, "✅ Cliente actualizado correctamente", Toast.LENGTH_SHORT).show()
+                        setResult(RESULT_OK)
+                        finish()
+                    } else {
+                        Toast.makeText(this@FormClienteActivity, "❌ ${response.body()?.message ?: "Error al actualizar"}", Toast.LENGTH_SHORT).show()
+                    }
 
-                if (response.isSuccessful) {
-                    Toast.makeText(this@FormClienteActivity, "✅ Cliente registrado correctamente", Toast.LENGTH_SHORT).show()
-                    setResult(RESULT_OK)
-                    finish()
                 } else {
-                    val errorBody = response.errorBody()?.string() ?: "Error desconocido"
-                    Toast.makeText(this@FormClienteActivity, "❌ Error servidor: $errorBody", Toast.LENGTH_LONG).show()
-                }
+                    val nuevoCliente = Cliente(
+                        nombre = nombre,
+                        usuario = usuario,
+                        contrasena = contrasena,
+                        correo = correo,
+                        telefono = telefono,
+                        tipoDocumento = tipoDoc,
+                        ubicacion = ubicacion
+                    )
+                    val response = ApiClient.apiService.registrarCliente(nuevoCliente)
 
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        Toast.makeText(this@FormClienteActivity, "✅ Cliente registrado exitosamente", Toast.LENGTH_SHORT).show()
+                        setResult(RESULT_OK)
+                        finish()
+                    } else {
+                        Toast.makeText(this@FormClienteActivity, "❌ ${response.body()?.message ?: "Error al registrar"}", Toast.LENGTH_SHORT).show()
+                    }
+                }
             } catch (e: Exception) {
                 Toast.makeText(this@FormClienteActivity, "❌ Error de red: ${e.message}", Toast.LENGTH_SHORT).show()
             } finally {
                 if (!isFinishing) {
                     btnGuardar.isEnabled = true
-                    btnGuardar.text = "GUARDAR CLIENTE"
+                    btnCancelar.isEnabled = true // 🔓 Desbloquear al terminar
+                    btnGuardar.text = if (clienteEditar != null) "ACTUALIZAR" else "GUARDAR"
                 }
             }
         }

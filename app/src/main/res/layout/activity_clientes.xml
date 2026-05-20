@@ -35,7 +35,7 @@
             app:boxStrokeColor="#FF6600"
             app:startIconTint="#888888">
 
-        <!-- IMPORTANTE: El ID coincide con el código Kotlin -->
+        <!-- ID coincide con el Kotlin -->
         <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etSearchClientes"
                 android:layout_width="match_parent"

@@ -48,7 +48,7 @@ class DasbohadActivityAdmin : AppCompatActivity() {
         val telefono = prefs.getString("user_telefono", "No registrado") ?: "No registrado"
         val ubicacion = prefs.getString("user_ubicacion", "No registrada") ?: "No registrada"
 
-        tvBienvenida.text = "Hola, $nombre"
+        tvBienvenida.text = "Administrador"
         tvNombre.text = nombre
         tvEmail.text = email
         tvTelefono.text = telefono

@@ -2,4 +2,11 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- 🟠 Colores de tu app -->
+    <color name="color_splash">#FF6600</color>  <!-- Fondo naranja al iniciar -->
+    <color name="bg_main">#0D0D0D</color>       <!-- Fondo oscuro principal -->
+    <color name="bg_card">#1A1A1A</color>       <!-- Fondo de tarjetas -->
+    <color name="text_light">#FFFFFF</color>    <!-- Texto principal -->
+    <color name="text_gray">#888888</color>     <!-- Texto secundario -->
 </resources>

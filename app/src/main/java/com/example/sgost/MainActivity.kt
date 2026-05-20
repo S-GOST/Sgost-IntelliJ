@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.button.MaterialButton // ✅ Importe faltante agregado
+import com.google.android.material.button.MaterialButton
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,7 +18,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         // 🔹 Botón Ir a Formulario de Cliente
-        // ⚠️ IMPORTANTE: Cambia `R.id.btnNuevoCliente` por el ID real que tengas en activity_main.xml
         val btnIrForm = findViewById<MaterialButton>(R.id.btnRegistro)
         btnIrForm.setOnClickListener {
             startActivity(Intent(this, FormClienteActivity::class.java))
