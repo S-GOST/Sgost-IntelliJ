@@ -1,10 +1,11 @@
 package com.example.sgost.api
 
-import com.example.sgost.model.ApiResponse
+import com.example.sgost.model.Administrador
 import com.example.sgost.model.Cliente
+import com.example.sgost.model.Tecnico
+import com.example.sgost.model.ApiResponse
 import com.example.sgost.model.LoginRequest
 import com.example.sgost.model.LoginResponse
-import com.example.sgost.model.Tecnico
 import com.example.sgost.model.RegistroRequest
 import retrofit2.Response
 import retrofit2.http.Body
@@ -27,6 +28,28 @@ interface ApiService {
     suspend fun loginCliente(@Body request: LoginRequest): LoginResponse
 
     //---------------------------------------------------------------------------------------------------------------------------------//
+
+    // ADMINISTRADORES
+
+    @POST("api/admins/insertar")
+    suspend fun crearAdministradores(@Body administrador: Administrador): ApiResponse<Tecnico>
+
+    @GET("api/admins/obtener")
+    suspend fun obtenerAdministradores(): ApiResponse<List<Administrador>>
+
+    @GET("api/admins/buscar/{id}")
+    suspend fun obtenerAdministradoresPorId(@Path("id") id: String): Response<ApiResponse<Administrador>>
+
+    @PUT("api/admins/actualizar/{id}")
+    suspend fun actualizarAdministradores(
+        @Path("id") id: String,
+        @Body administrador: Administrador
+    ): ApiResponse<Tecnico>
+
+    @DELETE("api/admins/eliminar/{id}")
+    suspend fun eliminarAdministradores(@Path("id") id: String): ApiResponse<Unit>
+
+    //-------------------------------------------------------------------------------------------------------------------------------------------//
 
     // TÉCNICOS
 

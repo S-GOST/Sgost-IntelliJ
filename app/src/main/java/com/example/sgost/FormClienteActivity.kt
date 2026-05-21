@@ -28,7 +28,7 @@ class FormClienteActivity : AppCompatActivity() {
     private lateinit var layoutPassword: TextInputLayout
     private lateinit var layoutConfirmPassword: TextInputLayout
     private lateinit var btnGuardar: MaterialButton
-    private lateinit var btnCancelar: MaterialButton // ✅ AGREGADO
+    private lateinit var btnCancelar: MaterialButton
 
     private var clienteEditar: Cliente? = null
 
@@ -50,9 +50,7 @@ class FormClienteActivity : AppCompatActivity() {
                 setDisplayHomeAsUpEnabled(true)
                 title = "Gestión de Cliente"
             }
-            it.setNavigationOnClickListener {
-                onBackPressedDispatcher.onBackPressed()
-            }
+            // Dejamos que Android maneje el evento a través de onOptionsItemSelected
         }
     }
 
@@ -68,11 +66,11 @@ class FormClienteActivity : AppCompatActivity() {
         layoutPassword = findViewById(R.id.layoutPassword)
         layoutConfirmPassword = findViewById(R.id.layoutConfirmPassword)
         btnGuardar = findViewById(R.id.btnGuardar)
-        btnCancelar = findViewById(R.id.btnCancelar) // ✅ AGREGADO
+        btnCancelar = findViewById(R.id.btnCancelar)
     }
 
     private fun cargarModoEdicion() {
-        clienteEditar = intent.getParcelableExtra<Cliente>("cliente_extra", Cliente::class.java)
+        clienteEditar = intent.getParcelableExtra("cliente_extra")
 
         if (clienteEditar != null) {
             val c = clienteEditar!!
@@ -98,12 +96,7 @@ class FormClienteActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         btnGuardar.setOnClickListener { guardarCliente() }
-
-        // ✅ BOTÓN CANCELAR FUNCIONAL
-        btnCancelar.setOnClickListener {
-            finish() // Cierra la actividad y vuelve a la anterior
-            // Alternativa: onBackPressedDispatcher.onBackPressed()
-        }
+        btnCancelar.setOnClickListener { finish() }
     }
 
     private fun guardarCliente() {
@@ -125,7 +118,7 @@ class FormClienteActivity : AppCompatActivity() {
         }
 
         btnGuardar.isEnabled = false
-        btnCancelar.isEnabled = false // 🔒 Bloquear cancelar mientras guarda
+        btnCancelar.isEnabled = false
         btnGuardar.text = if (clienteEditar != null) "Actualizando..." else "Guardando..."
 
         lifecycleScope.launch {
@@ -151,7 +144,6 @@ class FormClienteActivity : AppCompatActivity() {
                     } else {
                         Toast.makeText(this@FormClienteActivity, "❌ ${response.body()?.message ?: "Error al actualizar"}", Toast.LENGTH_SHORT).show()
                     }
-
                 } else {
                     val nuevoCliente = Cliente(
                         nombre = nombre,
@@ -177,13 +169,14 @@ class FormClienteActivity : AppCompatActivity() {
             } finally {
                 if (!isFinishing) {
                     btnGuardar.isEnabled = true
-                    btnCancelar.isEnabled = true // 🔓 Desbloquear al terminar
+                    btnCancelar.isEnabled = true
                     btnGuardar.text = if (clienteEditar != null) "ACTUALIZAR" else "GUARDAR"
                 }
             }
         }
     }
 
+    // ✅ Manejo oficial del botón de retroceso de la Toolbar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
             onBackPressedDispatcher.onBackPressed()

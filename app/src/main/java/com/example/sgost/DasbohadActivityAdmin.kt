@@ -20,7 +20,7 @@ class DasbohadActivityAdmin : AppCompatActivity() {
         val userType = prefs.getString("user_type", "")
 
         if (token == null || userType != "admin") {
-            redirectToLogin()
+            redirectToLogin() // 👈 Esta función ahora está definida al final
             return
         }
 
@@ -33,7 +33,9 @@ class DasbohadActivityAdmin : AppCompatActivity() {
         val tvTelefono = findViewById<TextView>(R.id.tvTelefonoAdmin)
         val tvUbicacion = findViewById<TextView>(R.id.tvUbicacionAdmin)
 
-        // ✅ AGREGADO: Referencia a la tarjeta de Clientes
+        // ✅ AGREGADO: Referencia a la tarjeta del Perfil de Admin
+        val cardAdminPerfil = findViewById<MaterialCardView>(R.id.cardAdminPerfil)
+
         val cardClientes = findViewById<MaterialCardView>(R.id.cardClientes)
         val cardTecnicos = findViewById<MaterialCardView>(R.id.cardTecnicos)
         val cardOrdenes = findViewById<MaterialCardView>(R.id.cardOrdenes)
@@ -54,6 +56,11 @@ class DasbohadActivityAdmin : AppCompatActivity() {
         tvTelefono.text = telefono
         tvUbicacion.text = ubicacion
 
+        // ✅ REDIRECCIÓN A GESTIÓN DE ADMINISTRADORES (NUEVO)
+        cardAdminPerfil.setOnClickListener {
+            startActivity(Intent(this, AdministradoresActivity::class.java))
+        }
+
         // ✅ REDIRECCIÓN A GESTIÓN DE CLIENTES
         cardClientes.setOnClickListener {
             startActivity(Intent(this, ClientesActivity::class.java))
@@ -64,23 +71,24 @@ class DasbohadActivityAdmin : AppCompatActivity() {
             startActivity(Intent(this, TecnicosActivity::class.java))
         }
 
-        cardOrdenes.setOnClickListener { /* startActivity(Intent(this, OrdenesActivity::class.java)) */ }
-        cardInformes.setOnClickListener { /* startActivity(Intent(this, InformesActivity::class.java)) */ }
-        cardComprobantes.setOnClickListener { /* startActivity(Intent(this, ComprobantesActivity::class.java)) */ }
-        cardHistorial.setOnClickListener { /* startActivity(Intent(this, HistorialGlobalActivity::class.java)) */ }
+        //cardOrdenes.setOnClickListener { /* startActivity(Intent(this, OrdenesActivity::class.java)) */ }
+        //cardInformes.setOnClickListener { /* startActivity(Intent(this, InformesActivity::class.java)) */ }
+        //cardComprobantes.setOnClickListener { /* startActivity(Intent(this, ComprobantesActivity::class.java)) */ }
+        //cardHistorial.setOnClickListener { /* startActivity(Intent(this, HistorialGlobalActivity::class.java)) */ }
 
         // 🚪 Cerrar sesión
         btnLogout.setOnClickListener {
             prefs.edit { clear() }
-            redirectToLogin()
+            redirectToLogin() // 👈 Usamos la función auxiliar para no repetir código
         }
+
     }
 
+    // ✅ Función auxiliar para redirigir al login (Faltaba esta definición en tu código)
     private fun redirectToLogin() {
-        val intent = Intent(this, LoginActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        }
-        startActivity(intent)
+        startActivity(Intent(this, LoginActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        })
         finish()
     }
 }

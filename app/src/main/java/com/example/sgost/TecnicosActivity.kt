@@ -46,14 +46,15 @@ class TecnicosActivity : AppCompatActivity() {
 
         cargarTecnicos() // Iniciar carga de datos
     }
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressedDispatcher.onBackPressed()
-        return true
-    }
     private fun setupToolbar() {
         val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
-        // Dejamos que Android maneje el evento automáticamente
+        // NO agregues setNavigationOnClickListener aquí
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressedDispatcher.onBackPressed()
+        return true
     }
 
     private fun initViews() {

@@ -2,68 +2,52 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#0D0D0D"
-        android:fitsSystemWindows="true"
-        tools:context="com.example.sgost.TecnicosActivity">
+        android:fitsSystemWindows="true">
 
-    <!-- BARRA SUPERIOR -->
     <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="#141414"
-            android:elevation="4dp"
-            app:title="Gestión de Técnicos"
+            app:title="Gestión de Administradores"
             app:titleTextColor="#FFFFFF"
-            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
             app:navigationIcon="@android:drawable/ic_menu_revert"
             app:navigationIconTint="#FF6600" />
 
-    <!-- BUSCADOR -->
     <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilSearchTecnicos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="100dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:boxBackgroundColor="#1A1A1A"
             app:hintTextColor="#FF6600"
-            app:boxStrokeColor="#FF6600"
-            app:startIconTint="#888888">
+            app:boxStrokeColor="#FF6600">
 
         <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etSearchTecnicos"
+                android:id="@+id/etSearch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Buscar por nombre o documento..."
+                android:hint="Buscar administrador..."
                 android:textColor="#FFFFFF"
                 android:textColorHint="#666666"
-                android:textSize="15sp"
-                android:inputType="text"
                 android:paddingTop="14dp"
                 android:paddingBottom="14dp" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- LISTA DE TÉCNICOS -->
     <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvTecnicos"
+            android:id="@+id/rvList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="180dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:clipToPadding="false"
-            android:paddingTop="8dp"
-            android:paddingBottom="100dp"
-            tools:listitem="@layout/item_tecnico" />
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="100dp" />
 
-    <!-- ESTADO VACÍO (oculto por defecto) -->
     <LinearLayout
             android:id="@+id/llEmptyState"
             android:layout_width="wrap_content"
@@ -73,42 +57,18 @@
             android:gravity="center"
             android:visibility="gone">
 
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🔧"
-                android:textSize="48sp"
-                android:layout_marginBottom="8dp" />
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="No hay técnicos registrados"
-                android:textColor="#888888"
-                android:textSize="16sp"
-                android:fontFamily="sans-serif-medium" />
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Usa el botón + para crear uno nuevo"
-                android:textColor="#666666"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔒" android:textSize="48sp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="No hay administradores" android:textColor="#888888" android:layout_marginTop="8dp"/>
     </LinearLayout>
 
-    <!-- BOTÓN FLOTANTE PARA AGREGAR -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabAgregarTecnico"
+            android:id="@+id/fabAdd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="24dp"
-            android:contentDescription="Agregar Técnico"
             android:src="@android:drawable/ic_input_add"
             app:backgroundTint="#FF6600"
-            app:tint="#FFFFFF"
-            app:elevation="8dp"
-            app:fabSize="normal" />
+            app:tint="#FFFFFF" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

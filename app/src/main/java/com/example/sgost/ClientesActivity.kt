@@ -43,19 +43,19 @@ class ClientesActivity : AppCompatActivity() {
         setupSearch()
         setupFab()
 
-        cargarClientes() // Iniciar carga de datos
+        cargarClientes()
     }
 
     private fun setupToolbar() {
         val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
-        supportActionBar?.apply {
-            setDisplayHomeAsUpEnabled(true)
-            setHomeAsUpIndicator(getDrawable(android.R.drawable.ic_menu_revert))
-        }
-        toolbar.setNavigationOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
+        // NO agregues setNavigationOnClickListener aquí
+    }
+
+    // ✅ MÉTODO CLAVE: Maneja el botón de retroceder
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressedDispatcher.onBackPressed()
+        return true
     }
 
     private fun initViews() {

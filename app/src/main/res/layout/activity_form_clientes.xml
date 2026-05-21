@@ -6,6 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#0D0D0D"
+        android:fitsSystemWindows="true"
         tools:context="com.example.sgost.FormClienteActivity">
 
     <!-- TOOLBAR -->
@@ -16,14 +17,14 @@
             android:background="#141414"
             app:title="Gestión de Cliente"
             app:titleTextColor="#FFFFFF"
-            app:navigationIcon="?attr/homeAsUpIndicator"
+            app:navigationIcon="@android:drawable/ic_menu_revert"
             app:navigationIconTint="#FF6600" />
 
     <!-- CONTENIDO SCROLLEABLE -->
     <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="?attr/actionBarSize"
+            android:layout_marginTop="100dp"
             android:fillViewport="true">
 
         <LinearLayout
