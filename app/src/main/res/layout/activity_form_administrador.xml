@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#0D0D0D"
+        android:fitsSystemWindows="true"
+        tools:context="com.example.sgost.FormAdministradorActivity">
+
+    <!-- TOOLBAR -->
+    <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#141414"
+            app:title="Gestión de Administrador"
+            app:titleTextColor="#FFFFFF"
+            app:navigationIcon="@android:drawable/ic_menu_revert"
+            app:navigationIconTint="#FF6600" />
+
+    <!-- CONTENIDO SCROLLEABLE -->
+    <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="100dp"
+            android:fillViewport="true">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+            <!-- TÍTULO DINÁMICO -->
+            <TextView
+                    android:id="@+id/tvFormTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Crear Administrador"
+                    android:textColor="#FF6600"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-black"
+                    android:layout_marginBottom="16dp" />
+
+            <!-- TARJETA DE FORMULARIO -->
+            <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="#1A1A1A"
+                    app:cardCornerRadius="12dp"
+                    app:strokeColor="#2A2A2A"
+                    app:strokeWidth="1dp">
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                    <!-- NOMBRE -->
+                    <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxBackgroundColor="#141414"
+                            app:hintTextColor="#FF6600"
+                            app:boxStrokeColor="#FF6600">
+                        <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etNombre"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Nombre completo"
+                                android:textColor="#FFFFFF"
+                                android:inputType="textPersonName" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- USUARIO -->
+                    <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxBackgroundColor="#141414"
+                            app:hintTextColor="#FF6600"
+                            app:boxStrokeColor="#FF6600">
+                        <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etUsuario"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Usuario de acceso"
+                                android:textColor="#FFFFFF"
+                                android:inputType="text" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- TIPO DOC & UBICACIÓN (Fila horizontal) -->
+                    <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
+                        <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="8dp"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                                app:boxBackgroundColor="#141414"
+                                app:hintTextColor="#FF6600"
+                                app:boxStrokeColor="#FF6600">
+                            <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etTipoDoc"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="Tipo Doc."
+                                    android:textColor="#FFFFFF" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                        <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="8dp"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                                app:boxBackgroundColor="#141414"
+                                app:hintTextColor="#FF6600"
+                                app:boxStrokeColor="#FF6600">
+                            <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etUbicacion"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="Ubicación"
+                                    android:textColor="#FFFFFF" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <!-- CORREO -->
+                    <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxBackgroundColor="#141414"
+                            app:hintTextColor="#FF6600"
+                            app:boxStrokeColor="#FF6600">
+                        <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etCorreo"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Correo electrónico"
+                                android:textColor="#FFFFFF"
+                                android:inputType="textEmailAddress" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- TELÉFONO -->
+                    <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxBackgroundColor="#141414"
+                            app:hintTextColor="#FF6600"
+                            app:boxStrokeColor="#FF6600">
+                        <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etTelefono"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Teléfono"
+                                android:textColor="#FFFFFF"
+                                android:inputType="phone" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- CONTRASEÑA -->
+                    <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/layoutPassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxBackgroundColor="#141414"
+                            app:hintTextColor="#FF6600"
+                            app:boxStrokeColor="#FF6600"
+                            app:endIconMode="password_toggle"
+                            app:endIconTint="#FF6600">
+                        <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etContrasena"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Contraseña"
+                                android:textColor="#FFFFFF"
+                                android:inputType="textPassword" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- CONFIRMAR CONTRASEÑA -->
+                    <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/layoutConfirmPassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxBackgroundColor="#141414"
+                            app:hintTextColor="#FF6600"
+                            app:boxStrokeColor="#FF6600"
+                            app:endIconMode="password_toggle"
+                            app:endIconTint="#FF6600">
+                        <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etConfirmPassword"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Confirmar contraseña"
+                                android:textColor="#FFFFFF"
+                                android:inputType="textPassword" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- MENSAJE DE ERROR -->
+                    <TextView
+                            android:id="@+id/tvError"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="#FF5555"
+                            android:textSize="13sp"
+                            android:visibility="gone"
+                            android:text="Error" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- BOTONES DE ACCIÓN -->
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="20dp"
+                    android:gravity="end">
+
+                <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCancelar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CANCELAR"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#333333"
+                        android:layout_marginEnd="12dp"
+                        app:cornerRadius="8dp"
+                        android:textSize="13sp" />
+
+                <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnGuardar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="GUARDAR"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#FF6600"
+                        app:cornerRadius="8dp"
+                        android:textSize="13sp" />
+            </LinearLayout>
+
+            <Space android:layout_width="match_parent" android:layout_height="20dp"/>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

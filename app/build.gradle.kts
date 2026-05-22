@@ -1,7 +1,7 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("kotlin-parcelize") // 👈 Necesario para @Parcelize en Tecnico.kt
+    id("com.android.application") //genera la APK
+    id("org.jetbrains.kotlin.android") // habilita el lenguaje kotlin
+    id("kotlin-parcelize") // empaqueta datos para manejarlos
 }
 
 android {

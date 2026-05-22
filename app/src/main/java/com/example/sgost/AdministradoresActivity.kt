@@ -13,7 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sgost.api.ApiClient
-import com.example.sgost.model.Administrador // Asegúrate de tener este modelo
+import com.example.sgost.model.Administrador
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
@@ -63,13 +63,17 @@ class AdministradoresActivity : AppCompatActivity() {
         llEmptyState = findViewById(R.id.llEmptyState)
     }
 
+    // ✅ CORREGIDO: Se agregaron ambos parámetros (onEdit y onDelete) y se cerró correctamente
     private fun setupAdapter() {
         adapter = AdministradorAdapter(
             onEdit = { admin ->
-                // Aquí iría el Intent al Formulario de Admin
-                Toast.makeText(this, "Editar Admin: ${admin.nombre}", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, FormAdministradorActivity::class.java).apply {
+                    putExtra("admin_extra", admin)
+                })
             },
-            onDelete = { admin -> confirmarEliminar(admin) }
+            onDelete = { admin ->
+                confirmarEliminar(admin)
+            }
         )
         rvList.layoutManager = LinearLayoutManager(this)
         rvList.adapter = adapter
@@ -85,11 +89,10 @@ class AdministradoresActivity : AppCompatActivity() {
         })
     }
 
+    // ✅ ACTIVO: Ahora el botón flotante abre el formulario para crear
     private fun setupFab() {
         fabAdd.setOnClickListener {
-            // Abrir formulario para crear nuevo admin
-            // startActivity(Intent(this, FormAdministradorActivity::class.java))
-            Toast.makeText(this, "Botón Crear Nuevo", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, FormAdministradorActivity::class.java))
         }
     }
 
@@ -144,7 +147,6 @@ class AdministradoresActivity : AppCompatActivity() {
     private fun eliminarAdministrador(admin: Administrador) {
         lifecycleScope.launch {
             try {
-                // Usamos el endpoint de tu ApiService
                 val resp = ApiClient.apiService.eliminarAdministradores(admin.id.toString())
 
                 if (resp.success) {
