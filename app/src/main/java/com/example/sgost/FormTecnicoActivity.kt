@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
-import com.example.sgost.api.ApiClient
+import com.example.sgost.api.ApiAndroid
 import com.example.sgost.model.Tecnico
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -126,9 +126,9 @@ class FormTecnicoActivity : AppCompatActivity() {
 
                     val resp = if (tecnicoEditar != null) {
                         val id = tecnicoEditar!!.idTecnicos?.toString() ?: return@launch
-                        ApiClient.apiService.actualizarTecnico(id, tecnico)
+                        ApiAndroid.apiService.actualizarTecnico(id, tecnico)
                     } else {
-                        ApiClient.apiService.crearTecnico(tecnico)
+                        ApiAndroid.apiService.crearTecnico(tecnico)
                     }
 
                     if (resp.success) {

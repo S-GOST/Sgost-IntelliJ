@@ -13,7 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sgost.TecnicoAdapter
-import com.example.sgost.api.ApiClient
+import com.example.sgost.api.ApiAndroid
 import com.example.sgost.model.Tecnico
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
@@ -93,13 +93,13 @@ class TecnicosActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 // ✅ Verificar si ApiClient está listo
-                if (!ApiClient.isReady) {
+                if (!ApiAndroid.isReady) {
                     Toast.makeText(this@TecnicosActivity, "⚠️ Conexión API no lista", Toast.LENGTH_LONG).show()
                     return@launch
                 }
 
                 // 🔍 Llamada a tu API
-                val resp = ApiClient.apiService.obtenerTecnicos()
+                val resp = ApiAndroid.apiService.obtenerTecnicos()
 
                 if (resp.success && resp.data != null) {
                     // ✅ FIX CRÍTICO: Guardar datos en la lista completa antes de filtrar
@@ -161,7 +161,7 @@ class TecnicosActivity : AppCompatActivity() {
     private fun eliminarTecnico(tecnico: Tecnico) {
         lifecycleScope.launch {
             try {
-                val resp = ApiClient.apiService.eliminarTecnico(tecnico.idTecnicos.toString())
+                val resp = ApiAndroid.apiService.eliminarTecnico(tecnico.idTecnicos.toString())
                 if (resp.success) {
                     Toast.makeText(this@TecnicosActivity, "Eliminado correctamente", Toast.LENGTH_SHORT).show()
                     cargarTecnicos() // Recargar lista y estado vacío

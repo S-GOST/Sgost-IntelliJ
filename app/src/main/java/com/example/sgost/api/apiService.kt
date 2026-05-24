@@ -6,7 +6,6 @@ import com.example.sgost.model.Tecnico
 import com.example.sgost.model.ApiResponse
 import com.example.sgost.model.LoginRequest
 import com.example.sgost.model.LoginResponse
-import com.example.sgost.model.RegistroRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE

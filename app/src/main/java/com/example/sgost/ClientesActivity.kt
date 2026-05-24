@@ -13,7 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sgost.ClienteAdapter // 👈 IMPORTANTE: Tu adaptador de clientes
-import com.example.sgost.api.ApiClient
+import com.example.sgost.api.ApiAndroid
 import com.example.sgost.model.Cliente // 👈 Tu modelo Cliente
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
@@ -93,13 +93,13 @@ class ClientesActivity : AppCompatActivity() {
     private fun cargarClientes() {
         lifecycleScope.launch {
             try {
-                if (!ApiClient.isReady) {
+                if (!ApiAndroid.isReady) {
                     Toast.makeText(this@ClientesActivity, "⚠️ Conexión API no lista", Toast.LENGTH_LONG).show()
                     return@launch
                 }
 
-                // 👇 Llamada a tu API de Clientes
-                val resp = ApiClient.apiService.obtenerClientes()
+                // 👇 Llamada a tu API de Android
+                val resp = ApiAndroid.apiService.obtenerClientes()
 
                 if (resp.success && resp.data != null) {
                     listaCompleta.clear()
@@ -156,7 +156,7 @@ class ClientesActivity : AppCompatActivity() {
             try {
                 // ✅ CORRECCIÓN 1: Usar 'id' en lugar de 'idCliente'
                 // Verifica en Cliente.kt que la propiedad se llame 'id'.
-                val response = ApiClient.apiService.eliminarCliente(cliente.id.toString())
+                val response = ApiAndroid.apiService.eliminarCliente(cliente.id.toString())
 
                 // ✅ CORRECCIÓN 2: Manejar correctamente el objeto Response de Retrofit
                 if (response.isSuccessful) {

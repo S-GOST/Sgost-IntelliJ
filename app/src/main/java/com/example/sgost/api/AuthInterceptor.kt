@@ -13,7 +13,7 @@ class AuthInterceptor(private val context: Context) : Interceptor {
             return chain.proceed(originalRequest)
         }
 
-        // 1. Leer el token guardado (Clave exacta que usas en LoginActivity)
+        // 1. Leer el token guardado (Clave exacta que en LoginActivity)
         val prefs = context.getSharedPreferences("sgost_prefs", Context.MODE_PRIVATE)
         val token = prefs.getString("auth_token", null)
 

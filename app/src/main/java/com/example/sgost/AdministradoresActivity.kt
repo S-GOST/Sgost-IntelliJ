@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sgost.api.ApiClient
+import com.example.sgost.api.ApiAndroid
 import com.example.sgost.model.Administrador
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
@@ -99,12 +99,12 @@ class AdministradoresActivity : AppCompatActivity() {
     private fun cargarAdministradores() {
         lifecycleScope.launch {
             try {
-                if (!ApiClient.isReady) {
+                if (!ApiAndroid.isReady) {
                     Toast.makeText(this@AdministradoresActivity, "⚠️ API no lista", Toast.LENGTH_LONG).show()
                     return@launch
                 }
 
-                val resp = ApiClient.apiService.obtenerAdministradores()
+                val resp = ApiAndroid.apiService.obtenerAdministradores()
 
                 if (resp.success && resp.data != null) {
                     listaCompleta.clear()
@@ -147,7 +147,7 @@ class AdministradoresActivity : AppCompatActivity() {
     private fun eliminarAdministrador(admin: Administrador) {
         lifecycleScope.launch {
             try {
-                val resp = ApiClient.apiService.eliminarAdministradores(admin.id.toString())
+                val resp = ApiAndroid.apiService.eliminarAdministradores(admin.id.toString())
 
                 if (resp.success) {
                     Toast.makeText(this@AdministradoresActivity, "Eliminado correctamente", Toast.LENGTH_SHORT).show()

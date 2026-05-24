@@ -7,7 +7,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.sgost.api.ApiClient
+import com.example.sgost.api.ApiAndroid
 import com.example.sgost.model.Administrador
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
@@ -127,7 +127,7 @@ class FormAdministradorActivity : AppCompatActivity() {
                         tipoDocumento = tipoDoc,
                     )
                     // 👇 Tu API retorna ApiResponse<Tecnico> (posible typo en backend, pero funciona)
-                    val response = ApiClient.apiService.actualizarAdministradores(
+                    val response = ApiAndroid.apiService.actualizarAdministradores(
                         adminActualizar.id.toString(),
                         adminActualizar
                     )
@@ -148,7 +148,7 @@ class FormAdministradorActivity : AppCompatActivity() {
                         telefono = telefono,
                         tipoDocumento = tipoDoc
                     )
-                    val response = ApiClient.apiService.crearAdministradores(nuevoAdmin)
+                    val response = ApiAndroid.apiService.crearAdministradores(nuevoAdmin)
 
                     if (response.success) {
                         Toast.makeText(this@FormAdministradorActivity, "✅ Administrador registrado exitosamente", Toast.LENGTH_SHORT).show()

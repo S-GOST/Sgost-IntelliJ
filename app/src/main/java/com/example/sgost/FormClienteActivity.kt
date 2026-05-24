@@ -7,7 +7,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.sgost.api.ApiClient
+import com.example.sgost.api.ApiAndroid
 import com.example.sgost.model.Cliente
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
@@ -132,7 +132,7 @@ class FormClienteActivity : AppCompatActivity() {
                         tipoDocumento = tipoDoc,
                         ubicacion = ubicacion
                     )
-                    val response = ApiClient.apiService.actualizarCliente(
+                    val response = ApiAndroid.apiService.actualizarCliente(
                         clienteActualizar.id.toString(),
                         clienteActualizar
                     )
@@ -154,7 +154,7 @@ class FormClienteActivity : AppCompatActivity() {
                         tipoDocumento = tipoDoc,
                         ubicacion = ubicacion
                     )
-                    val response = ApiClient.apiService.registrarCliente(nuevoCliente)
+                    val response = ApiAndroid.apiService.registrarCliente(nuevoCliente)
 
                     if (response.isSuccessful && response.body()?.success == true) {
                         Toast.makeText(this@FormClienteActivity, "✅ Cliente registrado exitosamente", Toast.LENGTH_SHORT).show()

@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
-import com.example.sgost.api.ApiClient
+import com.example.sgost.api.ApiAndroid
 import com.example.sgost.model.LoginRequest
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -62,9 +62,9 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val response = when(tipoSeleccionado) {
-                    "admin"   -> ApiClient.apiService.loginAdmin(request)
-                    "tecnico" -> ApiClient.apiService.loginTecnico(request)
-                    "cliente" -> ApiClient.apiService.loginCliente(request)
+                    "admin"   -> ApiAndroid.apiService.loginAdmin(request)
+                    "tecnico" -> ApiAndroid.apiService.loginTecnico(request)
+                    "cliente" -> ApiAndroid.apiService.loginCliente(request)
                     else -> throw IllegalStateException("Tipo no válido")
                 }
 
