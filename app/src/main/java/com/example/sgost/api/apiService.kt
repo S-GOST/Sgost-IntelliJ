@@ -3,6 +3,7 @@ package com.example.sgost.api
 import com.example.sgost.model.Administrador
 import com.example.sgost.model.Cliente
 import com.example.sgost.model.Tecnico
+import com.example.sgost.model.Orden_servicio
 import com.example.sgost.model.ApiResponse
 import com.example.sgost.model.LoginRequest
 import com.example.sgost.model.LoginResponse
@@ -90,4 +91,26 @@ interface ApiService {
 
     @DELETE("api/clientes/eliminar/{id}")
     suspend fun eliminarCliente(@Path("id") id: String): Response<ApiResponse<Unit>>
+
+    //---------------------------------------------------------------------------------------------------------------------------------//
+
+    // ORDEN SERVICIO
+    @POST("api/ordenes_servicio/insertar")
+    suspend fun crearOrdenServicio(@Body orden_servcio: Orden_servicio): Response<ApiResponse<Orden_servicio>>
+
+    @GET("api/ordenes_servicio/obtener")
+    suspend fun obtenerOrdenServicio(): ApiResponse<List<Orden_servicio>>
+
+    @GET("api/Ordenes_servicio/buscar/{id}")
+    suspend fun obtenerOrdenServicioPorId(@Path("id") id: String): Response<ApiResponse<Orden_servicio>>
+
+    @PUT("api/ordenes_servicio/actualizar/{id}")
+    suspend fun actualizarOrdenServicio(
+        @Path("id") id: String,
+        @Body orden_servicio: Orden_servicio
+    ): Response<ApiResponse<Orden_servicio>>
+
+    @DELETE("api/ordenes_servicio/eliminar/{id}")
+    suspend fun eliminarOrdenServicio(@Path("id") id: String): Response<ApiResponse<Unit>>
+
 }

@@ -97,50 +97,23 @@
                                 android:inputType="text" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- TIPO Y DOCUMENTO (Fila) -->
-                    <LinearLayout
+                    <!-- TIPO DOCUMENTO (Modificado para ocupar todo el ancho) -->
+                    <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginBottom="16dp">
+                            android:layout_marginBottom="16dp"
+                            app:boxBackgroundColor="#141414"
+                            app:hintTextColor="#FF6600"
+                            app:boxStrokeColor="#FF6600">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                                android:layout_width="0dp"
-                                android:layout_weight="1"
+                        <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etTipoDoc"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="8dp"
-                                app:boxBackgroundColor="#141414"
-                                app:hintTextColor="#FF6600"
-                                app:boxStrokeColor="#FF6600">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                    android:id="@+id/etTipoDoc"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:hint="Tipo Doc."
-                                    android:textColor="#FFFFFF" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                                android:layout_width="0dp"
-                                android:layout_weight="1"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                app:boxBackgroundColor="#141414"
-                                app:hintTextColor="#FF6600"
-                                app:boxStrokeColor="#FF6600">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                    android:id="@+id/etDocumento"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:hint="Número"
-                                    android:textColor="#FFFFFF"
-                                    android:inputType="number" />
-                        </com.google.android.material.textfield.TextInputLayout>
-                    </LinearLayout>
+                                android:hint="Tipo Doc."
+                                android:textColor="#FFFFFF" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- CORREO -->
                     <com.google.android.material.textfield.TextInputLayout

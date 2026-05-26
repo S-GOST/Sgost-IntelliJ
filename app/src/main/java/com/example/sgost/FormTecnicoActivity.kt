@@ -67,7 +67,6 @@ class FormTecnicoActivity : AppCompatActivity() {
         etNombre = findViewById(R.id.etNombre)
         etUsuario = findViewById(R.id.etUsuario)
         etTipoDoc = findViewById(R.id.etTipoDoc)
-        etDocumento = findViewById(R.id.etDocumento) // Agregado este que faltaba en bindViews
         etCorreo = findViewById(R.id.etCorreo)
         etTelefono = findViewById(R.id.etTelefono)
         etPassword = findViewById(R.id.etPassword)
@@ -93,7 +92,6 @@ class FormTecnicoActivity : AppCompatActivity() {
             etNombre.setText(t.nombre)
             etUsuario.setText(t.usuario)
             etTipoDoc.setText(t.tipoDocumento)
-            // etDocumento.setText(t.documento) // Si tienes este campo en el modelo
             etCorreo.setText(t.correo)
             etTelefono.setText(t.telefono)
         } else {

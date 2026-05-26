@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
+<androidx.coordinatorlayout.widget.CoordinatorLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#0D0D0D"
-        android:fillViewport="true"
         tools:context=".CarritoActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:padding="16dp">
 
         <!-- ══════════════ HEADER ══════════════ -->
@@ -24,78 +23,81 @@
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-black"
-                android:letterSpacing="0.05"
-                app:layout_constraintEnd_toStartOf="@id/ivCartIcon"
+                app:layout_constraintEnd_toStartOf="@id/btnVaciar"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-                android:id="@+id/ivCartIcon"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:src="@android:drawable/ic_menu_add"
-                android:tint="#FF6600"
-                android:contentDescription="Carrito"
+        <ImageButton
+                android:id="@+id/btnVaciar"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_delete"
+                android:contentDescription="Vaciar carrito"
+                android:tint="#888888"
                 app:layout_constraintBottom_toBottomOf="@id/tvTitle"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tvTitle"
-                android:layout_marginEnd="12dp"
-                app:layout_constraintVertical_bias="0.0"/>
+                app:layout_constraintTop_toTopOf="@id/tvTitle" />
 
         <TextView
                 android:id="@+id/tvItemCount"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="3 artículos"
+                android:text="0 artículos en el carrito"
                 android:textColor="#888888"
                 android:textSize="12sp"
                 android:fontFamily="sans-serif-medium"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+                app:layout_constraintTop_toBottomOf="@id/tvTitle"
+                app:layout_constraintBottom_toTopOf="@id/rvCarrito"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="8dp"/>
 
-        <!-- ══════════════ LISTA DE PRODUCTOS ══════════════ -->
+        <!-- ══════════════ LISTA DE CARRITO ══════════════ -->
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvCarrito"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:minHeight="200dp"
+                android:layout_height="0dp"
                 android:clipToPadding="false"
                 android:paddingBottom="8dp"
+                app:layout_constraintBottom_toTopOf="@id/cvResumen"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvItemCount"
                 tools:listitem="@layout/item_carrito" />
 
-        <!-- ══════════════ ESTADO VACÍO (Oculto por defecto) ══════════════ -->
-        <TextView
-                android:id="@+id/tvEmptyCart"
+        <!-- ══════════════ ESTADO VACÍO ══════════════ -->
+        <LinearLayout
+                android:id="@+id/llEmptyState"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Tu carrito está vacío"
-                android:textColor="#666666"
-                android:textSize="14sp"
+                android:layout_height="0dp"
                 android:gravity="center"
+                android:orientation="vertical"
                 android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/rvCarrito"
-                app:layout_constraintEnd_toEndOf="@id/rvCarrito"
-                app:layout_constraintStart_toStartOf="@id/rvCarrito"
-                app:layout_constraintTop_toTopOf="@id/rvCarrito" />
-
-        <!-- ══════════════ RESUMEN Y CHECKOUT ══════════════ -->
-        <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cvSummary"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardBackgroundColor="#1A1A1A"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:strokeColor="#2A2A2A"
-                app:strokeWidth="1dp"
+                app:layout_constraintBottom_toTopOf="@id/cvResumen"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rvCarrito">
+                app:layout_constraintTop_toBottomOf="@id/tvItemCount">
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🛒" android:textSize="48sp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tu carrito está vacío" android:textColor="#888888" android:textSize="16sp" android:layout_marginTop="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Agrega servicios o repuestos para tu moto" android:textColor="#666666" android:textSize="13sp"/>
+        </LinearLayout>
+
+        <!-- ══════════════ RESUMEN FIJO EN LA PARTE INFERIOR ══════════════ -->
+        <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cvResumen"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardBackgroundColor="#1A1A1A"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="8dp"
+                app:strokeColor="#2A2A2A"
+                app:strokeWidth="1dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
 
             <LinearLayout
                     android:layout_width="match_parent"
@@ -103,64 +105,23 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                <!-- Subtotal -->
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
-                    <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Subtotal"
-                            android:textColor="#AAAAAA"
-                            android:textSize="14sp"
-                            android:fontFamily="sans-serif-medium"/>
-                    <TextView
-                            android:id="@+id/tvSubtotal"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="$0.00"
-                            android:textColor="#FFFFFF"
-                            android:textSize="14sp"
-                            android:fontFamily="sans-serif-medium"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="8dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Subtotal" android:textColor="#AAAAAA" android:textSize="14sp" android:fontFamily="sans-serif-medium"/>
+                    <TextView android:id="@+id/tvSubtotal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$0.00" android:textColor="#FFFFFF" android:textSize="14sp" android:fontFamily="sans-serif-medium"/>
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#333333" android:layout_marginBottom="8dp"/>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#333333" android:layout_marginBottom="12dp"/>
 
-                <!-- Total -->
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="16dp">
-                    <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="TOTAL"
-                            android:textColor="#FF6600"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:fontFamily="sans-serif-black"/>
-                    <TextView
-                            android:id="@+id/tvTotal"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="$0.00"
-                            android:textColor="#FF6600"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:fontFamily="sans-serif-black"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="16dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="TOTAL" android:textColor="#FF6600" android:textSize="16sp" android:textStyle="bold" android:fontFamily="sans-serif-black"/>
+                    <TextView android:id="@+id/tvTotal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$0.00" android:textColor="#FF6600" android:textSize="18sp" android:textStyle="bold" android:fontFamily="sans-serif-black"/>
                 </LinearLayout>
 
-                <!-- Botón Checkout -->
                 <Button
-                        android:id="@+id/btnCheckout"
+                        android:id="@+id/btnGenerarOrden"
                         android:layout_width="match_parent"
                         android:layout_height="52dp"
-                        android:text="PROCESAR COMPRA"
+                        android:text="GENERAR ORDEN DE SERVICIO"
                         android:textColor="#FFFFFF"
                         android:textSize="14sp"
                         android:textStyle="bold"
@@ -168,9 +129,9 @@
                         android:fontFamily="sans-serif-black"
                         android:backgroundTint="#FF6600"
                         android:stateListAnimator="@null"
-                        android:elevation="2dp"/>
+                        android:elevation="4dp"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
