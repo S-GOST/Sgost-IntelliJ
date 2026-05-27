@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#0D0D0D"
+        android:fitsSystemWindows="true"
+        tools:context=".FormOrdenServicioActivity">
+
+    <!-- TOOLBAR -->
+    <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#141414"
+            app:title="Gestión de Orden"
+            app:titleTextColor="#FFFFFF"
+            app:navigationIcon="@android:drawable/ic_menu_revert"
+            app:navigationIconTint="#FF6600" />
+
+    <!-- CONTENIDO SCROLLEABLE -->
+    <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="100dp"
+            android:fillViewport="true">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+            <TextView
+                    android:id="@+id/tvFormTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Crear Orden"
+                    android:textColor="#FF6600"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-black"
+                    android:layout_marginBottom="16dp" />
+
+            <!-- TARJETA DE FORMULARIO -->
+            <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="#1A1A1A"
+                    app:cardCornerRadius="12dp"
+                    app:strokeColor="#2A2A2A"
+                    app:strokeWidth="1dp">
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                    <!-- ID CLIENTE -->
+                    <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxBackgroundColor="#141414"
+                            app:hintTextColor="#FF6600"
+                            app:boxStrokeColor="#FF6600">
+                        <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etIdCliente"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="ID Cliente"
+                                android:textColor="#FFFFFF"
+                                android:inputType="number" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- ID ADMINISTRADOR -->
+                    <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxBackgroundColor="#141414"
+                            app:hintTextColor="#FF6600"
+                            app:boxStrokeColor="#FF6600">
+                        <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etIdAdmin"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="ID Administrador"
+                                android:textColor="#FFFFFF"
+                                android:inputType="number" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- ID TÉCNICO -->
+                    <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxBackgroundColor="#141414"
+                            app:hintTextColor="#FF6600"
+                            app:boxStrokeColor="#FF6600">
+                        <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etIdTecnico"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="ID Técnico"
+                                android:textColor="#FFFFFF"
+                                android:inputType="number" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- ID MOTO -->
+                    <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxBackgroundColor="#141414"
+                            app:hintTextColor="#FF6600"
+                            app:boxStrokeColor="#FF6600">
+                        <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etIdMoto"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="ID Moto"
+                                android:textColor="#FFFFFF"
+                                android:inputType="number" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- FECHAS (Fila) -->
+                    <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="8dp"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                                app:boxBackgroundColor="#141414"
+                                app:hintTextColor="#FF6600"
+                                app:boxStrokeColor="#FF6600">
+                            <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etFechaInicio"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="Fecha Inicio"
+                                    android:textColor="#FFFFFF" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="8dp"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                                app:boxBackgroundColor="#141414"
+                                app:hintTextColor="#FF6600"
+                                app:boxStrokeColor="#FF6600">
+                            <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etFechaEstimada"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="Fecha Estimada"
+                                    android:textColor="#FFFFFF" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <!-- FECHA FIN -->
+                    <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            app:boxBackgroundColor="#141414"
+                            app:hintTextColor="#FF6600"
+                            app:boxStrokeColor="#FF6600">
+                        <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etFechaFin"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Fecha Fin"
+                                android:textColor="#FFFFFF" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- ESTADO -->
+                    <Spinner
+                            android:id="@+id/spinnerEstado"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="#141414"
+                            android:popupBackground="#1A1A1A"
+                            android:layout_marginBottom="8dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- BOTONES DE ACCIÓN -->
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="20dp"
+                    android:gravity="end">
+
+                <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCancelar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CANCELAR"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#333333"
+                        android:layout_marginEnd="12dp"
+                        app:cornerRadius="8dp"
+                        android:textSize="13sp" />
+
+                <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnGuardar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="GUARDAR"
+                        android:textColor="#FFFFFF"
+                        android:backgroundTint="#FF6600"
+                        app:cornerRadius="8dp"
+                        android:textSize="13sp" />
+            </LinearLayout>
+
+            <Space android:layout_width="match_parent" android:layout_height="24dp"/>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -4,6 +4,7 @@ import com.example.sgost.model.Administrador
 import com.example.sgost.model.Cliente
 import com.example.sgost.model.Tecnico
 import com.example.sgost.model.Orden_servicio
+import com.example.sgost.model.Detalles_orden_servicio
 import com.example.sgost.model.ApiResponse
 import com.example.sgost.model.LoginRequest
 import com.example.sgost.model.LoginResponse
@@ -112,5 +113,28 @@ interface ApiService {
 
     @DELETE("api/ordenes_servicio/eliminar/{id}")
     suspend fun eliminarOrdenServicio(@Path("id") id: String): Response<ApiResponse<Unit>>
+
+    //---------------------------------------------------------------------------------------------------------------------------------//
+    // DETALLES ORDEN SERVICIO
+    @POST("api/detalles_orden_servicio/insertar")
+    suspend fun crearDetalleOrden(@Body detalles_orden_servicio: Detalles_orden_servicio): ApiResponse<Detalles_orden_servicio>
+
+    @GET("api/detalles_orden_servicio/obtener")
+    suspend fun obtenerDetallesOrden(): ApiResponse<List<Detalles_orden_servicio>>
+
+    @GET("api/detalles_orden_servicio/por_orden/{idOrden}")
+    suspend fun obtenerDetallesPorOrden(@Path("idOrden") id: String): ApiResponse<List<Detalles_orden_servicio>>
+
+    @GET("api/detalles_orden_servicio/buscar/{id}")
+    suspend fun obtenerDetallePorId(@Path("id") id: String): Response<ApiResponse<Detalles_orden_servicio>>
+
+    @PUT("api/detalles_orden_servicio/actualizar/{id}")
+    suspend fun actualizarDetalleOrden(
+        @Path("id") id: String,
+        @Body detalles_orden_servicio: Detalles_orden_servicio
+    ): Response<ApiResponse<Detalles_orden_servicio>>
+
+    @DELETE("api/detalles_orden_servicio/eliminar/{id}")
+    suspend fun eliminarDetalleOrden(@Path("id") id: String): Response<ApiResponse<Unit>>
 
 }

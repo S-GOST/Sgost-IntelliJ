@@ -1,9 +1,9 @@
 package com.example.sgost
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.sgost.adapter.OrdenServicioAdapter
 import com.example.sgost.api.ApiAndroid
 import com.example.sgost.model.Orden_servicio
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 
@@ -23,8 +24,8 @@ class OrdenServicioActivity : AppCompatActivity() {
     private lateinit var rvOrdenes: RecyclerView
     private lateinit var llEmptyState: LinearLayout
 
-    // ✅ CORREGIDO: Nombre exacto del Adapter que creaste
     private lateinit var adapter: OrdenServicioAdapter
+    // ✅ Lista que guardará todos los datos para poder filtrar sin perder info
     private var listaCompleta = mutableListOf<Orden_servicio>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,21 +36,20 @@ class OrdenServicioActivity : AppCompatActivity() {
         initViews()
         setupAdapter()
         setupSearch()
-
-        cargarOrdenes()
+        setupFab() // ✅ Agregado para activar el botón +
+        cargarOrdenes() // Iniciar carga de datos
     }
 
     private fun setupToolbar() {
         val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        // NO agregues setNavigationOnClickListener aquí
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == android.R.id.home) {
-            onBackPressedDispatcher.onBackPressed()
-            true
-        } else super.onOptionsItemSelected(item)
+    // ✅ Manejo oficial del botón de retroceso
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressedDispatcher.onBackPressed()
+        return true
     }
 
     private fun initViews() {
@@ -60,15 +60,15 @@ class OrdenServicioActivity : AppCompatActivity() {
 
     private fun setupAdapter() {
         adapter = OrdenServicioAdapter(onOrderClick = { orden ->
-            // Aquí navegas al detalle de la orden
-            Toast.makeText(this, "Abriendo detalles de Orden #${orden.idOrden_servicio}", Toast.LENGTH_SHORT).show()
-            // startActivity(Intent(this, OrdenDetalleActivity::class.java).apply {
-            //     putExtra("orden_extra", orden)
-            // })
+            // ✅ Navega a la pantalla de detalles de ESTA orden específica
+            startActivity(Intent(this, OrdenDetalleActivity::class.java).apply {
+                putExtra("orden_extra", orden)
+            })
         })
         rvOrdenes.layoutManager = LinearLayoutManager(this)
         rvOrdenes.adapter = adapter
     }
+
     private fun setupSearch() {
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -79,47 +79,57 @@ class OrdenServicioActivity : AppCompatActivity() {
         })
     }
 
+    private fun setupFab() {
+        findViewById<FloatingActionButton>(R.id.fabAgregarOrden).setOnClickListener {
+            abrirFormulario(null) // ✅ Crea nueva orden
+        }
+    }
+
+    // ✅ Método centralizado para abrir el formulario de cabecera (Crear o Editar)
+    private fun abrirFormulario(orden: Orden_servicio?) {
+        startActivity(Intent(this, FormOrdenServicioActivity::class.java).apply {
+            orden?.let { putExtra("orden_extra", it) }
+        })
+    }
+
     private fun cargarOrdenes() {
         lifecycleScope.launch {
             try {
                 if (!ApiAndroid.isReady) {
-                    showToast("⚠️ Conexión API no disponible")
+                    Toast.makeText(this@OrdenServicioActivity, "⚠️ Conexión API no lista", Toast.LENGTH_LONG).show()
                     return@launch
                 }
 
-                val response = ApiAndroid.apiService.obtenerOrdenServicio()
+                val resp = ApiAndroid.apiService.obtenerOrdenServicio()
 
-                if (response.success && response.data != null) {
+                if (resp.success && resp.data != null) {
                     listaCompleta.clear()
-                    listaCompleta.addAll(response.data) // ✅ Sin !! innecesario
-                    adapter.submitList(response.data)
+                    listaCompleta.addAll(resp.data)
+                    adapter.submitList(resp.data)
 
-                    if (response.data.isEmpty()) {
-                        llEmptyState.visibility = View.VISIBLE
-                        rvOrdenes.visibility = View.GONE
+                    if (resp.data.isEmpty()) {
+                        llEmptyState.visibility = LinearLayout.VISIBLE
+                        rvOrdenes.visibility = RecyclerView.GONE
                     } else {
-                        llEmptyState.visibility = View.GONE
-                        rvOrdenes.visibility = View.VISIBLE
+                        llEmptyState.visibility = LinearLayout.GONE
+                        rvOrdenes.visibility = RecyclerView.VISIBLE
                     }
                 } else {
-                    showToast("❌ ${response.message ?: "No se pudieron cargar las órdenes"}")
+                    Toast.makeText(this@OrdenServicioActivity, resp.message ?: "No hay órdenes", Toast.LENGTH_SHORT).show()
+                    llEmptyState.visibility = LinearLayout.VISIBLE
+                    rvOrdenes.visibility = RecyclerView.GONE
                 }
             } catch (e: Exception) {
-                showToast("❌ Error: ${e.message}")
+                Toast.makeText(this@OrdenServicioActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun filtrarLista(query: String) {
         val filtrada = listaCompleta.filter { orden ->
-            val idMatch = orden.idOrden_servicio?.toString()?.contains(query, ignoreCase = true) == true
-            val estadoMatch = orden.estado?.contains(query, ignoreCase = true) == true
-            idMatch || estadoMatch
+            orden.idOrden_servicio?.toString()?.contains(query, ignoreCase = true) == true ||
+                    orden.estado?.contains(query, ignoreCase = true) == true
         }
         adapter.submitList(filtrada)
-    }
-
-    private fun showToast(msg: String) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 }

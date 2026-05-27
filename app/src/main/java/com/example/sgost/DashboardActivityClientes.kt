@@ -40,7 +40,7 @@ class DashboardActivityClientes : AppCompatActivity() {
         tvTelefono.text = telefono
         tvUbicacion.text = ubicacion
 
-        //cardOrdenes.setOnClickListener { startActivity(Intent(this, MisOrdenesActivity::class.java)) }
+        cardOrdenes.setOnClickListener { startActivity(Intent(this, OrdenServicioActivity::class.java)) }
         cardCarrito.setOnClickListener { startActivity(Intent(this, CarritoActivity::class.java)) }
         //cardNotif.setOnClickListener { startActivity(Intent(this, NotificacionesActivity::class.java)) }
         //cardAyuda.setOnClickListener { startActivity(Intent(this, AyudaActivity::class.java)) }

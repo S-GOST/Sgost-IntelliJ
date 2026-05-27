@@ -37,7 +37,7 @@
                 android:screenOrientation="portrait"
                 android:parentActivityName=".MainActivity" />
 
-        <!-- 3. ADMIN (Nota: Tu archivo se llama DasbohadActivityAdmin) -->
+        <!-- 3. ADMIN -->
         <activity
                 android:name=".DasbohadActivityAdmin"
                 android:exported="false"
@@ -51,7 +51,7 @@
                 android:screenOrientation="portrait"
                 android:parentActivityName=".LoginActivity" />
 
-        <!-- 5. TÉCNICOS DASHBOARD (Nota: Tu archivo se llama DasbohadActivityTecnicos) -->
+        <!-- 5. TÉCNICOS DASHBOARD -->
         <activity
                 android:name=".DasbohadActivityTecnicos"
                 android:exported="false"
@@ -65,7 +65,7 @@
                 android:screenOrientation="portrait"
                 android:parentActivityName=".DasbohadActivityAdmin" />
 
-        <!-- 8. GESTIÓN ADMINISTRADOR -->
+        <!-- 7. GESTIÓN ADMINISTRADOR -->
         <activity
                 android:name=".AdministradoresActivity"
                 android:exported="false"
@@ -86,29 +86,52 @@
                 android:screenOrientation="portrait"
                 android:parentActivityName=".DashboardActivityClientes" />
 
-        <!-- 7. FORMULARIO TÉCNICO -->
+        <!-- 10. DETALLE DE ORDEN -->
+        <activity
+                android:name=".OrdenDetalleActivity"
+                android:exported="false"
+                android:screenOrientation="portrait"
+                android:parentActivityName=".OrdenServicioActivity" />
+
+        <!-- 11. FORMULARIO DE ORDEN -->
+        <activity
+                android:name=".FormOrdenServicioActivity"
+                android:exported="false"
+                android:screenOrientation="portrait"
+                android:parentActivityName=".OrdenServicioActivity" />
+
+        <!-- 12. FORMULARIO TÉCNICO -->
         <activity
                 android:name=".FormTecnicoActivity"
                 android:exported="false"
                 android:screenOrientation="portrait"
                 android:parentActivityName=".TecnicosActivity" />
 
-        <!-- 9. FORMULARIO CLIENTE -->
+        <!-- 13. FORMULARIO CLIENTE -->
         <activity
                 android:name=".FormClienteActivity"
                 android:exported="false"
                 android:screenOrientation="portrait"
-                android:parentActivityName=".ClientesActivity" />
+                android:parentActiv
 
-        <!-- 9. FORMULARIO ADMINISTRADORES -->
 
+
+
+
+
+
+
+
+                ityName=".ClientesActivity" />
+
+        <!-- 14. FORMULARIO ADMINISTRADORES -->
         <activity
                 android:name=".FormAdministradorActivity"
                 android:exported="false"
                 android:screenOrientation="portrait"
                 android:parentActivityName=".AdministradoresActivity" />
 
-        <!-- 10. CARRITO -->
+        <!-- 15. CARRITO -->
         <activity
                 android:name=".CarritoActivity"
                 android:exported="false"
