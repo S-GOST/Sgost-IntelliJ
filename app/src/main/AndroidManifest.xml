@@ -79,6 +79,13 @@
                 android:screenOrientation="portrait"
                 android:parentActivityName=".DasbohadActivityAdmin" />
 
+        <!-- 9. ORDENES DE SERVICIO -->
+        <activity
+                android:name=".OrdenServicioActivity"
+                android:exported="false"
+                android:screenOrientation="portrait"
+                android:parentActivityName=".DashboardActivityClientes" />
+
         <!-- 7. FORMULARIO TÉCNICO -->
         <activity
                 android:name=".FormTecnicoActivity"
