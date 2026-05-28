@@ -1,5 +1,6 @@
 package com.example.sgost.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +13,7 @@ import com.example.sgost.model.Detalles_orden_servicio
 import java.text.NumberFormat
 import java.util.Locale
 
-class DetalleOrdenAdapter : ListAdapter<Detalles_orden_servicio, DetalleOrdenAdapter.ViewHolder>(DiffCallback()) {
+class DetalleOrdenAdapter : ListAdapter<_root_ide_package_.com.example.sgost.model.Detalles_orden_servicio, DetalleOrdenAdapter.ViewHolder>(DiffCallback()) {
 
     private val formatoMoneda = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
 
@@ -31,11 +32,18 @@ class DetalleOrdenAdapter : ListAdapter<Detalles_orden_servicio, DetalleOrdenAda
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val detalle = getItem(position)
 
-        // Determinar si es servicio o producto
-        holder.tvTipo.text = if (detalle.idServicio != null) "🔧 Servicio" else "⚙️ Producto"
+        // 🔍 LOG DE DEBUG (Quítalo cuando funcione)
+        Log.d("ADAPTER", "📦 onBind: ${detalle.nombreServicio} / ${detalle.nombreProducto} | Precio: ${detalle.precio}")
+
+        // Determinar qué mostrar
+        val esServicio = detalle.nombreServicio?.isNotBlank() == true
+        val nombre = if (esServicio) detalle.nombreServicio!! else detalle.nombreProducto ?: "Sin nombre"
+        val icono = if (esServicio) "🔧" else "⚙️"
+
+        holder.tvTipo.text = "$icono $nombre"
         holder.tvEstado.text = detalle.estado?.uppercase(Locale.getDefault()) ?: "PENDIENTE"
-        holder.tvPrecio.text = detalle.precio?.let { formatoMoneda.format(it) } ?: "$0.00"
-        holder.tvGarantia.text = detalle.garantia?.let { "${it} días" } ?: "Sin garantía"
+        holder.tvPrecio.text = formatoMoneda.format(detalle.precio)
+        holder.tvGarantia.text = if (detalle.garantia > 0) "${detalle.garantia} días" else "Sin garantía"
 
         // Colorear estado
         when (detalle.estado?.lowercase(Locale.getDefault())) {
@@ -46,10 +54,10 @@ class DetalleOrdenAdapter : ListAdapter<Detalles_orden_servicio, DetalleOrdenAda
         }
     }
 
-    class DiffCallback : DiffUtil.ItemCallback<Detalles_orden_servicio>() {
-        override fun areItemsTheSame(oldItem: Detalles_orden_servicio, newItem: Detalles_orden_servicio) =
-            oldItem.idDetalle == newItem.idDetalle
-        override fun areContentsTheSame(oldItem: Detalles_orden_servicio, newItem: Detalles_orden_servicio) =
-            oldItem == newItem
+    class DiffCallback : DiffUtil.ItemCallback<_root_ide_package_.com.example.sgost.model.Detalles_orden_servicio>() {
+        override fun areItemsTheSame(old: Detalles_orden_servicio, new: Detalles_orden_servicio) =
+            old.idDetalle == new.idDetalle
+        override fun areContentsTheSame(old: Detalles_orden_servicio, new: Detalles_orden_servicio) =
+            old == new
     }
 }

@@ -112,17 +112,7 @@
                 android:name=".FormClienteActivity"
                 android:exported="false"
                 android:screenOrientation="portrait"
-                android:parentActiv
-
-
-
-
-
-
-
-
-
-                ityName=".ClientesActivity" />
+                android:parentActivityName=".ClientesActivity" />
 
         <!-- 14. FORMULARIO ADMINISTRADORES -->
         <activity

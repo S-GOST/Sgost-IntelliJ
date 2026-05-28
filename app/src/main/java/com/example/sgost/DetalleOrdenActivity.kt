@@ -15,6 +15,9 @@ import com.example.sgost.api.ApiAndroid
 import com.example.sgost.model.Detalles_orden_servicio
 import com.example.sgost.model.Orden_servicio
 import kotlinx.coroutines.launch
+import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class OrdenDetalleActivity : AppCompatActivity() {
 
@@ -72,31 +75,45 @@ class OrdenDetalleActivity : AppCompatActivity() {
     }
 
     private fun cargarDetalles() {
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
                 if (!ApiAndroid.isReady) {
-                    showToast("⚠️ Conexión API no disponible")
+                    withContext(Dispatchers.Main) { showToast("⚠️ API no disponible") }
                     return@launch
                 }
 
-                // 🔽 Agrega este método en tu ApiService:
                 val resp = ApiAndroid.apiService.obtenerDetallesPorOrden(idOrden.toString())
 
-                if (resp.success && resp.data != null) {
-                    adapter.submitList(resp.data)
+                withContext(Dispatchers.Main) {
+                    if (resp.success && resp.data != null) {
+                        Log.d("DETALLES_API", "✅ Success: true | Size: ${resp.data.size}")
+                        Log.d("DETALLES_API", "📦 Data: ${resp.data}")
 
-                    if (resp.data.isEmpty()) {
+                        adapter.submitList(resp.data)
+                        // Forzar refresh por si hay cache del adapter
+                        adapter.notifyDataSetChanged()
+
+                        if (resp.data.isEmpty()) {
+                            llEmptyState.visibility = View.VISIBLE
+                            rvDetalles.visibility = View.GONE
+                        } else {
+                            llEmptyState.visibility = View.GONE
+                            rvDetalles.visibility = View.VISIBLE
+                        }
+                    } else {
+                        Log.e("DETALLES_API", "❌ Error: ${resp.message}")
+                        showToast("❌ ${resp.message ?: "Error"}")
                         llEmptyState.visibility = View.VISIBLE
                         rvDetalles.visibility = View.GONE
-                    } else {
-                        llEmptyState.visibility = View.GONE
-                        rvDetalles.visibility = View.VISIBLE
                     }
-                } else {
-                    showToast("❌ ${resp.message ?: "No se pudieron cargar los detalles"}")
                 }
             } catch (e: Exception) {
-                showToast("❌ Error: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    Log.e("DETALLES_API", "💥 Excepción: ${e.message}", e)
+                    showToast("❌ ${e.message}")
+                    llEmptyState.visibility = View.VISIBLE
+                    rvDetalles.visibility = View.GONE
+                }
             }
         }
     }
