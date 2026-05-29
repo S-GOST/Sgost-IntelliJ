@@ -17,6 +17,7 @@
             android:orientation="vertical"
             android:padding="14dp">
 
+        <!-- Fila 1: Servicio + Imagen del Producto -->
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -28,32 +29,37 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Servicio / Producto"
+                    android:text="Nombre del Servicio"
                     android:textColor="#FFFFFF"
                     android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:fontFamily="sans-serif-medium" />
+                    android:textStyle="bold" />
 
-            <TextView
-                    android:id="@+id/tvEstado"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="PENDIENTE"
-                    android:textColor="#FF6600"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:background="#2A2A2A"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
-                    android:paddingTop="2dp"
-                    android:paddingBottom="2dp" />
+            <!-- IMAGEN DEL PRODUCTO (Mipmap) -->
+            <ImageView
+                    android:id="@+id/ivProductoIcon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="8dp"
+                    android:src="@mipmap/readi" /> <!-- Icono por defecto temporal -->
         </LinearLayout>
 
+        <!-- Fila 2: Detalle del Producto (Texto) -->
+        <TextView
+                android:id="@+id/tvProducto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Detalle del producto"
+                android:textColor="#A0A0A0"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+        <!-- Fila 3: Precio + Garantía -->
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="6dp">
+                android:layout_marginTop="8dp">
 
             <TextView
                     android:id="@+id/tvPrecio"
@@ -69,7 +75,7 @@
                     android:id="@+id/tvGarantia"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0 días"
+                    android:text="Sin garantía"
                     android:textColor="#888888"
                     android:textSize="12sp" />
         </LinearLayout>

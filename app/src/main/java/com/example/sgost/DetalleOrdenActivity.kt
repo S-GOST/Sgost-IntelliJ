@@ -87,10 +87,8 @@ class OrdenDetalleActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     if (resp.success && resp.data != null) {
                         Log.d("DETALLES_API", "✅ Success: true | Size: ${resp.data.size}")
-                        Log.d("DETALLES_API", "📦 Data: ${resp.data}")
 
                         adapter.submitList(resp.data)
-                        // Forzar refresh por si hay cache del adapter
                         adapter.notifyDataSetChanged()
 
                         if (resp.data.isEmpty()) {

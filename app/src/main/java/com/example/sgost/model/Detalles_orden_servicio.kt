@@ -11,7 +11,6 @@ data class Detalles_orden_servicio(
     @SerializedName("NombreServicio") val nombreServicio: String? = null,
     @SerializedName("NombreProducto") val nombreProducto: String? = null,
     @SerializedName("Garantia") val garantiaRaw: String? = null,
-    @SerializedName("Estado") val estado: String? = null,
     @SerializedName("Precio") val precioRaw: String? = null
 ) : Parcelable {
     // ✅ Conversión segura String → Int/Double

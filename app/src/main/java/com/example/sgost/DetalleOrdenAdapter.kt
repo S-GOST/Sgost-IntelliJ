@@ -4,6 +4,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -13,13 +14,14 @@ import com.example.sgost.model.Detalles_orden_servicio
 import java.text.NumberFormat
 import java.util.Locale
 
-class DetalleOrdenAdapter : ListAdapter<_root_ide_package_.com.example.sgost.model.Detalles_orden_servicio, DetalleOrdenAdapter.ViewHolder>(DiffCallback()) {
+class DetalleOrdenAdapter : ListAdapter<Detalles_orden_servicio, DetalleOrdenAdapter.ViewHolder>(DiffCallback()) {
 
     private val formatoMoneda = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvTipo: TextView = view.findViewById(R.id.tvTipo)
-        val tvEstado: TextView = view.findViewById(R.id.tvEstado)
+        val tvProducto: TextView = view.findViewById(R.id.tvProducto)
+        val ivProductoIcon: ImageView = view.findViewById(R.id.ivProductoIcon)
         val tvPrecio: TextView = view.findViewById(R.id.tvPrecio)
         val tvGarantia: TextView = view.findViewById(R.id.tvGarantia)
     }
@@ -32,29 +34,46 @@ class DetalleOrdenAdapter : ListAdapter<_root_ide_package_.com.example.sgost.mod
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val detalle = getItem(position)
 
-        // 🔍 LOG DE DEBUG (Quítalo cuando funcione)
-        Log.d("ADAPTER", "📦 onBind: ${detalle.nombreServicio} / ${detalle.nombreProducto} | Precio: ${detalle.precio}")
+        Log.d("ADAPTER", "📦 onBind: Servicio=[${detalle.nombreServicio}] | Producto=[${detalle.nombreProducto}]")
 
-        // Determinar qué mostrar
-        val esServicio = detalle.nombreServicio?.isNotBlank() == true
-        val nombre = if (esServicio) detalle.nombreServicio!! else detalle.nombreProducto ?: "Sin nombre"
-        val icono = if (esServicio) "🔧" else "⚙️"
+        // 1. Servicio principal
+        holder.tvTipo.text = detalle.nombreServicio ?: "Sin servicio"
 
-        holder.tvTipo.text = "$icono $nombre"
-        holder.tvEstado.text = detalle.estado?.uppercase(Locale.getDefault()) ?: "PENDIENTE"
+        // 2. Producto asociado e Imagen
+        if (!detalle.nombreProducto.isNullOrEmpty()) {
+            holder.tvProducto.text = detalle.nombreProducto
+            holder.tvProducto.visibility = View.VISIBLE
+            // Asignar la imagen de MIPMAP según el nombre
+            holder.ivProductoIcon.setImageResource(getIconForProduct(detalle.nombreProducto))
+        } else {
+            holder.tvProducto.visibility = View.GONE
+            // Icono genérico si no hay producto
+            holder.ivProductoIcon.setImageResource(R.mipmap.readi)
+        }
+
+        // 3. Precio y Garantía
         holder.tvPrecio.text = formatoMoneda.format(detalle.precio)
         holder.tvGarantia.text = if (detalle.garantia > 0) "${detalle.garantia} días" else "Sin garantía"
+    }
 
-        // Colorear estado
-        when (detalle.estado?.lowercase(Locale.getDefault())) {
-            "pendiente" -> holder.tvEstado.setTextColor(0xFFFF6600.toInt())
-            "en proceso", "en_proceso" -> holder.tvEstado.setTextColor(0xFF2196F3.toInt())
-            "finalizada", "completada" -> holder.tvEstado.setTextColor(0xFF4CAF50.toInt())
-            else -> holder.tvEstado.setTextColor(0xFF888888.toInt())
+    /**
+     * 🔧 Busca el icono en la carpeta mipmap.
+     * IMPORTANTE: Asegúrate de que los archivos .png existan en res/mipmap-*/
+    private fun getIconForProduct(productName: String?): Int {
+        val nombre = productName?.lowercase(Locale.getDefault()) ?: ""
+
+        return when {
+            nombre.contains("cadena") -> R.mipmap.cadena      // Existe en tu captura
+            nombre.contains("filtro") -> R.mipmap.filtro      // Existe en tu captura
+
+            // Los siguientes DEBEN ser creados en la carpeta mipmap o la app fallará:
+            nombre.contains("aceite") || nombre.contains("motorex") -> R.mipmap.motorex
+            nombre.contains("pastilla") || nombre.contains("freno") -> R.mipmap.pastillas
+            else -> R.mipmap.readi // Fallback (Icono genérico)
         }
     }
 
-    class DiffCallback : DiffUtil.ItemCallback<_root_ide_package_.com.example.sgost.model.Detalles_orden_servicio>() {
+    class DiffCallback : DiffUtil.ItemCallback<Detalles_orden_servicio>() {
         override fun areItemsTheSame(old: Detalles_orden_servicio, new: Detalles_orden_servicio) =
             old.idDetalle == new.idDetalle
         override fun areContentsTheSame(old: Detalles_orden_servicio, new: Detalles_orden_servicio) =

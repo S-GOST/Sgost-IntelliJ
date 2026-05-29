@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -23,9 +22,7 @@ class OrdenServicioActivity : AppCompatActivity() {
     private lateinit var etSearch: TextInputEditText
     private lateinit var rvOrdenes: RecyclerView
     private lateinit var llEmptyState: LinearLayout
-
     private lateinit var adapter: OrdenServicioAdapter
-    // ✅ Lista que guardará todos los datos para poder filtrar sin perder info
     private var listaCompleta = mutableListOf<Orden_servicio>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,17 +33,16 @@ class OrdenServicioActivity : AppCompatActivity() {
         initViews()
         setupAdapter()
         setupSearch()
-        setupFab() // ✅ Agregado para activar el botón +
-        cargarOrdenes() // Iniciar carga de datos
+        setupFab()
+        cargarOrdenes()
     }
 
     private fun setupToolbar() {
         val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
-        // NO agregues setNavigationOnClickListener aquí
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
-    // ✅ Manejo oficial del botón de retroceso
     override fun onSupportNavigateUp(): Boolean {
         onBackPressedDispatcher.onBackPressed()
         return true
@@ -59,12 +55,12 @@ class OrdenServicioActivity : AppCompatActivity() {
     }
 
     private fun setupAdapter() {
-        adapter = OrdenServicioAdapter(onOrderClick = { orden ->
-            // ✅ Navega a la pantalla de detalles de ESTA orden específica
+        adapter = OrdenServicioAdapter { orden ->
+            // ✅ Pasa el objeto completo y seguro a la siguiente pantalla
             startActivity(Intent(this, OrdenDetalleActivity::class.java).apply {
                 putExtra("orden_extra", orden)
             })
-        })
+        }
         rvOrdenes.layoutManager = LinearLayoutManager(this)
         rvOrdenes.adapter = adapter
     }
@@ -81,22 +77,15 @@ class OrdenServicioActivity : AppCompatActivity() {
 
     private fun setupFab() {
         findViewById<FloatingActionButton>(R.id.fabAgregarOrden).setOnClickListener {
-            abrirFormulario(null) // ✅ Crea nueva orden
+            startActivity(Intent(this, FormOrdenServicioActivity::class.java))
         }
-    }
-
-    // ✅ Método centralizado para abrir el formulario de cabecera (Crear o Editar)
-    private fun abrirFormulario(orden: Orden_servicio?) {
-        startActivity(Intent(this, FormOrdenServicioActivity::class.java).apply {
-            orden?.let { putExtra("orden_extra", it) }
-        })
     }
 
     private fun cargarOrdenes() {
         lifecycleScope.launch {
             try {
                 if (!ApiAndroid.isReady) {
-                    Toast.makeText(this@OrdenServicioActivity, "⚠️ Conexión API no lista", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@OrdenServicioActivity, "⚠️ API no disponible", Toast.LENGTH_LONG).show()
                     return@launch
                 }
 
@@ -107,20 +96,17 @@ class OrdenServicioActivity : AppCompatActivity() {
                     listaCompleta.addAll(resp.data)
                     adapter.submitList(resp.data)
 
-                    if (resp.data.isEmpty()) {
-                        llEmptyState.visibility = LinearLayout.VISIBLE
-                        rvOrdenes.visibility = RecyclerView.GONE
-                    } else {
-                        llEmptyState.visibility = LinearLayout.GONE
-                        rvOrdenes.visibility = RecyclerView.VISIBLE
-                    }
+                    llEmptyState.visibility = if (resp.data.isEmpty()) LinearLayout.VISIBLE else LinearLayout.GONE
+                    rvOrdenes.visibility = if (resp.data.isEmpty()) RecyclerView.GONE else RecyclerView.VISIBLE
                 } else {
-                    Toast.makeText(this@OrdenServicioActivity, resp.message ?: "No hay órdenes", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@OrdenServicioActivity, resp.message ?: "Sin órdenes", Toast.LENGTH_SHORT).show()
                     llEmptyState.visibility = LinearLayout.VISIBLE
                     rvOrdenes.visibility = RecyclerView.GONE
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@OrdenServicioActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@OrdenServicioActivity, "❌ Error: ${e.message}", Toast.LENGTH_LONG).show()
+                llEmptyState.visibility = LinearLayout.VISIBLE
+                rvOrdenes.visibility = RecyclerView.GONE
             }
         }
     }
@@ -128,7 +114,8 @@ class OrdenServicioActivity : AppCompatActivity() {
     private fun filtrarLista(query: String) {
         val filtrada = listaCompleta.filter { orden ->
             orden.idOrden_servicio?.toString()?.contains(query, ignoreCase = true) == true ||
-                    orden.estado?.contains(query, ignoreCase = true) == true
+                    orden.estado?.contains(query, ignoreCase = true) == true ||
+                    orden.idMotos?.toString()?.contains(query, ignoreCase = true) == true
         }
         adapter.submitList(filtrada)
     }
