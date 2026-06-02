@@ -34,17 +34,17 @@ class DetalleOrdenAdapter : ListAdapter<Detalles_orden_servicio, DetalleOrdenAda
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val detalle = getItem(position)
 
-        Log.d("ADAPTER", "📦 onBind: Servicio=[${detalle.nombreServicio}] | Producto=[${detalle.nombreProducto}]")
+        Log.d("ADAPTER", "📦 onBind: Servicio=[${detalle.idProductos}] | Producto=[${detalle.idProductos}]")
 
         // 1. Servicio principal
-        holder.tvTipo.text = detalle.nombreServicio ?: "Sin servicio"
+        holder.tvTipo.text = detalle.idServicios ?: "Sin servicio"
 
         // 2. Producto asociado e Imagen
-        if (!detalle.nombreProducto.isNullOrEmpty()) {
-            holder.tvProducto.text = detalle.nombreProducto
+        if (!detalle.idProductos.isNullOrEmpty()) {
+            holder.tvProducto.text = detalle.idProductos
             holder.tvProducto.visibility = View.VISIBLE
             // Asignar la imagen de MIPMAP según el nombre
-            holder.ivProductoIcon.setImageResource(getIconForProduct(detalle.nombreProducto))
+            holder.ivProductoIcon.setImageResource(getIconForProduct(detalle.idProductos))
         } else {
             holder.tvProducto.visibility = View.GONE
             // Icono genérico si no hay producto
@@ -75,7 +75,7 @@ class DetalleOrdenAdapter : ListAdapter<Detalles_orden_servicio, DetalleOrdenAda
 
     class DiffCallback : DiffUtil.ItemCallback<Detalles_orden_servicio>() {
         override fun areItemsTheSame(old: Detalles_orden_servicio, new: Detalles_orden_servicio) =
-            old.idDetalle == new.idDetalle
+            old.idDetalleOrden == new.idDetalleOrden
         override fun areContentsTheSame(old: Detalles_orden_servicio, new: Detalles_orden_servicio) =
             old == new
     }

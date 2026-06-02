@@ -6,7 +6,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#0D0D0D"
-        tools:context=".OrdenDetalleActivity">
+        android:fitsSystemWindows="true"
+        tools:context=".DetalleOrdenActivity">
 
     <!-- TOOLBAR -->
     <com.google.android.material.appbar.MaterialToolbar
@@ -15,7 +16,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="#141414"
             android:elevation="4dp"
-            app:title="Detalles de la Orden"
+            app:title="Detalles de la orden"
             app:titleTextColor="#FFFFFF"
             app:navigationIcon="@android:drawable/ic_menu_revert"
             app:navigationIconTint="#FF6600" />
@@ -24,55 +25,57 @@
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
             android:layout_marginTop="?attr/actionBarSize"
+            android:orientation="vertical"
             android:padding="16dp">
 
-        <!-- Info de la Orden (Ej: Orden #1 - Finalizada) -->
+        <!-- TÍTULO DE LA ORDEN (Corresponde a tvOrdenInfo) -->
         <TextView
                 android:id="@+id/tvOrdenInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cargando..."
+                android:text="Orden #1 • Finalizada"
                 android:textColor="#FFFFFF"
-                android:textSize="18sp"
+                android:textSize="20sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="16dp"
+                android:fontFamily="sans-serif-medium"/>
 
-        <!-- Lista de Detalles (Recycler View) -->
+        <!-- LISTA DE DETALLES (Corresponde a rvDetalles) -->
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvDetalles"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:paddingBottom="16dp"
                 tools:listitem="@layout/item_detalle_orden" />
 
-        <!-- Estado Vacío (No hay detalles) -->
-        <LinearLayout
-                android:id="@+id/llEmptyState"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:visibility="gone">
+    </LinearLayout>
 
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="📦"
-                    android:textSize="48sp"
-                    android:layout_marginBottom="8dp" />
+    <!-- ESTADO VACÍO (Corresponde a llEmptyState) -->
+    <LinearLayout
+            android:id="@+id/llEmptyState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone">
 
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="No hay detalles registrados"
-                    android:textColor="#888888"
-                    android:textSize="16sp" />
-        </LinearLayout>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📋"
+                android:textSize="48sp"
+                android:layout_marginBottom="8dp" />
 
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No hay detalles para esta orden"
+                android:textColor="#888888"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium" />
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

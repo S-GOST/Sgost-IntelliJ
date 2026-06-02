@@ -5,6 +5,9 @@ import com.example.sgost.model.Cliente
 import com.example.sgost.model.Tecnico
 import com.example.sgost.model.Orden_servicio
 import com.example.sgost.model.Detalles_orden_servicio
+import com.example.sgost.model.Moto
+import com.example.sgost.model.Producto
+import com.example.sgost.model.Servicio
 import com.example.sgost.model.ApiResponse
 import com.example.sgost.model.LoginRequest
 import com.example.sgost.model.LoginResponse
@@ -31,7 +34,6 @@ interface ApiService {
     //---------------------------------------------------------------------------------------------------------------------------------//
 
     // ADMINISTRADORES
-
     @POST("api/admins/insertar")
     suspend fun crearAdministradores(@Body administrador: Administrador): ApiResponse<Tecnico>
 
@@ -53,7 +55,6 @@ interface ApiService {
     //-------------------------------------------------------------------------------------------------------------------------------------------//
 
     // TÉCNICOS
-
     @POST("api/tecnicos/insertar")
     suspend fun crearTecnico(@Body tecnico: Tecnico): ApiResponse<Tecnico>
 
@@ -88,10 +89,73 @@ interface ApiService {
     suspend fun actualizarCliente(
         @Path("id") id: String,
         @Body cliente: Cliente
-    ): Response<ApiResponse<Cliente>> // 👈 CAMBIO AQUI
+    ): Response<ApiResponse<Cliente>>
 
     @DELETE("api/clientes/eliminar/{id}")
     suspend fun eliminarCliente(@Path("id") id: String): Response<ApiResponse<Unit>>
+
+    //---------------------------------------------------------------------------------------------------------------------------------//
+
+    // MOTOS 🔹 NUEVO
+    @POST("api/motos/insertar")
+    suspend fun crearMoto(@Body moto: Moto): ApiResponse<Moto>
+
+    @GET("api/motos/obtener")
+    suspend fun obtenerMotos(): ApiResponse<List<Moto>>
+
+    @GET("api/motos/buscar/{id}")
+    suspend fun obtenerMotoPorId(@Path("id") id: String): Response<ApiResponse<Moto>>
+
+    @PUT("api/motos/actualizar/{id}")
+    suspend fun actualizarMoto(
+        @Path("id") id: String,
+        @Body moto: Moto
+    ): ApiResponse<Moto>
+
+    @DELETE("api/motos/eliminar/{id}")
+    suspend fun eliminarMoto(@Path("id") id: String): ApiResponse<Unit>
+
+    //---------------------------------------------------------------------------------------------------------------------------------//
+
+    // PRODUCTOS 🔹 NUEVO
+    @POST("api/productos/insertar")
+    suspend fun crearProducto(@Body producto: Producto): ApiResponse<Producto>
+
+    @GET("api/productos/obtener")
+    suspend fun obtenerProductos(): ApiResponse<List<Producto>>
+
+    @GET("api/productos/buscar/{id}")
+    suspend fun obtenerProductoPorId(@Path("id") id: String): Response<ApiResponse<Producto>>
+
+    @PUT("api/productos/actualizar/{id}")
+    suspend fun actualizarProducto(
+        @Path("id") id: String,
+        @Body producto: Producto
+    ): ApiResponse<Producto>
+
+    @DELETE("api/productos/eliminar/{id}")
+    suspend fun eliminarProducto(@Path("id") id: String): ApiResponse<Unit>
+
+    //---------------------------------------------------------------------------------------------------------------------------------//
+
+    // SERVICIOS 🔹 NUEVO
+    @POST("api/servicios/insertar")
+    suspend fun crearServicio(@Body servicio: Servicio): ApiResponse<Servicio>
+
+    @GET("api/servicios/obtener")
+    suspend fun obtenerServicios(): ApiResponse<List<Servicio>>
+
+    @GET("api/servicios/buscar/{id}")
+    suspend fun obtenerServicioPorId(@Path("id") id: String): Response<ApiResponse<Servicio>>
+
+    @PUT("api/servicios/actualizar/{id}")
+    suspend fun actualizarServicio(
+        @Path("id") id: String,
+        @Body servicio: Servicio
+    ): ApiResponse<Servicio>
+
+    @DELETE("api/servicios/eliminar/{id}")
+    suspend fun eliminarServicio(@Path("id") id: String): ApiResponse<Unit>
 
     //---------------------------------------------------------------------------------------------------------------------------------//
 
@@ -136,5 +200,4 @@ interface ApiService {
 
     @DELETE("api/detalles_orden_servicio/eliminar/{id}")
     suspend fun eliminarDetalleOrden(@Path("id") id: String): Response<ApiResponse<Unit>>
-
 }
