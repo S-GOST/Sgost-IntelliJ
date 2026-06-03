@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="spinnerServicios" type="id"/>
+    <item name="spinnerProductos" type="id"/>
+    <item name="spinnerEstado" type="id"/>
+</resources>

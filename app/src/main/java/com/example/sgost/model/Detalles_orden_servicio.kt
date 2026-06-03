@@ -4,21 +4,16 @@ import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
-@Parcelize
 data class Detalles_orden_servicio(
-    // ID del detalle (usualmente auto-incremento en BD)
-    @SerializedName("ID_DETALLE_ORDEN_SERVICIO") val idDetalleOrden: Int? = null,
+    @SerializedName("ID_DETALLES_ORDEN_SERVICIO") val idDetalleOrden: Int? = null,
+    @SerializedName("ID_ORDEN_SERVICIO") val idOrden: Int? = null,
+    @SerializedName("ID_SERVICIOS") val idServicios: Int? = null,
+    @SerializedName("ID_PRODUCTOS") val idProductos: Int? = null,
 
-    // Relación con la Orden
-    @SerializedName("ID_ORDEN_SERVICIO") val idOrden: Int?,
+    // 👈 CAMPOS QUE DEVUELVE TU API
+    @SerializedName("NombreServicio") val nombreServicio: String? = null,
+    @SerializedName("NombreProducto") val nombreProducto: String? = null,
 
-    // Relación con el Servicio
-    @SerializedName("ID_SERVICIOS") val idServicios: Int?,
-
-    // Relación con el Producto
-    @SerializedName("ID_PRODUCTOS") val idProductos: Int?,
-
-    // Atributos extra
-    @SerializedName("Garantia") val garantia: Int?,
-    @SerializedName("Precio") val precio: Double?
-) : Parcelable
+    @SerializedName("Precio") val precio: Double? = null,
+    @SerializedName("Garantia") val garantia: Int? = null
+)

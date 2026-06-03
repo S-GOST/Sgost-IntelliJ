@@ -33,49 +33,53 @@ class DetalleOrdenAdapter : ListAdapter<Detalles_orden_servicio, DetalleOrdenAda
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val detalle = getItem(position)
-
-        Log.d("ADAPTER", "📦 onBind: Servicio=[${detalle.idProductos}] | Producto=[${detalle.idProductos}]")
+        Log.d("ADAPTER", "📦 onBind: Servicio=${detalle.nombreServicio} | Producto=${detalle.nombreProducto}")
 
         // 1. Servicio principal
-        holder.tvTipo.text = detalle.idServicios ?: "Sin servicio"
+        holder.tvTipo.text = detalle.nombreServicio ?: "Sin servicio"
 
-        // 2. Producto asociado e Imagen
-        if (!detalle.idProductos.isNullOrEmpty()) {
-            holder.tvProducto.text = detalle.idProductos
+        // 2. Producto e Imagen
+        val nombreProd = detalle.nombreProducto ?: ""
+        if (nombreProd.isNotBlank()) {
+            holder.tvProducto.text = nombreProd
             holder.tvProducto.visibility = View.VISIBLE
-            // Asignar la imagen de MIPMAP según el nombre
-            holder.ivProductoIcon.setImageResource(getIconForProduct(detalle.idProductos))
+            holder.ivProductoIcon.setImageResource(getIconForProduct(nombreProd))
         } else {
             holder.tvProducto.visibility = View.GONE
-            // Icono genérico si no hay producto
             holder.ivProductoIcon.setImageResource(R.mipmap.readi)
         }
 
-        // 3. Precio y Garantía
-        holder.tvPrecio.text = formatoMoneda.format(detalle.precio)
-        holder.tvGarantia.text = if (detalle.garantia > 0) "${detalle.garantia} días" else "Sin garantía"
+        // 3. Precio
+        holder.tvPrecio.text = if (detalle.precio != null && detalle.precio > 0) {
+            formatoMoneda.format(detalle.precio)
+        } else {
+            "$0"
+        }
+
+        // 4. Garantía
+        holder.tvGarantia.text = if (detalle.garantia != null && detalle.garantia > 0) {
+            "${detalle.garantia} días"
+        } else {
+            "Sin garantía"
+        }
     }
 
-    /**
-     * 🔧 Busca el icono en la carpeta mipmap.
-     * IMPORTANTE: Asegúrate de que los archivos .png existan en res/mipmap-*/
     private fun getIconForProduct(productName: String?): Int {
         val nombre = productName?.lowercase(Locale.getDefault()) ?: ""
-
         return when {
-            nombre.contains("cadena") -> R.mipmap.cadena      // Existe en tu captura
-            nombre.contains("filtro") -> R.mipmap.filtro      // Existe en tu captura
-
-            // Los siguientes DEBEN ser creados en la carpeta mipmap o la app fallará:
-            nombre.contains("aceite") || nombre.contains("motorex") -> R.mipmap.motorex
-            nombre.contains("pastilla") || nombre.contains("freno") -> R.mipmap.pastillas
-            else -> R.mipmap.readi // Fallback (Icono genérico)
+            nombre.contains("cadena") -> R.mipmap.cadena
+            nombre.contains("filtro") -> R.mipmap.filtro
+            nombre.contains("aceite") -> R.mipmap.motorex
+            nombre.contains("pastilla") -> R.mipmap.pastillas
+            else -> R.mipmap.readi
         }
     }
 
     class DiffCallback : DiffUtil.ItemCallback<Detalles_orden_servicio>() {
         override fun areItemsTheSame(old: Detalles_orden_servicio, new: Detalles_orden_servicio) =
+            // ✅ CORRECCIÓN: Permite comparar null == null sin fallar
             old.idDetalleOrden == new.idDetalleOrden
+
         override fun areContentsTheSame(old: Detalles_orden_servicio, new: Detalles_orden_servicio) =
             old == new
     }
