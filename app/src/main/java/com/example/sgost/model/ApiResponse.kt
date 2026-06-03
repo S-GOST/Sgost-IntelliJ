@@ -8,5 +8,4 @@ data class ApiResponse<T>(
     @SerializedName("data") val data: T? = null,
     val idOrden_servicio: Any,
     val body: Any
-) {
-}
+)

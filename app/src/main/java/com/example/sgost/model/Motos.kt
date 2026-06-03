@@ -9,7 +9,7 @@ data class Moto(
     @SerializedName("ID_MOTOS") val idMotos: Int? = null,
     @SerializedName("ID_CLIENTES") val idClientes: Int? = null,
     @SerializedName("Placa") val placa: String?,
-    @SerializedName("Modelo") val modelo: Int?,      // Es Int porque en tu base de datos son números (1290, 250)
+    @SerializedName("Modelo") val modelo: String,      // Es Int porque en tu base de datos son números (1290, 250)
     @SerializedName("Marca") val marca: String,
     @SerializedName("Recorrido") val recorrido: Double? // Double para manejar valores como 80.000
 ) : Parcelable

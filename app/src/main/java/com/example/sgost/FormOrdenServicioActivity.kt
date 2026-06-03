@@ -8,18 +8,20 @@ import android.view.MenuItem
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sgost.adapter.DetalleOrdenAdapter
 import com.example.sgost.api.ApiAndroid
-import com.example.sgost.model.Detalles_orden_servicio
-import com.example.sgost.model.Orden_servicio
+import com.example.sgost.model.*
 import com.google.android.material.button.MaterialButton
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -31,8 +33,6 @@ class FormOrdenServicioActivity : AppCompatActivity() {
 
     private lateinit var spinnerClientes: Spinner
     private lateinit var spinnerMotos: Spinner
-    private lateinit var spinnerServicios: Spinner
-    private lateinit var spinnerProductos: Spinner
     private lateinit var spinnerEstado: Spinner
     private lateinit var btnGuardar: MaterialButton
     private lateinit var btnAgregarDetalle: MaterialButton
@@ -65,8 +65,6 @@ class FormOrdenServicioActivity : AppCompatActivity() {
     private fun initViews() {
         spinnerClientes = findViewById(R.id.spinnerClientes) ?: throw IllegalStateException("Falta spinnerClientes")
         spinnerMotos = findViewById(R.id.spinnerMotos) ?: throw IllegalStateException("Falta spinnerMotos")
-        spinnerServicios = findViewById(R.id.spinnerServicios) ?: throw IllegalStateException("Falta spinnerServicios")
-        spinnerProductos = findViewById(R.id.spinnerProductos) ?: throw IllegalStateException("Falta spinnerProductos")
         spinnerEstado = findViewById(R.id.spinnerEstado) ?: throw IllegalStateException("Falta spinnerEstado")
         btnGuardar = findViewById(R.id.btnGuardar) ?: throw IllegalStateException("Falta btnGuardar")
         btnAgregarDetalle = findViewById(R.id.btnAgregarDetalle) ?: throw IllegalStateException("Falta btnAgregarDetalle")
@@ -82,20 +80,35 @@ class FormOrdenServicioActivity : AppCompatActivity() {
     }
 
     private fun cargarDatos() {
-        val estados = listOf("PENDIENTE", "EN_PROCESO", "FINALIZADA", "CANCELADA")
-        setupSpinner(spinnerEstado, estados.map { ItemSpinner(it, -1) })
-        spinnerEstado.setSelection(0)
+        lifecycleScope.launch {
+            try {
+                val clientesJob = async { ApiAndroid.apiService.obtenerClientes() }
+                val motosJob = async { ApiAndroid.apiService.obtenerMotos() }
+                val serviciosJob = async { ApiAndroid.apiService.obtenerServicios() }
+                val productosJob = async { ApiAndroid.apiService.obtenerProductos() }
 
-        // 🔽 REEMPLAZAR CON LLAMADAS A TU API CUANDO ESTÉN LISTAS
-        listaClientes = listOf(ItemSpinner("Juan Pérez", 1), ItemSpinner("María López", 2))
-        listaMotos = listOf(ItemSpinner("Duke 390", 1), ItemSpinner("Tracer 900", 2))
-        listaServicios = listOf(ItemSpinner("Cambio Aceite", 101), ItemSpinner("Revisión Frenos", 102), ItemSpinner("Afinación", 103))
-        listaProductos = listOf(ItemSpinner("Aceite Motul", 201), ItemSpinner("Filtro K&N", 202), ItemSpinner("Cadena DID", 203))
+                val clientes = clientesJob.await().data.orEmpty()
+                val motos = motosJob.await().data.orEmpty()
+                val servicios = serviciosJob.await().data.orEmpty()
+                val productos = productosJob.await().data.orEmpty()
 
-        setupSpinner(spinnerClientes, listaClientes)
-        setupSpinner(spinnerMotos, listaMotos)
-        setupSpinner(spinnerServicios, listaServicios)
-        setupSpinner(spinnerProductos, listaProductos)
+                // Mapeo seguro a ItemSpinner (ajusta los nombres de propiedades si tu data class los tiene diferentes)
+                listaClientes = clientes.map { ItemSpinner(it.nombre ?: "Cliente", it.id ?: -1) }
+                listaMotos = motos.map { ItemSpinner("${it.modelo ?: "Moto"} (${it.placa ?: ""})", it.idMotos ?: -1) }
+                listaServicios = servicios.map { ItemSpinner(it.nombre ?: "Servicio", it.idServicios ?: -1) }
+                listaProductos = productos.map { ItemSpinner("${it.marca ?: "Producto"} ${it.nombre ?: ""}".trim(), it.idProductos ?: -1) }
+
+                setupSpinner(spinnerClientes, listaClientes)
+                setupSpinner(spinnerMotos, listaMotos)
+
+                val estados = listOf("PENDIENTE", "EN_PROCESO", "FINALIZADA", "CANCELADA")
+                setupSpinner(spinnerEstado, estados.map { ItemSpinner(it, -1) })
+                spinnerEstado.setSelection(0)
+
+            } catch (e: Exception) {
+                Toast.makeText(this@FormOrdenServicioActivity, "❌ Error al cargar datos: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun setupSpinner(spinner: Spinner, lista: List<ItemSpinner>) {
@@ -113,113 +126,206 @@ class FormOrdenServicioActivity : AppCompatActivity() {
         btnGuardar.setOnClickListener { guardarOrdenCompleta() }
     }
 
-    // 🆕 MODAL NUEVO CLIENTE
+    // 🆕 MODAL NUEVO CLIENTE (API REAL)
     private fun mostrarModalNuevoCliente() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("👤 Registrar Nuevo Cliente")
-        val inputLayout = LinearLayout(this).apply {
+
+        val scrollView = ScrollView(this).apply { isFillViewport = true }
+        val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(50, 20, 50, 20)
             setBackgroundColor(Color.parseColor("#1A1A1A"))
         }
 
-        val labelNombre = TextView(this).apply { text = "Nombre completo:"; setTextColor(Color.WHITE) }
-        inputLayout.addView(labelNombre)
-        val etNombre = EditText(this).apply { hint = "Ej: Carlos Gómez"; setTextColor(Color.WHITE) }
-        inputLayout.addView(etNombre)
-
-        val labelTel = TextView(this).apply {
-            text = "Teléfono:"; setTextColor(Color.WHITE)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 10 }
+        fun addField(label: String, hint: String, inputType: Int = InputType.TYPE_CLASS_TEXT, isPass: Boolean = false) = EditText(this@FormOrdenServicioActivity).apply {
+            layout.addView(TextView(this@FormOrdenServicioActivity).apply {
+                text = label; setTextColor(Color.WHITE)
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 8 }
+            })
+            this.hint = hint
+            this.inputType = if (isPass) InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD else inputType
+            setTextColor(Color.WHITE); setPadding(0, 4, 0, 4)
+            layout.addView(this)
         }
-        inputLayout.addView(labelTel)
-        val etTel = EditText(this).apply { hint = "3001234567"; inputType = InputType.TYPE_CLASS_PHONE; setTextColor(Color.WHITE) }
-        inputLayout.addView(etTel)
 
-        builder.setView(inputLayout)
-        builder.setPositiveButton("Registrar") { _, _ ->
-            val nombre = etNombre.text.toString().trim()
-            val telefono = etTel.text.toString().trim()
-            if (nombre.isEmpty()) {
-                Toast.makeText(this@FormOrdenServicioActivity, "El nombre es obligatorio", Toast.LENGTH_SHORT).show()
+        val etUbicacion = addField("📍 Ubicación:", "Ej: Bogotá")
+        val etNombre = addField("👤 Nombre completo:", "Ej: Carlos Gómez")
+        val etUsuario = addField("🔑 Usuario:", "Ej: carlos99")
+        val etPassword = addField("🔒 Contraseña:", "Mínimo 6 caracteres", isPass = true)
+        val etTipoDoc = addField("🆔 Tipo Documento:", "Ej: CC, TI, CE")
+        val etCorreo = addField("📧 Correo:", "Ej: carlos@email.com", InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
+        val etTelefono = addField("📱 Teléfono:", "3001234567", InputType.TYPE_CLASS_PHONE)
+
+        scrollView.addView(layout)
+        builder.setView(scrollView)
+
+        builder.setPositiveButton("REGISTRAR") { _, _ ->
+            if (etNombre.text.isNullOrBlank() || etPassword.text.isNullOrBlank()) {
+                Toast.makeText(this@FormOrdenServicioActivity, "Nombre y Contraseña son obligatorios", Toast.LENGTH_SHORT).show()
                 return@setPositiveButton
             }
 
             lifecycleScope.launch {
                 try {
-                    // 🔽 REEMPLAZAR CON TU API REAL:
-                    // val response = ApiAndroid.apiService.registrarCliente(Cliente(nombre, telefono))
-                    // val nuevoId = response.body()?.data?.idCliente ?: throw Exception("No se recibió ID")
+                    val cliente = Cliente(
+                        id = null,
+                        ubicacion = etUbicacion.text.toString().trim(),
+                        nombre = etNombre.text.toString().trim(),
+                        usuario = etUsuario.text.toString().trim(),
+                        contrasena = etPassword.text.toString().trim(),
+                        tipoDocumento = etTipoDoc.text.toString().trim(),
+                        correo = etCorreo.text.toString().trim(),
+                        telefono = etTelefono.text.toString().trim()
+                    )
 
-                    val nuevoId = (listaClientes.maxOfOrNull { it.id } ?: 0) + 1
-                    val nuevoCliente = ItemSpinner(nombre, nuevoId)
-                    listaClientes = listaClientes + nuevoCliente
-                    setupSpinner(spinnerClientes, listaClientes)
-                    spinnerClientes.setSelection(spinnerClientes.count - 1)
-                    Toast.makeText(this@FormOrdenServicioActivity, "✅ Cliente registrado", Toast.LENGTH_LONG).show()
+                    val response = ApiAndroid.apiService.registrarCliente(cliente)
+
+                    Log.d("API_CLIENTE", " Cód: ${response.code()} | HTTP OK: ${response.isSuccessful}")
+                    Log.d("API_CLIENTE", "📦 Body: ${response.body()}")
+
+                    if (response.isSuccessful && response.body() != null && response.body()!!.success) {
+                        val nuevoCliente = response.body()!!.data
+                        if (nuevoCliente != null) {
+                            listaClientes = listaClientes + ItemSpinner(nuevoCliente.nombre ?: "Cliente", nuevoCliente.id ?: -1)
+                            setupSpinner(spinnerClientes, listaClientes)
+                            spinnerClientes.setSelection(spinnerClientes.count - 1)
+                            Toast.makeText(this@FormOrdenServicioActivity, "✅ Cliente registrado exitosamente", Toast.LENGTH_LONG).show()
+                        } else {
+                            Toast.makeText(this@FormOrdenServicioActivity, "⚠️ Error: El servidor no devolvió los datos del cliente", Toast.LENGTH_LONG).show()
+                        }
+                    } else {
+                        // 🛡️ LEER ERRORBODY UNA SOLA VEZ (consume el stream)
+                        val errorRaw = response.errorBody()?.string() ?: response.body()?.message ?: "Error desconocido"
+
+                        val mensajeUsuario = when {
+                            errorRaw.contains("Duplicate entry", ignoreCase = true) ->
+                                "❌ El nombre de usuario ya está registrado. Por favor usa otro."
+                            errorRaw.contains("correo", ignoreCase = true) ->
+                                "❌ El correo electrónico ya está en uso."
+                            errorRaw.contains("contrasena", ignoreCase = true) ->
+                                "❌ La contraseña no cumple los requisitos de seguridad."
+                            else ->
+                                "❌ Error del servidor: $errorRaw"
+                        }
+                        Toast.makeText(this@FormOrdenServicioActivity, mensajeUsuario, Toast.LENGTH_LONG).show()
+                    }
+
                 } catch (e: Exception) {
-                    Toast.makeText(this@FormOrdenServicioActivity, "❌ Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("API_CLIENTE", "💥 Excepción capturada: ${e.message}", e)
+                    Toast.makeText(this@FormOrdenServicioActivity, "❌ Error de conexión: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
-        builder.setNegativeButton("Cancelar") { dialog, _ -> dialog.cancel() }
+        builder.setNegativeButton("CANCELAR") { dialog, _ -> dialog.cancel() }
         builder.show()
     }
 
-    // 🆕 MODAL NUEVA MOTO
+    // 🆕 MODAL NUEVA MOTO (CORREGIDO)
     private fun mostrarModalNuevaMoto() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("🏍️ Registrar Nueva Moto")
-        val inputLayout = LinearLayout(this).apply {
+
+        val scrollView = ScrollView(this).apply { isFillViewport = true }
+        val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(50, 20, 50, 20)
             setBackgroundColor(Color.parseColor("#1A1A1A"))
         }
 
-        val labelMarca = TextView(this).apply { text = "Marca/Modelo:"; setTextColor(Color.WHITE) }
-        inputLayout.addView(labelMarca)
-        val etMarca = EditText(this).apply { hint = "Ej: BMW G 310 R"; setTextColor(Color.WHITE) }
-        inputLayout.addView(etMarca)
-
-        val labelPlaca = TextView(this).apply {
-            text = "Placa:"; setTextColor(Color.WHITE)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 10 }
+        layout.addView(TextView(this@FormOrdenServicioActivity).apply {
+            text = "👤 Dueño (Cliente):"; setTextColor(Color.WHITE)
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 8 }
+        })
+        val spClienteMoto = Spinner(this@FormOrdenServicioActivity).apply {
+            setPadding(0, 4, 0, 4)
+            adapter = ArrayAdapter(this@FormOrdenServicioActivity, android.R.layout.simple_spinner_dropdown_item, listaClientes.map { it.displayName })
         }
-        inputLayout.addView(labelPlaca)
-        val etPlaca = EditText(this).apply { hint = "Ej: ABC-123"; setTextColor(Color.WHITE) }
-        inputLayout.addView(etPlaca)
+        layout.addView(spClienteMoto)
 
-        builder.setView(inputLayout)
-        builder.setPositiveButton("Registrar") { _, _ ->
-            val modelo = etMarca.text.toString().trim()
-            val placa = etPlaca.text.toString().trim()
-            if (modelo.isEmpty()) {
-                Toast.makeText(this@FormOrdenServicioActivity, "El modelo es obligatorio", Toast.LENGTH_SHORT).show()
+        fun addField(label: String, hint: String, inputType: Int = InputType.TYPE_CLASS_TEXT) = EditText(this@FormOrdenServicioActivity).apply {
+            layout.addView(TextView(this@FormOrdenServicioActivity).apply {
+                text = label; setTextColor(Color.WHITE)
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 8 }
+            })
+            this.hint = hint; this.inputType = inputType; setTextColor(Color.WHITE); setPadding(0, 4, 0, 4)
+            layout.addView(this)
+        }
+
+        val etPlaca = addField("🔢 Placa:", "Ej: BGT657")
+        val etModelo = addField("🏷️ Modelo:", "Ej: 390")
+        val etMarca = addField("🏢 Marca:", "Ej: KTM, Honda")
+        val etRecorrido = addField("🛣️ Recorrido (km):", "0", InputType.TYPE_CLASS_NUMBER)
+
+        scrollView.addView(layout)
+        builder.setView(scrollView)
+
+        builder.setPositiveButton("REGISTRAR") { _, _ ->
+            if (etPlaca.text.isNullOrBlank() || etModelo.text.isNullOrBlank()) {
+                Toast.makeText(this@FormOrdenServicioActivity, "Placa y Modelo son obligatorios", Toast.LENGTH_SHORT).show()
                 return@setPositiveButton
             }
 
             lifecycleScope.launch {
                 try {
-                    // 🔽 REEMPLAZAR CON TU API REAL:
-                    // val response = ApiAndroid.apiService.registrarMoto(Moto(modelo, placa))
-                    // val nuevoId = response.body()?.data?.idMoto ?: throw Exception("No se recibió ID")
+                    val idCliente = listaClientes.getOrNull(spClienteMoto.selectedItemPosition)?.id ?: 0
+                    val moto = Moto(
+                        idMotos = null, // Correcto: idMoto (singular)
+                        idClientes = idCliente,
+                        placa = etPlaca.text.toString().trim(),
+                        modelo = etModelo.text.toString().trim(),
+                        marca = etMarca.text.toString().trim(),
+                        recorrido = etRecorrido.text.toString().toDoubleOrNull() ?: 0.0
+                    )
 
-                    val nuevoId = (listaMotos.maxOfOrNull { it.id } ?: 0) + 1
-                    val nuevaMoto = ItemSpinner("$modelo ($placa)", nuevoId)
-                    listaMotos = listaMotos + nuevaMoto
-                    setupSpinner(spinnerMotos, listaMotos)
-                    spinnerMotos.setSelection(spinnerMotos.count - 1)
-                    Toast.makeText(this@FormOrdenServicioActivity, "✅ Moto registrada", Toast.LENGTH_LONG).show()
+                    // 1. LLAMADA A LA API
+                    // IMPORTANTE: crearMoto devuelve ApiResponse<Moto> DIRECTAMENTE, no un Response<...>
+                    val response = ApiAndroid.apiService.crearMoto(moto)
+
+                    Log.d("API_MOTO", "Success: ${response.success} | Data: ${response.data}")
+
+                    // 2. VALIDACIÓN DIRECTA (Sin .body() ni .isSuccessful)
+                    if (response.success) {
+                        // Si el backend no devuelve la moto completa (data es null), usamos la que acabamos de crear
+                        val nuevaMoto = response.data ?: Moto(
+                            idMotos = (listaMotos.maxOfOrNull { it.id } ?: 0) + 1, // Generar ID local temporal
+                            idClientes = moto.idClientes,
+                            placa = moto.placa,
+                            modelo = moto.modelo,
+                            marca = moto.marca,
+                            recorrido = moto.recorrido
+                        )
+
+                        listaMotos = listaMotos + ItemSpinner("${nuevaMoto.modelo} (${nuevaMoto.placa})", nuevaMoto.idMotos ?: -1)
+                        setupSpinner(spinnerMotos, listaMotos)
+                        spinnerMotos.setSelection(spinnerMotos.count - 1)
+                        Toast.makeText(this@FormOrdenServicioActivity, "✅ Moto registrada", Toast.LENGTH_LONG).show()
+                    } else {
+                        // Manejo de errores del backend
+                        val errorMsg = response.message ?: response.message ?: "Error desconocido"
+                        Toast.makeText(this@FormOrdenServicioActivity, "❌ Error: $errorMsg", Toast.LENGTH_LONG).show()
+                    }
+
                 } catch (e: Exception) {
-                    Toast.makeText(this@FormOrdenServicioActivity, "❌ Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("API_MOTO", "Error de red", e)
+                    Toast.makeText(this@FormOrdenServicioActivity, "❌ Error de conexión: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
-        builder.setNegativeButton("Cancelar") { dialog, _ -> dialog.cancel() }
+        builder.setNegativeButton("CANCELAR") { dialog, _ -> dialog.cancel() }
         builder.show()
     }
 
+    private fun ApiResponse<Moto>.code(): String {
+        return TODO("Provide the return value")
+    }
+
     private fun mostrarModalSeleccionDB() {
+        if (listaServicios.isEmpty() && listaProductos.isEmpty()) {
+            Toast.makeText(this@FormOrdenServicioActivity, "⚠️ Aún no hay servicios o productos en la base de datos", Toast.LENGTH_LONG).show()
+            return
+        }
+
         val builder = AlertDialog.Builder(this)
         builder.setTitle("📦 Agregar desde Base de Datos")
         val inputLayout = LinearLayout(this).apply {
@@ -233,8 +339,8 @@ class FormOrdenServicioActivity : AppCompatActivity() {
         val spServicio = Spinner(this).apply {
             setPadding(0, 10, 0, 10)
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            adapter = ArrayAdapter(this@FormOrdenServicioActivity, android.R.layout.simple_spinner_dropdown_item, listaServicios.map { it.displayName })
         }
-        spServicio.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, listaServicios.map { it.displayName })
         inputLayout.addView(spServicio)
 
         val labelProd = TextView(this).apply {
@@ -242,8 +348,10 @@ class FormOrdenServicioActivity : AppCompatActivity() {
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 10 }
         }
         inputLayout.addView(labelProd)
-        val spProducto = Spinner(this).apply { setPadding(0, 10, 0, 10) }
-        spProducto.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, listaProductos.map { it.displayName })
+        val spProducto = Spinner(this).apply {
+            setPadding(0, 10, 0, 10)
+            adapter = ArrayAdapter(this@FormOrdenServicioActivity, android.R.layout.simple_spinner_dropdown_item, listaProductos.map { it.displayName })
+        }
         inputLayout.addView(spProducto)
 
         val labelPrecio = TextView(this).apply {
@@ -251,7 +359,9 @@ class FormOrdenServicioActivity : AppCompatActivity() {
             layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 10 }
         }
         inputLayout.addView(labelPrecio)
-        val etPrecio = EditText(this).apply { hint = "0.00"; inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL; setTextColor(Color.WHITE) }
+        val etPrecio = EditText(this).apply {
+            hint = "0.00"; inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL; setTextColor(Color.WHITE)
+        }
         inputLayout.addView(etPrecio)
 
         val labelGarantia = TextView(this).apply {
@@ -275,23 +385,23 @@ class FormOrdenServicioActivity : AppCompatActivity() {
             }
 
             if (posServ >= 0) {
-                val selServ = listaServicios[posServ]
+                val sel = listaServicios[posServ]
                 listaDetalles.add(Detalles_orden_servicio(
-                    idDetalleOrden = null, idOrden = null, idServicios = selServ.id, idProductos = null,
-                    nombreServicio = selServ.displayName, nombreProducto = null, precio = precio, garantia = garantia
+                    idDetalleOrden = null, idOrden = null, idServicios = sel.id, idProductos = null,
+                    nombreServicio = sel.displayName, nombreProducto = null, precio = precio, garantia = garantia
                 ))
             }
             if (posProd >= 0) {
-                val selProd = listaProductos[posProd]
+                val sel = listaProductos[posProd]
                 listaDetalles.add(Detalles_orden_servicio(
-                    idDetalleOrden = null, idOrden = null, idServicios = null, idProductos = selProd.id,
-                    nombreServicio = null, nombreProducto = selProd.displayName, precio = precio, garantia = garantia
+                    idDetalleOrden = null, idOrden = null, idServicios = null, idProductos = sel.id,
+                    nombreServicio = null, nombreProducto = sel.displayName, precio = precio, garantia = garantia
                 ))
             }
             detalleAdapter.submitList(listaDetalles.toList())
             Toast.makeText(this@FormOrdenServicioActivity, "✅ Agregado a la orden", Toast.LENGTH_SHORT).show()
         }
-        builder.setNegativeButton("Cancelar") { dialog, _ -> dialog.cancel() }
+        builder.setNegativeButton("CANCELAR") { dialog, _ -> dialog.cancel() }
         builder.show()
     }
 
@@ -300,6 +410,10 @@ class FormOrdenServicioActivity : AppCompatActivity() {
         val posMoto = spinnerMotos.selectedItemPosition
         if (posCliente < 0 || posMoto < 0) {
             Toast.makeText(this, "❌ Selecciona Cliente y Moto", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (listaDetalles.isEmpty()) {
+            Toast.makeText(this, "⚠️ Agrega al menos un servicio o producto", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -321,14 +435,18 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                 )
 
                 val responseOrden = ApiAndroid.apiService.crearOrdenServicio(orden)
-                if (!responseOrden.isSuccessful) throw Exception("Error API: ${responseOrden.code()}")
+                if (!responseOrden.isSuccessful || responseOrden.body()?.success != true) {
+                    throw Exception("Error API: ${responseOrden.code()} - ${responseOrden.body()?.message}")
+                }
 
-                val idOrdenCreada = responseOrden.body()?.data?.idOrden_servicio
-                if (idOrdenCreada == null) throw Exception("No se recibió ID de orden del servidor")
-
+                val idOrdenCreada = responseOrden.body()!!.data!!.idOrden_servicio
                 val detallesAGuardar = listaDetalles.map { it.copy(idOrden = idOrdenCreada) }
+
                 for (detalle in detallesAGuardar) {
-                    ApiAndroid.apiService.crearDetalleOrden(detalle)
+                    val responseDetalle = ApiAndroid.apiService.crearDetalleOrden(detalle)
+                    if (!responseDetalle.success) {
+                        Toast.makeText(this@FormOrdenServicioActivity, "⚠️ Falló al guardar un detalle: ${responseDetalle.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
 
                 Toast.makeText(this@FormOrdenServicioActivity, "✅ Orden creada exitosamente!", Toast.LENGTH_LONG).show()
