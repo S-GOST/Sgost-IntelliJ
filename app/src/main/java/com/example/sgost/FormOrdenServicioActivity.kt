@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.MenuItem
 import android.widget.ArrayAdapter
 import android.widget.EditText
@@ -12,7 +13,6 @@ import android.widget.ScrollView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -92,7 +92,6 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                 val servicios = serviciosJob.await().data.orEmpty()
                 val productos = productosJob.await().data.orEmpty()
 
-                // Mapeo seguro a ItemSpinner (ajusta los nombres de propiedades si tu data class los tiene diferentes)
                 listaClientes = clientes.map { ItemSpinner(it.nombre ?: "Cliente", it.id ?: -1) }
                 listaMotos = motos.map { ItemSpinner("${it.modelo ?: "Moto"} (${it.placa ?: ""})", it.idMotos ?: -1) }
                 listaServicios = servicios.map { ItemSpinner(it.nombre ?: "Servicio", it.idServicios ?: -1) }
@@ -181,38 +180,30 @@ class FormOrdenServicioActivity : AppCompatActivity() {
 
                     val response = ApiAndroid.apiService.registrarCliente(cliente)
 
-                    Log.d("API_CLIENTE", " Cód: ${response.code()} | HTTP OK: ${response.isSuccessful}")
-                    Log.d("API_CLIENTE", "📦 Body: ${response.body()}")
+                    Log.d("API_CLIENTE", "Cód: ${response.code()} | HTTP OK: ${response.isSuccessful}")
 
-                    if (response.isSuccessful && response.body() != null && response.body()!!.success) {
+                    if (response.isSuccessful && response.body()?.success == true) {
                         val nuevoCliente = response.body()!!.data
                         if (nuevoCliente != null) {
                             listaClientes = listaClientes + ItemSpinner(nuevoCliente.nombre ?: "Cliente", nuevoCliente.id ?: -1)
                             setupSpinner(spinnerClientes, listaClientes)
-                            spinnerClientes.setSelection(spinnerClientes.count - 1)
+                            if (spinnerClientes.count > 0) spinnerClientes.setSelection(spinnerClientes.count - 1)
                             Toast.makeText(this@FormOrdenServicioActivity, "✅ Cliente registrado exitosamente", Toast.LENGTH_LONG).show()
                         } else {
-                            Toast.makeText(this@FormOrdenServicioActivity, "⚠️ Error: El servidor no devolvió los datos del cliente", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this@FormOrdenServicioActivity, "⚠️ El servidor no devolvió los datos del cliente", Toast.LENGTH_LONG).show()
                         }
                     } else {
-                        // 🛡️ LEER ERRORBODY UNA SOLA VEZ (consume el stream)
                         val errorRaw = response.errorBody()?.string() ?: response.body()?.message ?: "Error desconocido"
-
                         val mensajeUsuario = when {
-                            errorRaw.contains("Duplicate entry", ignoreCase = true) ->
-                                "❌ El nombre de usuario ya está registrado. Por favor usa otro."
-                            errorRaw.contains("correo", ignoreCase = true) ->
-                                "❌ El correo electrónico ya está en uso."
-                            errorRaw.contains("contrasena", ignoreCase = true) ->
-                                "❌ La contraseña no cumple los requisitos de seguridad."
-                            else ->
-                                "❌ Error del servidor: $errorRaw"
+                            errorRaw.contains("Duplicate entry", ignoreCase = true) -> "❌ El usuario ya está registrado."
+                            errorRaw.contains("correo", ignoreCase = true) -> "❌ El correo ya está en uso."
+                            else -> "❌ Error: $errorRaw"
                         }
                         Toast.makeText(this@FormOrdenServicioActivity, mensajeUsuario, Toast.LENGTH_LONG).show()
                     }
 
                 } catch (e: Exception) {
-                    Log.e("API_CLIENTE", "💥 Excepción capturada: ${e.message}", e)
+                    Log.e("API_CLIENTE", "💥 Excepción: ${e.message}", e)
                     Toast.makeText(this@FormOrdenServicioActivity, "❌ Error de conexión: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
@@ -260,66 +251,75 @@ class FormOrdenServicioActivity : AppCompatActivity() {
         scrollView.addView(layout)
         builder.setView(scrollView)
 
-        builder.setPositiveButton("REGISTRAR") { _, _ ->
-            if (etPlaca.text.isNullOrBlank() || etModelo.text.isNullOrBlank()) {
-                Toast.makeText(this@FormOrdenServicioActivity, "Placa y Modelo son obligatorios", Toast.LENGTH_SHORT).show()
-                return@setPositiveButton
-            }
+        builder.setPositiveButton("REGISTRAR") { dialog, _ ->
+            try {
+                val placa = etPlaca.text.toString().trim()
+                val modelo = etModelo.text.toString().trim()
+                val marca = etMarca.text.toString().trim()
+                val recorridoStr = etRecorrido.text.toString().trim()
+                val recorrido = recorridoStr.toDoubleOrNull() ?: 0.0
 
-            lifecycleScope.launch {
-                try {
-                    val idCliente = listaClientes.getOrNull(spClienteMoto.selectedItemPosition)?.id ?: 0
-                    val moto = Moto(
-                        idMotos = null, // Correcto: idMoto (singular)
-                        idClientes = idCliente,
-                        placa = etPlaca.text.toString().trim(),
-                        modelo = etModelo.text.toString().trim(),
-                        marca = etMarca.text.toString().trim(),
-                        recorrido = etRecorrido.text.toString().toDoubleOrNull() ?: 0.0
-                    )
-
-                    // 1. LLAMADA A LA API
-                    // IMPORTANTE: crearMoto devuelve ApiResponse<Moto> DIRECTAMENTE, no un Response<...>
-                    val response = ApiAndroid.apiService.crearMoto(moto)
-
-                    Log.d("API_MOTO", "Success: ${response.success} | Data: ${response.data}")
-
-                    // 2. VALIDACIÓN DIRECTA (Sin .body() ni .isSuccessful)
-                    if (response.success) {
-                        // Si el backend no devuelve la moto completa (data es null), usamos la que acabamos de crear
-                        val nuevaMoto = response.data ?: Moto(
-                            idMotos = (listaMotos.maxOfOrNull { it.id } ?: 0) + 1, // Generar ID local temporal
-                            idClientes = moto.idClientes,
-                            placa = moto.placa,
-                            modelo = moto.modelo,
-                            marca = moto.marca,
-                            recorrido = moto.recorrido
-                        )
-
-                        listaMotos = listaMotos + ItemSpinner("${nuevaMoto.modelo} (${nuevaMoto.placa})", nuevaMoto.idMotos ?: -1)
-                        setupSpinner(spinnerMotos, listaMotos)
-                        spinnerMotos.setSelection(spinnerMotos.count - 1)
-                        Toast.makeText(this@FormOrdenServicioActivity, "✅ Moto registrada", Toast.LENGTH_LONG).show()
-                    } else {
-                        // Manejo de errores del backend
-                        val errorMsg = response.message ?: response.message ?: "Error desconocido"
-                        Toast.makeText(this@FormOrdenServicioActivity, "❌ Error: $errorMsg", Toast.LENGTH_LONG).show()
-                    }
-
-                } catch (e: Exception) {
-                    Log.e("API_MOTO", "Error de red", e)
-                    Toast.makeText(this@FormOrdenServicioActivity, "❌ Error de conexión: ${e.message}", Toast.LENGTH_LONG).show()
+                if (placa.isEmpty() || modelo.isEmpty() || marca.isEmpty()) {
+                    Toast.makeText(this, "❌ Completa todos los campos", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
                 }
+
+                // Asegúrate de que 'idCliente' tenga el valor correcto del spinner
+                val posCliente = spClienteMoto.selectedItemPosition
+                val idCliente = if (posCliente >= 0 && posCliente < listaClientes.size) {
+                    listaClientes[posCliente].id
+                } else {
+                    Toast.makeText(this, "❌ Selecciona un cliente válido", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                val moto = Moto(
+                    idMotos = null,
+                    idClientes = idCliente,
+                    placa = placa,
+                    modelo = modelo,
+                    marca = marca,
+                    recorrido = recorrido
+                )
+
+                lifecycleScope.launch {
+                    try {
+                        // 1. Llamada a la API
+                        val response = ApiAndroid.apiService.crearMoto(moto)
+
+                        // 2. CORRECCIÓN: Verificamos response.success directamente (no response.body()?.success)
+                        if (response.success) {
+                            Toast.makeText(this@FormOrdenServicioActivity, "✅ Moto registrada", Toast.LENGTH_LONG).show()
+
+                            // Generamos un ID temporal para la lista local
+                            val nuevaId = (listaMotos.maxOfOrNull { it.id } ?: 0) + 1
+                            listaMotos = listaMotos.toMutableList() + ItemSpinner(displayName = "$modelo ($placa)", id = nuevaId)
+
+                            setupSpinner(spinnerMotos, listaMotos)
+                            if (spinnerMotos.count > 0) spinnerMotos.setSelection(spinnerMotos.count - 1)
+
+                            dialog.dismiss()
+
+                        } else {
+                            // 3. Mostramos el mensaje de error que viene en response.message
+                            Toast.makeText(this@FormOrdenServicioActivity, "❌ Error: ${response.message}", Toast.LENGTH_LONG).show()
+                        }
+
+                    } catch (e: Exception) {
+                        Toast.makeText(this@FormOrdenServicioActivity, "❌ Error de red: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
+
+            } catch (e: Exception) {
+                Toast.makeText(this, "❌ Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
+
         builder.setNegativeButton("CANCELAR") { dialog, _ -> dialog.cancel() }
         builder.show()
     }
 
-    private fun ApiResponse<Moto>.code(): String {
-        return TODO("Provide the return value")
-    }
-
+    // 🆕 MODAL SELECCIÓN DB (Servicios/Productos)
     private fun mostrarModalSeleccionDB() {
         if (listaServicios.isEmpty() && listaProductos.isEmpty()) {
             Toast.makeText(this@FormOrdenServicioActivity, "⚠️ Aún no hay servicios o productos en la base de datos", Toast.LENGTH_LONG).show()
@@ -405,6 +405,7 @@ class FormOrdenServicioActivity : AppCompatActivity() {
         builder.show()
     }
 
+    // 💾 GUARDAR ORDEN COMPLETA
     private fun guardarOrdenCompleta() {
         val posCliente = spinnerClientes.selectedItemPosition
         val posMoto = spinnerMotos.selectedItemPosition
@@ -435,11 +436,15 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                 )
 
                 val responseOrden = ApiAndroid.apiService.crearOrdenServicio(orden)
-                if (!responseOrden.isSuccessful || responseOrden.body()?.success != true) {
-                    throw Exception("Error API: ${responseOrden.code()} - ${responseOrden.body()?.message}")
+                val bodyOrden = responseOrden.body()
+
+                if (!responseOrden.isSuccessful || bodyOrden?.success != true) {
+                    throw Exception("Error API: ${responseOrden.code()} - ${bodyOrden?.message ?: responseOrden.message()}")
                 }
 
-                val idOrdenCreada = responseOrden.body()!!.data!!.idOrden_servicio
+                val idOrdenCreada = bodyOrden.data?.idOrden_servicio
+                    ?: throw Exception("No se recibió ID de orden del servidor")
+
                 val detallesAGuardar = listaDetalles.map { it.copy(idOrden = idOrdenCreada) }
 
                 for (detalle in detallesAGuardar) {
