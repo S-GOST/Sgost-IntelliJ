@@ -6,22 +6,25 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#0D0D0D"
+        android:paddingTop="8dp"
         tools:context=".FormOrdenServicioActivity">
 
+    <!-- TOOLBAR -->
+
+    <!-- CONTENIDO SCROLLEABLE -->
     <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="#141414"
-            app:title="Nueva Orden de Servicio"
-            app:titleTextColor="#FFFFFF"
             app:navigationIcon="@android:drawable/ic_menu_revert"
-            app:navigationIconTint="#FF6600" />
-
+            app:navigationIconTint="#FF6600"
+            app:title="Nueva Orden de Servicio"
+            app:titleTextColor="#FFFFFF"/>
     <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="?attr/actionBarSize"
+            android:layout_marginTop="70dp"
             android:fillViewport="true">
 
         <LinearLayout
@@ -36,17 +39,38 @@
                     android:layout_height="wrap_content"
                     app:cardBackgroundColor="#1A1A1A"
                     app:cardCornerRadius="12dp">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="👤 Cliente" android:textColor="#FF6600" android:textStyle="bold" android:layout_marginBottom="4dp"/>
-                    <Spinner android:id="@+id/spinnerClientes" android:layout_width="match_parent" android:layout_height="wrap_content" android:backgroundTint="#141414" android:padding="10dp" android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:text="👤 Cliente"
+                            android:textColor="#FF6600"
+                            android:textStyle="bold" />
+
+                    <Spinner
+                            android:id="@+id/spinnerClientes"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:padding="10dp"
+                            android:popupBackground="#222222"
+                            android:textColor="#FFFFFF" />
+
                     <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnNuevoCliente"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:backgroundTint="#222222"
                             android:text="+ Registrar Nuevo Cliente"
                             android:textColor="#FF6600"
-                            android:backgroundTint="#222222"
-                            app:cornerRadius="8dp"/>
+                            app:cornerRadius="8dp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -57,17 +81,38 @@
                     android:layout_marginTop="12dp"
                     app:cardBackgroundColor="#1A1A1A"
                     app:cardCornerRadius="12dp">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🏍️ Moto" android:textColor="#FF6600" android:textStyle="bold" android:layout_marginBottom="4dp"/>
-                    <Spinner android:id="@+id/spinnerMotos" android:layout_width="match_parent" android:layout_height="wrap_content" android:backgroundTint="#141414" android:padding="10dp" android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:text="🏍️ Moto"
+                            android:textColor="#FF6600"
+                            android:textStyle="bold" />
+
+                    <Spinner
+                            android:id="@+id/spinnerMotos"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:padding="10dp"
+                            android:popupBackground="#222222"
+                            android:textColor="#FFFFFF" />
+
                     <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnNuevaMoto"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:backgroundTint="#222222"
                             android:text="+ Registrar Nueva Moto"
                             android:textColor="#FF6600"
-                            android:backgroundTint="#222222"
-                            app:cornerRadius="8dp"/>
+                            app:cornerRadius="8dp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -78,9 +123,29 @@
                     android:layout_marginTop="12dp"
                     app:cardBackgroundColor="#1A1A1A"
                     app:cardCornerRadius="12dp">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📌 Estado" android:textColor="#FF6600" android:textStyle="bold" android:layout_marginBottom="4dp"/>
-                    <Spinner android:id="@+id/spinnerEstado" android:layout_width="match_parent" android:layout_height="wrap_content" android:backgroundTint="#141414" android:padding="10dp" android:layout_marginBottom="16dp"/>
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:text="📌 Estado"
+                            android:textColor="#FF6600"
+                            android:textStyle="bold" />
+
+                    <Spinner
+                            android:id="@+id/spinnerEstado"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            android:padding="10dp"
+                            android:popupBackground="#222222"
+                            android:textColor="#FFFFFF" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -90,30 +155,65 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
+                    android:backgroundTint="#FF6600"
                     android:text="➕ Agregar Servicio/Producto desde BD"
                     android:textColor="#000000"
-                    android:backgroundTint="#FF6600"
                     app:cornerRadius="8dp" />
 
             <!-- LISTA VISUAL -->
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📋 Resumen de la Orden" android:textColor="#FFFFFF" android:textStyle="bold" android:layout_marginTop="20dp" android:layout_marginBottom="8dp"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="📋 Resumen de la Orden"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+
             <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvOrdenDetalles"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
                     android:background="#141414"
-                    android:padding="8dp"
-                    android:clipToPadding="false"/>
+                    android:clipToPadding="false"
+                    android:nestedScrollingEnabled="false"
+                    android:padding="8dp" />
 
-            <Space android:layout_width="match_parent" android:layout_height="100dp"/>
+            <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
     <!-- BOTONES INFERIORES -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="bottom" android:orientation="horizontal" android:padding="16dp" android:background="#141414">
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnCancelar" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="CANCELAR" android:textColor="#FFFFFF" android:backgroundTint="#333333" app:cornerRadius="8dp" android:layout_marginEnd="8dp"/>
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnGuardar" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="GUARDAR ORDEN" android:textColor="#000000" android:backgroundTint="#FF6600" app:cornerRadius="8dp"/>
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="#141414"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:backgroundTint="#333333"
+                android:text="CANCELAR"
+                android:textColor="#FFFFFF"
+                app:cornerRadius="8dp" />
+
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGuardar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="#FF6600"
+                android:text="GUARDAR ORDEN"
+                android:textColor="#000000"
+                app:cornerRadius="8dp" />
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

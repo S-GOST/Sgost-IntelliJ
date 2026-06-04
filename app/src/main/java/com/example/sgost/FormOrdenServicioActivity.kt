@@ -102,9 +102,10 @@ class FormOrdenServicioActivity : AppCompatActivity() {
 
                 val estados = listOf("PENDIENTE", "EN_PROCESO", "FINALIZADA", "CANCELADA")
                 setupSpinner(spinnerEstado, estados.map { ItemSpinner(it, -1) })
-                spinnerEstado.setSelection(0)
+                if (spinnerEstado.count > 0) spinnerEstado.setSelection(0)
 
             } catch (e: Exception) {
+                Log.e("CARGA_DATOS", "Error al cargar listas", e)
                 Toast.makeText(this@FormOrdenServicioActivity, "❌ Error al cargar datos: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
@@ -179,8 +180,6 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                     )
 
                     val response = ApiAndroid.apiService.registrarCliente(cliente)
-
-                    Log.d("API_CLIENTE", "Cód: ${response.code()} | HTTP OK: ${response.isSuccessful}")
 
                     if (response.isSuccessful && response.body()?.success == true) {
                         val nuevoCliente = response.body()!!.data
@@ -264,7 +263,6 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                     return@setPositiveButton
                 }
 
-                // Asegúrate de que 'idCliente' tenga el valor correcto del spinner
                 val posCliente = spClienteMoto.selectedItemPosition
                 val idCliente = if (posCliente >= 0 && posCliente < listaClientes.size) {
                     listaClientes[posCliente].id
@@ -284,32 +282,22 @@ class FormOrdenServicioActivity : AppCompatActivity() {
 
                 lifecycleScope.launch {
                     try {
-                        // 1. Llamada a la API
                         val response = ApiAndroid.apiService.crearMoto(moto)
 
-                        // 2. CORRECCIÓN: Verificamos response.success directamente (no response.body()?.success)
                         if (response.success) {
                             Toast.makeText(this@FormOrdenServicioActivity, "✅ Moto registrada", Toast.LENGTH_LONG).show()
-
-                            // Generamos un ID temporal para la lista local
                             val nuevaId = (listaMotos.maxOfOrNull { it.id } ?: 0) + 1
                             listaMotos = listaMotos.toMutableList() + ItemSpinner(displayName = "$modelo ($placa)", id = nuevaId)
-
                             setupSpinner(spinnerMotos, listaMotos)
                             if (spinnerMotos.count > 0) spinnerMotos.setSelection(spinnerMotos.count - 1)
-
                             dialog.dismiss()
-
                         } else {
-                            // 3. Mostramos el mensaje de error que viene en response.message
                             Toast.makeText(this@FormOrdenServicioActivity, "❌ Error: ${response.message}", Toast.LENGTH_LONG).show()
                         }
-
                     } catch (e: Exception) {
                         Toast.makeText(this@FormOrdenServicioActivity, "❌ Error de red: ${e.message}", Toast.LENGTH_LONG).show()
                     }
                 }
-
             } catch (e: Exception) {
                 Toast.makeText(this, "❌ Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
@@ -466,10 +454,12 @@ class FormOrdenServicioActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            onBackPressedDispatcher.onBackPressed()
-            return true
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressedDispatcher.onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 }
