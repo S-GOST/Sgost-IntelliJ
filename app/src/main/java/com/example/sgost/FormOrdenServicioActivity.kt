@@ -27,13 +27,13 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-data class ItemSpinner(val displayName: String, val id: Int)
+// 🆕 MODIFICADO: Se agregó 'precio' a la clase
+data class ItemSpinner(val displayName: String, val id: Int, val precio: Double = 0.0)
 
 class FormOrdenServicioActivity : AppCompatActivity() {
 
     private lateinit var spinnerClientes: Spinner
     private lateinit var spinnerMotos: Spinner
-    private lateinit var spinnerEstado: Spinner
     private lateinit var btnGuardar: MaterialButton
     private lateinit var btnAgregarDetalle: MaterialButton
     private lateinit var btnNuevoCliente: MaterialButton
@@ -65,7 +65,6 @@ class FormOrdenServicioActivity : AppCompatActivity() {
     private fun initViews() {
         spinnerClientes = findViewById(R.id.spinnerClientes) ?: throw IllegalStateException("Falta spinnerClientes")
         spinnerMotos = findViewById(R.id.spinnerMotos) ?: throw IllegalStateException("Falta spinnerMotos")
-        spinnerEstado = findViewById(R.id.spinnerEstado) ?: throw IllegalStateException("Falta spinnerEstado")
         btnGuardar = findViewById(R.id.btnGuardar) ?: throw IllegalStateException("Falta btnGuardar")
         btnAgregarDetalle = findViewById(R.id.btnAgregarDetalle) ?: throw IllegalStateException("Falta btnAgregarDetalle")
         btnNuevoCliente = findViewById(R.id.btnNuevoCliente) ?: throw IllegalStateException("Falta btnNuevoCliente")
@@ -94,15 +93,31 @@ class FormOrdenServicioActivity : AppCompatActivity() {
 
                 listaClientes = clientes.map { ItemSpinner(it.nombre ?: "Cliente", it.id ?: -1) }
                 listaMotos = motos.map { ItemSpinner("${it.modelo ?: "Moto"} (${it.placa ?: ""})", it.idMotos ?: -1) }
-                listaServicios = servicios.map { ItemSpinner(it.nombre ?: "Servicio", it.idServicios ?: -1) }
-                listaProductos = productos.map { ItemSpinner("${it.marca ?: "Producto"} ${it.nombre ?: ""}".trim(), it.idProductos ?: -1) }
+
+                // ✅ CORRECCIÓN: Servicios
+                listaServicios = servicios.map {
+                    // it.precio ya es numérico, no es necesario convertirlo de String
+                    val precio = it.precio ?: 0.0
+                    ItemSpinner(
+                        displayName = "${it.nombre ?: "Servicio"} - $${it.precio}",
+                        id = it.idServicios ?: -1,
+                        precio = precio
+                    )
+                }
+
+                // ✅ CORRECCIÓN: Productos
+                listaProductos = productos.map {
+                    // it.precio ya es numérico
+                    val precio = it.precio ?: 0.0
+                    ItemSpinner(
+                        displayName = "${it.marca ?: ""} ${it.nombre ?: ""}".trim() + " - $${it.precio}",
+                        id = it.idProductos ?: -1,
+                        precio = precio
+                    )
+                }
 
                 setupSpinner(spinnerClientes, listaClientes)
                 setupSpinner(spinnerMotos, listaMotos)
-
-                val estados = listOf("PENDIENTE", "EN_PROCESO", "FINALIZADA", "CANCELADA")
-                setupSpinner(spinnerEstado, estados.map { ItemSpinner(it, -1) })
-                if (spinnerEstado.count > 0) spinnerEstado.setSelection(0)
 
             } catch (e: Exception) {
                 Log.e("CARGA_DATOS", "Error al cargar listas", e)
@@ -196,7 +211,9 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                         val mensajeUsuario = when {
                             errorRaw.contains("Duplicate entry", ignoreCase = true) -> "❌ El usuario ya está registrado."
                             errorRaw.contains("correo", ignoreCase = true) -> "❌ El correo ya está en uso."
-                            else -> "❌ Error: $errorRaw"
+
+
+                             else -> "❌ Error: $errorRaw"
                         }
                         Toast.makeText(this@FormOrdenServicioActivity, mensajeUsuario, Toast.LENGTH_LONG).show()
                     }
@@ -307,7 +324,7 @@ class FormOrdenServicioActivity : AppCompatActivity() {
         builder.show()
     }
 
-    // 🆕 MODAL SELECCIÓN DB (Servicios/Productos)
+    // 🆕 MODAL SELECCIÓN DB (Servicios/Productos) - AHORA USA EL PRECIO REAL
     private fun mostrarModalSeleccionDB() {
         if (listaServicios.isEmpty() && listaProductos.isEmpty()) {
             Toast.makeText(this@FormOrdenServicioActivity, "⚠️ Aún no hay servicios o productos en la base de datos", Toast.LENGTH_LONG).show()
@@ -342,30 +359,10 @@ class FormOrdenServicioActivity : AppCompatActivity() {
         }
         inputLayout.addView(spProducto)
 
-        val labelPrecio = TextView(this).apply {
-            text = "💰 Precio:"; setTextColor(Color.WHITE)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 10 }
-        }
-        inputLayout.addView(labelPrecio)
-        val etPrecio = EditText(this).apply {
-            hint = "0.00"; inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL; setTextColor(Color.WHITE)
-        }
-        inputLayout.addView(etPrecio)
-
-        val labelGarantia = TextView(this).apply {
-            text = "🛡️ Garantía (días):"; setTextColor(Color.WHITE)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 10 }
-        }
-        inputLayout.addView(labelGarantia)
-        val etGarantia = EditText(this).apply { hint = "0"; inputType = InputType.TYPE_CLASS_NUMBER; setTextColor(Color.WHITE) }
-        inputLayout.addView(etGarantia)
-
         builder.setView(inputLayout)
         builder.setPositiveButton("➕ Agregar") { _, _ ->
             val posServ = spServicio.selectedItemPosition
             val posProd = spProducto.selectedItemPosition
-            val precio = etPrecio.text.toString().toDoubleOrNull() ?: 0.0
-            val garantia = etGarantia.text.toString().toIntOrNull() ?: 0
 
             if (posServ < 0 && posProd < 0) {
                 Toast.makeText(this@FormOrdenServicioActivity, "Selecciona al menos un servicio o producto", Toast.LENGTH_SHORT).show()
@@ -376,14 +373,20 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                 val sel = listaServicios[posServ]
                 listaDetalles.add(Detalles_orden_servicio(
                     idDetalleOrden = null, idOrden = null, idServicios = sel.id, idProductos = null,
-                    nombreServicio = sel.displayName, nombreProducto = null, precio = precio, garantia = garantia
+                    nombreServicio = sel.displayName.split(" - ").firstOrNull() ?: sel.displayName, // Limpia el nombre quitando el precio para la DB
+                    nombreProducto = null,
+                    precio = sel.precio, // 🆕 Usa el precio real
+                    garantia = 0
                 ))
             }
             if (posProd >= 0) {
                 val sel = listaProductos[posProd]
                 listaDetalles.add(Detalles_orden_servicio(
                     idDetalleOrden = null, idOrden = null, idServicios = null, idProductos = sel.id,
-                    nombreServicio = null, nombreProducto = sel.displayName, precio = precio, garantia = garantia
+                    nombreServicio = null,
+                    nombreProducto = sel.displayName.split(" - ").firstOrNull() ?: sel.displayName, // Limpia el nombre
+                    precio = sel.precio, // 🆕 Usa el precio real
+                    garantia = 0
                 ))
             }
             detalleAdapter.submitList(listaDetalles.toList())
@@ -413,39 +416,47 @@ class FormOrdenServicioActivity : AppCompatActivity() {
             try {
                 val idCliente = listaClientes[posCliente].id
                 val idMoto = listaMotos[posMoto].id
-                val estado = spinnerEstado.selectedItem.toString()
+                val estado = "PENDIENTE" // Estado fijo
 
                 val orden = Orden_servicio(
                     idOrden_servicio = null, idClientes = idCliente, idAdministrador = 1,
                     idTecnicos = 1, idMotos = idMoto,
                     fechaInicio = formatoFecha.format(Date()),
                     fechaEstimada = formatoFecha.format(Date(System.currentTimeMillis() + 86400000)),
-                    fechaFin = null, estado = estado
+                    fechaFin = formatoFecha.format(Date()),
+                    estado = estado
                 )
 
                 val responseOrden = ApiAndroid.apiService.crearOrdenServicio(orden)
                 val bodyOrden = responseOrden.body()
 
                 if (!responseOrden.isSuccessful || bodyOrden?.success != true) {
-                    throw Exception("Error API: ${responseOrden.code()} - ${bodyOrden?.message ?: responseOrden.message()}")
+                    throw Exception("Error al crear orden: ${responseOrden.code()} - ${bodyOrden?.message ?: responseOrden.message()}")
                 }
 
                 val idOrdenCreada = bodyOrden.data?.idOrden_servicio
                     ?: throw Exception("No se recibió ID de orden del servidor")
 
                 val detallesAGuardar = listaDetalles.map { it.copy(idOrden = idOrdenCreada) }
+                var detallesFallidos = 0
 
-                for (detalle in detallesAGuardar) {
+                detallesAGuardar.forEach { detalle ->
                     val responseDetalle = ApiAndroid.apiService.crearDetalleOrden(detalle)
                     if (!responseDetalle.success) {
-                        Toast.makeText(this@FormOrdenServicioActivity, "⚠️ Falló al guardar un detalle: ${responseDetalle.message}", Toast.LENGTH_SHORT).show()
+                        detallesFallidos++
+                        Log.w("DETALLES", "Falló detalle: ${detalle.nombreServicio ?: detalle.nombreProducto}")
                     }
                 }
 
-                Toast.makeText(this@FormOrdenServicioActivity, "✅ Orden creada exitosamente!", Toast.LENGTH_LONG).show()
+                if (detallesFallidos > 0) {
+                    Toast.makeText(this@FormOrdenServicioActivity, "⚠️ Orden creada pero $detallesFallidos detalle(s) no se guardaron", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this@FormOrdenServicioActivity, "✅ Orden y detalles creados exitosamente!", Toast.LENGTH_LONG).show()
+                }
+
                 finish()
             } catch (e: Exception) {
-                Toast.makeText(this@FormOrdenServicioActivity, "❌ Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@FormOrdenServicioActivity, "❌ Error: ${e.message}", Toast.LENGTH_LONG).show()
             } finally {
                 btnGuardar.isEnabled = true
                 btnGuardar.text = "GUARDAR ORDEN"
