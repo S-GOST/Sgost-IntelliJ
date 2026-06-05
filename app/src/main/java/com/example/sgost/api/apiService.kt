@@ -11,6 +11,7 @@ import com.example.sgost.model.Servicio
 import com.example.sgost.model.ApiResponse
 import com.example.sgost.model.LoginRequest
 import com.example.sgost.model.LoginResponse
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -161,7 +162,7 @@ interface ApiService {
 
     // ORDEN SERVICIO
     @POST("api/ordenes_servicio/insertar")
-    suspend fun crearOrdenServicio(@Body orden_servcio: Orden_servicio): Response<ApiResponse<Orden_servicio>>
+    suspend fun crearOrdenServicio(@Body orden: Orden_servicio): Response<ResponseBody>
 
     @GET("api/ordenes_servicio/obtener")
     suspend fun obtenerOrdenServicio(): ApiResponse<List<Orden_servicio>>
