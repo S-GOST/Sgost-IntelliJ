@@ -66,7 +66,8 @@ class FormOrdenServicioActivity : AppCompatActivity() {
         spinnerClientes = findViewById(R.id.spinnerClientes) ?: throw IllegalStateException("Falta spinnerClientes")
         spinnerMotos = findViewById(R.id.spinnerMotos) ?: throw IllegalStateException("Falta spinnerMotos")
         btnGuardar = findViewById(R.id.btnGuardar) ?: throw IllegalStateException("Falta btnGuardar")
-        btnAgregarDetalle = findViewById(R.id.btnAgregarDetalle) ?: throw IllegalStateException("Falta btnAgregarDetalle")
+        btnAgregarDetalle =
+            findViewById(R.id.btnAgregarDetalle) ?: throw IllegalStateException("Falta btnAgregarDetalle")
         btnNuevoCliente = findViewById(R.id.btnNuevoCliente) ?: throw IllegalStateException("Falta btnNuevoCliente")
         btnNuevaMoto = findViewById(R.id.btnNuevaMoto) ?: throw IllegalStateException("Falta btnNuevaMoto")
         rvOrdenDetalles = findViewById(R.id.rvOrdenDetalles) ?: throw IllegalStateException("Falta rvOrdenDetalles")
@@ -91,8 +92,12 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                 val servicios = serviciosJob.await().data.orEmpty()
                 val productos = productosJob.await().data.orEmpty()
 
-                listaClientes = clientes.map { ItemSpinner(it.nombre ?: "Cliente", it.id ?: -1) }
-                listaMotos = motos.map { ItemSpinner("${it.modelo ?: "Moto"} (${it.placa ?: ""})", it.idMotos ?: -1) }
+                listaClientes = clientes.filter { it.id != null }.map {
+                    ItemSpinner(it.nombre ?: "Cliente", it.id!!)
+                }
+                listaMotos = motos.filter { it.idMotos != null }.map {
+                    ItemSpinner(it.modelo ?: "Duke", it.idMotos!!)
+                }
 
                 // ✅ CORRECCIÓN: Servicios
                 listaServicios = servicios.map {
@@ -121,7 +126,11 @@ class FormOrdenServicioActivity : AppCompatActivity() {
 
             } catch (e: Exception) {
                 Log.e("CARGA_DATOS", "Error al cargar listas", e)
-                Toast.makeText(this@FormOrdenServicioActivity, "❌ Error al cargar datos: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this@FormOrdenServicioActivity,
+                    "❌ Error al cargar datos: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
@@ -153,16 +162,21 @@ class FormOrdenServicioActivity : AppCompatActivity() {
             setBackgroundColor(Color.parseColor("#1A1A1A"))
         }
 
-        fun addField(label: String, hint: String, inputType: Int = InputType.TYPE_CLASS_TEXT, isPass: Boolean = false) = EditText(this@FormOrdenServicioActivity).apply {
-            layout.addView(TextView(this@FormOrdenServicioActivity).apply {
-                text = label; setTextColor(Color.WHITE)
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 8 }
-            })
-            this.hint = hint
-            this.inputType = if (isPass) InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD else inputType
-            setTextColor(Color.WHITE); setPadding(0, 4, 0, 4)
-            layout.addView(this)
-        }
+        fun addField(label: String, hint: String, inputType: Int = InputType.TYPE_CLASS_TEXT, isPass: Boolean = false) =
+            EditText(this@FormOrdenServicioActivity).apply {
+                layout.addView(TextView(this@FormOrdenServicioActivity).apply {
+                    text = label; setTextColor(Color.WHITE)
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply { topMargin = 8 }
+                })
+                this.hint = hint
+                this.inputType =
+                    if (isPass) InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD else inputType
+                setTextColor(Color.WHITE); setPadding(0, 4, 0, 4)
+                layout.addView(this)
+            }
 
         val etUbicacion = addField("📍 Ubicación:", "Ej: Bogotá")
         val etNombre = addField("👤 Nombre completo:", "Ej: Carlos Gómez")
@@ -177,7 +191,11 @@ class FormOrdenServicioActivity : AppCompatActivity() {
 
         builder.setPositiveButton("REGISTRAR") { _, _ ->
             if (etNombre.text.isNullOrBlank() || etPassword.text.isNullOrBlank()) {
-                Toast.makeText(this@FormOrdenServicioActivity, "Nombre y Contraseña son obligatorios", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@FormOrdenServicioActivity,
+                    "Nombre y Contraseña son obligatorios",
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@setPositiveButton
             }
 
@@ -199,28 +217,45 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                     if (response.isSuccessful && response.body()?.success == true) {
                         val nuevoCliente = response.body()!!.data
                         if (nuevoCliente != null) {
-                            listaClientes = listaClientes + ItemSpinner(nuevoCliente.nombre ?: "Cliente", nuevoCliente.id ?: -1)
+                            listaClientes =
+                                listaClientes + ItemSpinner(nuevoCliente.nombre ?: "Cliente", nuevoCliente.id ?: -1)
                             setupSpinner(spinnerClientes, listaClientes)
                             if (spinnerClientes.count > 0) spinnerClientes.setSelection(spinnerClientes.count - 1)
-                            Toast.makeText(this@FormOrdenServicioActivity, "✅ Cliente registrado exitosamente", Toast.LENGTH_LONG).show()
+                            Toast.makeText(
+                                this@FormOrdenServicioActivity,
+                                "✅ Cliente registrado exitosamente",
+                                Toast.LENGTH_LONG
+                            ).show()
                         } else {
-                            Toast.makeText(this@FormOrdenServicioActivity, "⚠️ El servidor no devolvió los datos del cliente", Toast.LENGTH_LONG).show()
+                            Toast.makeText(
+                                this@FormOrdenServicioActivity,
+                                "⚠️ El servidor no devolvió los datos del cliente",
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                     } else {
                         val errorRaw = response.errorBody()?.string() ?: response.body()?.message ?: "Error desconocido"
                         val mensajeUsuario = when {
-                            errorRaw.contains("Duplicate entry", ignoreCase = true) -> "❌ El usuario ya está registrado."
+                            errorRaw.contains(
+                                "Duplicate entry",
+                                ignoreCase = true
+                            ) -> "❌ El usuario ya está registrado."
+
                             errorRaw.contains("correo", ignoreCase = true) -> "❌ El correo ya está en uso."
 
 
-                             else -> "❌ Error: $errorRaw"
+                            else -> "❌ Error: $errorRaw"
                         }
                         Toast.makeText(this@FormOrdenServicioActivity, mensajeUsuario, Toast.LENGTH_LONG).show()
                     }
 
                 } catch (e: Exception) {
                     Log.e("API_CLIENTE", "💥 Excepción: ${e.message}", e)
-                    Toast.makeText(this@FormOrdenServicioActivity, "❌ Error de conexión: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this@FormOrdenServicioActivity,
+                        "❌ Error de conexión: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
@@ -242,22 +277,32 @@ class FormOrdenServicioActivity : AppCompatActivity() {
 
         layout.addView(TextView(this@FormOrdenServicioActivity).apply {
             text = "👤 Dueño (Cliente):"; setTextColor(Color.WHITE)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 8 }
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = 8 }
         })
         val spClienteMoto = Spinner(this@FormOrdenServicioActivity).apply {
             setPadding(0, 4, 0, 4)
-            adapter = ArrayAdapter(this@FormOrdenServicioActivity, android.R.layout.simple_spinner_dropdown_item, listaClientes.map { it.displayName })
+            adapter = ArrayAdapter(
+                this@FormOrdenServicioActivity,
+                android.R.layout.simple_spinner_dropdown_item,
+                listaClientes.map { it.displayName })
         }
         layout.addView(spClienteMoto)
 
-        fun addField(label: String, hint: String, inputType: Int = InputType.TYPE_CLASS_TEXT) = EditText(this@FormOrdenServicioActivity).apply {
-            layout.addView(TextView(this@FormOrdenServicioActivity).apply {
-                text = label; setTextColor(Color.WHITE)
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 8 }
-            })
-            this.hint = hint; this.inputType = inputType; setTextColor(Color.WHITE); setPadding(0, 4, 0, 4)
-            layout.addView(this)
-        }
+        fun addField(label: String, hint: String, inputType: Int = InputType.TYPE_CLASS_TEXT) =
+            EditText(this@FormOrdenServicioActivity).apply {
+                layout.addView(TextView(this@FormOrdenServicioActivity).apply {
+                    text = label; setTextColor(Color.WHITE)
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply { topMargin = 8 }
+                })
+                this.hint = hint; this.inputType = inputType; setTextColor(Color.WHITE); setPadding(0, 4, 0, 4)
+                layout.addView(this)
+            }
 
         val etPlaca = addField("🔢 Placa:", "Ej: BGT657")
         val etModelo = addField("🏷️ Modelo:", "Ej: 390")
@@ -288,6 +333,16 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                     return@setPositiveButton
                 }
 
+                // ✅ VALIDACIÓN CRÍTICA: Evitar enviar ID = -1 o 0
+                if (idCliente <= 0) {
+                    Toast.makeText(
+                        this,
+                        "❌ El cliente seleccionado no tiene un ID válido en la base de datos",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@setPositiveButton
+                }
+
                 val moto = Moto(
                     idMotos = null,
                     idClientes = idCliente,
@@ -302,17 +357,39 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                         val response = ApiAndroid.apiService.crearMoto(moto)
 
                         if (response.success) {
-                            Toast.makeText(this@FormOrdenServicioActivity, "✅ Moto registrada", Toast.LENGTH_LONG).show()
-                            val nuevaId = (listaMotos.maxOfOrNull { it.id } ?: 0) + 1
-                            listaMotos = listaMotos.toMutableList() + ItemSpinner(displayName = "$modelo ($placa)", id = nuevaId)
-                            setupSpinner(spinnerMotos, listaMotos)
-                            if (spinnerMotos.count > 0) spinnerMotos.setSelection(spinnerMotos.count - 1)
-                            dialog.dismiss()
+                            Toast.makeText(this@FormOrdenServicioActivity, "✅ Moto registrada", Toast.LENGTH_LONG)
+                                .show()
+
+                            // ✅ CORRECCIÓN: Usar el ID REAL devuelto por el backend
+                            val nuevaId = response.data?.idMotos
+                            if (nuevaId != null) {
+                                listaMotos = listaMotos.toMutableList() + ItemSpinner(
+                                    displayName = "$modelo ($placa)",
+                                    id = nuevaId
+                                )
+                                setupSpinner(spinnerMotos, listaMotos)
+                                if (spinnerMotos.count > 0) spinnerMotos.setSelection(spinnerMotos.count - 1)
+                                dialog.dismiss()
+                            } else {
+                                Toast.makeText(
+                                    this@FormOrdenServicioActivity,
+                                    "⚠️ Moto creada pero no se recibió su ID. Recarga la app.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
                         } else {
-                            Toast.makeText(this@FormOrdenServicioActivity, "❌ Error: ${response.message}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(
+                                this@FormOrdenServicioActivity,
+                                "❌ Error: ${response.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                     } catch (e: Exception) {
-                        Toast.makeText(this@FormOrdenServicioActivity, "❌ Error de red: ${e.message}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            this@FormOrdenServicioActivity,
+                            "❌ Error de red: ${e.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
             } catch (e: Exception) {
@@ -327,7 +404,11 @@ class FormOrdenServicioActivity : AppCompatActivity() {
     // 🆕 MODAL SELECCIÓN DB (Servicios/Productos) - AHORA USA EL PRECIO REAL
     private fun mostrarModalSeleccionDB() {
         if (listaServicios.isEmpty() && listaProductos.isEmpty()) {
-            Toast.makeText(this@FormOrdenServicioActivity, "⚠️ Aún no hay servicios o productos en la base de datos", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                this@FormOrdenServicioActivity,
+                "⚠️ Aún no hay servicios o productos en la base de datos",
+                Toast.LENGTH_LONG
+            ).show()
             return
         }
 
@@ -343,19 +424,31 @@ class FormOrdenServicioActivity : AppCompatActivity() {
         inputLayout.addView(labelServ)
         val spServicio = Spinner(this).apply {
             setPadding(0, 10, 0, 10)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            adapter = ArrayAdapter(this@FormOrdenServicioActivity, android.R.layout.simple_spinner_dropdown_item, listaServicios.map { it.displayName })
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            adapter = ArrayAdapter(
+                this@FormOrdenServicioActivity,
+                android.R.layout.simple_spinner_dropdown_item,
+                listaServicios.map { it.displayName })
         }
         inputLayout.addView(spServicio)
 
         val labelProd = TextView(this).apply {
             text = "📦 Producto (Opcional):"; setTextColor(Color.WHITE)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 10 }
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = 10 }
         }
         inputLayout.addView(labelProd)
         val spProducto = Spinner(this).apply {
             setPadding(0, 10, 0, 10)
-            adapter = ArrayAdapter(this@FormOrdenServicioActivity, android.R.layout.simple_spinner_dropdown_item, listaProductos.map { it.displayName })
+            adapter = ArrayAdapter(
+                this@FormOrdenServicioActivity,
+                android.R.layout.simple_spinner_dropdown_item,
+                listaProductos.map { it.displayName })
         }
         inputLayout.addView(spProducto)
 
@@ -365,29 +458,39 @@ class FormOrdenServicioActivity : AppCompatActivity() {
             val posProd = spProducto.selectedItemPosition
 
             if (posServ < 0 && posProd < 0) {
-                Toast.makeText(this@FormOrdenServicioActivity, "Selecciona al menos un servicio o producto", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@FormOrdenServicioActivity,
+                    "Selecciona al menos un servicio o producto",
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@setPositiveButton
             }
 
             if (posServ >= 0) {
                 val sel = listaServicios[posServ]
-                listaDetalles.add(Detalles_orden_servicio(
-                    idDetalleOrden = null, idOrden = null, idServicios = sel.id, idProductos = null,
-                    nombreServicio = sel.displayName.split(" - ").firstOrNull() ?: sel.displayName, // Limpia el nombre quitando el precio para la DB
-                    nombreProducto = null,
-                    precio = sel.precio, // 🆕 Usa el precio real
-                    garantia = 0
-                ))
+                listaDetalles.add(
+                    Detalles_orden_servicio(
+                        idDetalleOrden = null, idOrden = null, idServicios = sel.id, idProductos = null,
+                        nombreServicio = sel.displayName.split(" - ").firstOrNull()
+                            ?: sel.displayName, // Limpia el nombre quitando el precio para la DB
+                        nombreProducto = null,
+                        precio = sel.precio, // 🆕 Usa el precio real
+                        garantia = 0
+                    )
+                )
             }
             if (posProd >= 0) {
                 val sel = listaProductos[posProd]
-                listaDetalles.add(Detalles_orden_servicio(
-                    idDetalleOrden = null, idOrden = null, idServicios = null, idProductos = sel.id,
-                    nombreServicio = null,
-                    nombreProducto = sel.displayName.split(" - ").firstOrNull() ?: sel.displayName, // Limpia el nombre
-                    precio = sel.precio, // 🆕 Usa el precio real
-                    garantia = 0
-                ))
+                listaDetalles.add(
+                    Detalles_orden_servicio(
+                        idDetalleOrden = null, idOrden = null, idServicios = null, idProductos = sel.id,
+                        nombreServicio = null,
+                        nombreProducto = sel.displayName.split(" - ").firstOrNull()
+                            ?: sel.displayName, // Limpia el nombre
+                        precio = sel.precio, // 🆕 Usa el precio real
+                        garantia = 0
+                    )
+                )
             }
             detalleAdapter.submitList(listaDetalles.toList())
             Toast.makeText(this@FormOrdenServicioActivity, "✅ Agregado a la orden", Toast.LENGTH_SHORT).show()
@@ -416,7 +519,7 @@ class FormOrdenServicioActivity : AppCompatActivity() {
             try {
                 val idCliente = listaClientes[posCliente].id
                 val idMoto = listaMotos[posMoto].id
-                val estado = "PENDIENTE" // Estado fijo
+                val estado = "PENDIENTE"
 
                 val orden = Orden_servicio(
                     idOrden_servicio = null, idClientes = idCliente, idAdministrador = 1,
@@ -434,8 +537,13 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                     throw Exception("Error al crear orden: ${responseOrden.code()} - ${bodyOrden?.message ?: responseOrden.message()}")
                 }
 
+                // ️ CORRECCIÓN: Extraer el ID de forma segura según lo que responde el backend
                 val idOrdenCreada = bodyOrden.data?.idOrden_servicio
-                    ?: throw Exception("No se recibió ID de orden del servidor")
+                    ?: bodyOrden.data?.idOrden_servicio // Fallback si el backend usa 'id'
+                    ?: (bodyOrden.data as? Map<*, *>)?.get("insertId")?.toString()?.toIntOrNull() // Fallback MySQL
+                    ?: throw Exception("❌ No se recibió ID de orden. Revisa el logcat.")
+
+                Log.d("GUARDAR_ORDEN", "✅ ID recibido del servidor: $idOrdenCreada")
 
                 val detallesAGuardar = listaDetalles.map { it.copy(idOrden = idOrdenCreada) }
                 var detallesFallidos = 0
@@ -449,28 +557,27 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                 }
 
                 if (detallesFallidos > 0) {
-                    Toast.makeText(this@FormOrdenServicioActivity, "⚠️ Orden creada pero $detallesFallidos detalle(s) no se guardaron", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this@FormOrdenServicioActivity,
+                        "⚠️ Orden creada pero $detallesFallidos detalle(s) no se guardaron",
+                        Toast.LENGTH_LONG
+                    ).show()
                 } else {
-                    Toast.makeText(this@FormOrdenServicioActivity, "✅ Orden y detalles creados exitosamente!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this@FormOrdenServicioActivity,
+                        "✅ Orden y detalles creados exitosamente!",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
 
                 finish()
             } catch (e: Exception) {
                 Toast.makeText(this@FormOrdenServicioActivity, "❌ Error: ${e.message}", Toast.LENGTH_LONG).show()
+                Log.e("GUARDAR_ORDEN", "Error completo:", e)
             } finally {
                 btnGuardar.isEnabled = true
                 btnGuardar.text = "GUARDAR ORDEN"
             }
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                onBackPressedDispatcher.onBackPressed()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
         }
     }
 }
