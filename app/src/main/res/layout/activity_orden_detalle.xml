@@ -4,14 +4,16 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#0D0D0D">
+        android:background="#0D0D0D"
+        android:paddingTop="24dp">
 
+    <!-- Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="0dp"
             android:layout_height="?attr/actionBarSize"
             android:background="#141414"
-            app:title="Detalles de la orden"
+            app:title="Resumen de la Orden"
             app:titleTextColor="#FFFFFF"
             app:navigationIcon="@android:drawable/ic_menu_revert"
             app:navigationIconTint="#FF6600"
@@ -19,21 +21,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- ✅ ID: tvOrdenInfo -->
     <TextView
             android:id="@+id/tvOrdenInfo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:fontFamily="sans-serif-medium"
-            android:text="Orden #1 • Pendiente"
+            android:text="Orden #1 • Finalizada"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-    <!-- ✅ Altura 0dp + constraints verticales = ocupa todo el espacio y hace scroll -->
+    <!-- ✅ ID: rvDetalles -->
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvDetalles"
             android:layout_width="0dp"
@@ -46,6 +49,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- ✅ ID: llEmptyState -->
     <LinearLayout
             android:id="@+id/llEmptyState"
             android:layout_width="wrap_content"

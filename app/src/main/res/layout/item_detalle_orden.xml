@@ -4,10 +4,11 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="4dp"
         android:layout_marginBottom="8dp"
-        app:cardBackgroundColor="#1A1A1A"
-        app:cardCornerRadius="12dp"
-        app:strokeColor="#2A2A2A"
+        app:cardBackgroundColor="#1E1E1E"
+        app:cardCornerRadius="10dp"
+        app:strokeColor="#333333"
         app:strokeWidth="1dp">
 
     <LinearLayout
@@ -17,66 +18,60 @@
             android:padding="12dp"
             android:gravity="center_vertical">
 
-        <!-- ✅ Ícono con ImageView para mipmap -->
+        <!-- Ícono -->
         <ImageView
-                android:id="@+id/ivTipoIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="12dp"
-                android:scaleType="centerInside"
-                android:contentDescription="Icono detalle"
-                android:src="@mipmap/readi" />
+                android:id="@+id/ivIcon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@mipmap/readi"
+                android:contentDescription="Icono detalle" />
 
+        <!-- Columna Izquierda -->
         <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
 
             <TextView
                     android:id="@+id/tvNombreItem"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Nombre del servicio/producto"
+                    android:text="Motorex Aceite"
                     android:textColor="#FFFFFF"
-                    android:textSize="14sp"
-                    android:textStyle="bold"/>
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
 
             <TextView
-                    android:id="@+id/tvCategoriaItem"
+                    android:id="@+id/tvGarantia"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Garantía"
-                    android:textColor="#888888"
+                    android:text="35 días de garantía"
+                    android:textColor="#AAAAAA"
                     android:textSize="12sp"
-                    android:layout_marginTop="2dp"/>
+                    android:layout_marginTop="2dp" />
 
             <TextView
                     android:id="@+id/tvPrecioUnitario"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="$0 / unidad"
+                    android:text="$ 120.000 / unidad"
                     android:textColor="#FF6600"
                     android:textSize="12sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:layout_marginTop="4dp"/>
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <LinearLayout
+        <!-- Precio Total (Arriba a la derecha) -->
+        <TextView
+                android:id="@+id/tvTotalPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="end">
-
-            <TextView
-                    android:id="@+id/tvSubtotalItem"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="$0"
-                    android:textColor="#FFFFFF"
-                    android:textSize="15sp"
-                    android:textStyle="bold"/>
-        </LinearLayout>
-
+                android:text="$ 120.000"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginStart="12dp" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

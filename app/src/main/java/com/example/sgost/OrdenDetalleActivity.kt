@@ -24,9 +24,7 @@ class OrdenDetalleActivity : AppCompatActivity() {
     private lateinit var tvOrdenInfo: TextView
     private lateinit var rvDetalles: RecyclerView
     private lateinit var llEmptyState: LinearLayout
-
     private lateinit var adapter: DetalleOrdenAdapter
-    private var idOrden: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,13 +35,13 @@ class OrdenDetalleActivity : AppCompatActivity() {
         setupAdapter()
 
         val orden = intent.getParcelableExtra<Orden_servicio>("orden_extra")
-        idOrden = orden?.idOrden_servicio
+        val idOrden = orden?.idOrden_servicio
 
-        if (idOrden != null) {
-            tvOrdenInfo.text = "Orden #${idOrden} • ${orden?.estado ?: ""}"
-            cargarDetalles()
+        if (idOrden != null && idOrden > 0) {
+            tvOrdenInfo.text = "Orden #${idOrden} • ${orden?.estado ?: "Pendiente"}"
+            cargarDetalles(idOrden)
         } else {
-            Toast.makeText(this, "❌ Error: No se recibió la orden", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "❌ Error: Datos de la orden inválidos", Toast.LENGTH_SHORT).show()
             finish()
         }
     }
@@ -56,7 +54,7 @@ class OrdenDetalleActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (item.itemId == android.R.id.home) {
-            onBackPressedDispatcher.onBackPressed()
+            finish()
             true
         } else super.onOptionsItemSelected(item)
     }
@@ -73,7 +71,7 @@ class OrdenDetalleActivity : AppCompatActivity() {
         rvDetalles.adapter = adapter
     }
 
-    private fun cargarDetalles() {
+    private fun cargarDetalles(idOrden: Int) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 if (!ApiAndroid.isReady) {
@@ -82,40 +80,41 @@ class OrdenDetalleActivity : AppCompatActivity() {
                 }
 
                 val resp = ApiAndroid.apiService.obtenerDetallesPorOrden(idOrden.toString())
-                val listaRaw = resp.data?.filterNotNull() ?: emptyList()
-                Log.d("DETALLES_API", "📥 Registros crudos: ${listaRaw.size}")
 
-                withContext(Dispatchers.Main) {
-                    // ✅ SEPARA SERVICIO Y PRODUCTO SI VIENEN EN LA MISMA FILA
-                    val listaFinal = listaRaw.flatMap { detalle ->
-                        val items = mutableListOf<Detalles_orden_servicio>()
-                        val tieneServicio = !detalle.nombreServicio.isNullOrEmpty() || (detalle.idServicios != null && detalle.idServicios!! > 0)
-                        val tieneProducto = !detalle.nombreProducto.isNullOrEmpty() || (detalle.idProductos != null && detalle.idProductos!! > 0)
+                if (resp.success && resp.data != null) {
+                    val listaRaw = resp.data!!
+                    Log.d("ORDEN_DETALLE", "📥 Registros crudos: ${listaRaw.size}")
 
-                        if (tieneServicio && tieneProducto) {
-                            items.add(detalle.copy(nombreProducto = null, idProductos = null))
-                            items.add(detalle.copy(nombreServicio = null, idServicios = null))
-                        } else {
-                            items.add(detalle)
+                    withContext(Dispatchers.Main) {
+                        // Separamos servicio y producto si vienen en la misma fila
+                        val listaFinal = listaRaw.flatMap { detalle ->
+                            val items = mutableListOf<Detalles_orden_servicio>()
+                            val tieneServicio = !detalle.nombreServicio.isNullOrEmpty() || (detalle.idServicios != null && detalle.idServicios!! > 0)
+                            val tieneProducto = !detalle.nombreProducto.isNullOrEmpty() || (detalle.idProductos != null && detalle.idProductos!! > 0)
+
+                            if (tieneServicio && tieneProducto) {
+                                items.add(detalle.copy(nombreProducto = null, idProductos = null))
+                                items.add(detalle.copy(nombreServicio = null, idServicios = null))
+                            } else {
+                                items.add(detalle)
+                            }
+                            items
                         }
-                        items
-                    }
 
-                    Log.d("DETALLES_API", "📤 Items a renderizar: ${listaFinal.size}")
-
-                    if (listaFinal.isNotEmpty()) {
                         adapter.submitList(listaFinal)
-                        rvDetalles.visibility = View.VISIBLE
-                        llEmptyState.visibility = View.GONE
-                    } else {
-                        adapter.submitList(emptyList())
+                        rvDetalles.visibility = if (listaFinal.isNotEmpty()) View.VISIBLE else View.GONE
+                        llEmptyState.visibility = if (listaFinal.isNotEmpty()) View.GONE else View.VISIBLE
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        showToast("⚠️ ${resp.message ?: "No hay detalles"}")
                         rvDetalles.visibility = View.GONE
                         llEmptyState.visibility = View.VISIBLE
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Log.e("DETALLES_API", "💥 Error: ${e.message}", e)
+                    Log.e("ORDEN_DETALLE", "💥 Error: ${e.message}", e)
                     showToast("❌ ${e.message}")
                     rvDetalles.visibility = View.GONE
                     llEmptyState.visibility = View.VISIBLE
