@@ -1,81 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<androidx.constraintlayout.widget.ConstraintLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#0D0D0D"
-        android:fitsSystemWindows="true"
-        tools:context=".DetalleOrdenActivity">
+        android:background="#0D0D0D">
 
-    <!-- TOOLBAR -->
     <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="?attr/actionBarSize"
             android:background="#141414"
-            android:elevation="4dp"
             app:title="Detalles de la orden"
             app:titleTextColor="#FFFFFF"
             app:navigationIcon="@android:drawable/ic_menu_revert"
-            app:navigationIconTint="#FF6600" />
+            app:navigationIconTint="#FF6600"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="?attr/actionBarSize"
-            android:orientation="vertical"
-            android:padding="16dp">
+    <TextView
+            android:id="@+id/tvOrdenInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Orden #1 • Pendiente"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-        <!-- TÍTULO DE LA ORDEN (Corresponde a tvOrdenInfo) -->
-        <TextView
-                android:id="@+id/tvOrdenInfo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Orden #1 • Finalizada"
-                android:textColor="#FFFFFF"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="16dp"
-                android:fontFamily="sans-serif-medium"/>
+    <!-- ✅ Altura 0dp + constraints verticales = ocupa todo el espacio y hace scroll -->
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvDetalles"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:padding="8dp"
+            android:nestedScrollingEnabled="true"
+            app:layout_constraintTop_toBottomOf="@id/tvOrdenInfo"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- LISTA DE DETALLES (Corresponde a rvDetalles) -->
-        <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvDetalles"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingBottom="16dp"
-                tools:listitem="@layout/item_detalle_orden" />
-
-    </LinearLayout>
-
-    <!-- ESTADO VACÍO (Corresponde a llEmptyState) -->
     <LinearLayout
             android:id="@+id/llEmptyState"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical"
             android:gravity="center"
-            android:visibility="gone">
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="📋"
-                android:textSize="48sp"
-                android:layout_marginBottom="8dp" />
+                android:textSize="48sp" />
 
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
                 android:text="No hay detalles para esta orden"
                 android:textColor="#888888"
-                android:textSize="16sp"
-                android:fontFamily="sans-serif-medium" />
+                android:textSize="16sp" />
     </LinearLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

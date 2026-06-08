@@ -1,6 +1,7 @@
 package com.example.sgost
 
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
@@ -14,9 +15,8 @@ import com.example.sgost.adapter.DetalleOrdenAdapter
 import com.example.sgost.api.ApiAndroid
 import com.example.sgost.model.Detalles_orden_servicio
 import com.example.sgost.model.Orden_servicio
-import kotlinx.coroutines.launch
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class OrdenDetalleActivity : AppCompatActivity() {
@@ -36,7 +36,6 @@ class OrdenDetalleActivity : AppCompatActivity() {
         initViews()
         setupAdapter()
 
-        // Obtener ID de la orden desde el Intent
         val orden = intent.getParcelableExtra<Orden_servicio>("orden_extra")
         idOrden = orden?.idOrden_servicio
 
@@ -83,34 +82,43 @@ class OrdenDetalleActivity : AppCompatActivity() {
                 }
 
                 val resp = ApiAndroid.apiService.obtenerDetallesPorOrden(idOrden.toString())
+                val listaRaw = resp.data?.filterNotNull() ?: emptyList()
+                Log.d("DETALLES_API", "📥 Registros crudos: ${listaRaw.size}")
 
                 withContext(Dispatchers.Main) {
-                    if (resp.success && resp.data != null) {
-                        Log.d("DETALLES_API", "✅ Success: true | Size: ${resp.data.size}")
+                    // ✅ SEPARA SERVICIO Y PRODUCTO SI VIENEN EN LA MISMA FILA
+                    val listaFinal = listaRaw.flatMap { detalle ->
+                        val items = mutableListOf<Detalles_orden_servicio>()
+                        val tieneServicio = !detalle.nombreServicio.isNullOrEmpty() || (detalle.idServicios != null && detalle.idServicios!! > 0)
+                        val tieneProducto = !detalle.nombreProducto.isNullOrEmpty() || (detalle.idProductos != null && detalle.idProductos!! > 0)
 
-                        adapter.submitList(resp.data)
-                        adapter.notifyDataSetChanged()
-
-                        if (resp.data.isEmpty()) {
-                            llEmptyState.visibility = View.VISIBLE
-                            rvDetalles.visibility = View.GONE
+                        if (tieneServicio && tieneProducto) {
+                            items.add(detalle.copy(nombreProducto = null, idProductos = null))
+                            items.add(detalle.copy(nombreServicio = null, idServicios = null))
                         } else {
-                            llEmptyState.visibility = View.GONE
-                            rvDetalles.visibility = View.VISIBLE
+                            items.add(detalle)
                         }
+                        items
+                    }
+
+                    Log.d("DETALLES_API", "📤 Items a renderizar: ${listaFinal.size}")
+
+                    if (listaFinal.isNotEmpty()) {
+                        adapter.submitList(listaFinal)
+                        rvDetalles.visibility = View.VISIBLE
+                        llEmptyState.visibility = View.GONE
                     } else {
-                        Log.e("DETALLES_API", "❌ Error: ${resp.message}")
-                        showToast("❌ ${resp.message ?: "Error"}")
-                        llEmptyState.visibility = View.VISIBLE
+                        adapter.submitList(emptyList())
                         rvDetalles.visibility = View.GONE
+                        llEmptyState.visibility = View.VISIBLE
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Log.e("DETALLES_API", "💥 Excepción: ${e.message}", e)
+                    Log.e("DETALLES_API", "💥 Error: ${e.message}", e)
                     showToast("❌ ${e.message}")
-                    llEmptyState.visibility = View.VISIBLE
                     rvDetalles.visibility = View.GONE
+                    llEmptyState.visibility = View.VISIBLE
                 }
             }
         }

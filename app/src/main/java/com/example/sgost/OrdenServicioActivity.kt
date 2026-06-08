@@ -1,11 +1,13 @@
 package com.example.sgost
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,6 +26,15 @@ class OrdenServicioActivity : AppCompatActivity() {
     private lateinit var llEmptyState: LinearLayout
     private lateinit var adapter: OrdenServicioAdapter
     private var listaCompleta = mutableListOf<Orden_servicio>()
+
+    // ✅ 1. DECLARACIÓN DEL LAUNCHER (Propiedad de la clase)
+    private val crearOrdenLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            cargarOrdenes() // ✅ Refresca la lista automáticamente
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +67,6 @@ class OrdenServicioActivity : AppCompatActivity() {
 
     private fun setupAdapter() {
         adapter = OrdenServicioAdapter { orden ->
-            // ✅ Pasa el objeto completo y seguro a la siguiente pantalla
             startActivity(Intent(this, OrdenDetalleActivity::class.java).apply {
                 putExtra("orden_extra", orden)
             })
@@ -77,7 +87,8 @@ class OrdenServicioActivity : AppCompatActivity() {
 
     private fun setupFab() {
         findViewById<FloatingActionButton>(R.id.fabAgregarOrden).setOnClickListener {
-            startActivity(Intent(this, FormOrdenServicioActivity::class.java))
+            // ✅ 2. USAR EL LAUNCHER
+            crearOrdenLauncher.launch(Intent(this, FormOrdenServicioActivity::class.java))
         }
     }
 

@@ -19,11 +19,11 @@ class DetalleOrdenAdapter : ListAdapter<Detalles_orden_servicio, DetalleOrdenAda
     private val formatoMoneda = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvTipo: TextView = view.findViewById(R.id.tvTipo)
-        val tvProducto: TextView = view.findViewById(R.id.tvProducto)
-        val ivProductoIcon: ImageView = view.findViewById(R.id.ivProductoIcon)
-        val tvPrecio: TextView = view.findViewById(R.id.tvPrecio)
-        val tvGarantia: TextView = view.findViewById(R.id.tvGarantia)
+        val ivTipoIcon: ImageView = view.findViewById(R.id.ivTipoIcon)
+        val tvNombreItem: TextView = view.findViewById(R.id.tvNombreItem)
+        val tvCategoriaItem: TextView = view.findViewById(R.id.tvCategoriaItem)
+        val tvPrecioUnitario: TextView = view.findViewById(R.id.tvPrecioUnitario)
+        val tvSubtotalItem: TextView = view.findViewById(R.id.tvSubtotalItem)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -33,39 +33,40 @@ class DetalleOrdenAdapter : ListAdapter<Detalles_orden_servicio, DetalleOrdenAda
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val detalle = getItem(position)
-        Log.d("ADAPTER", "📦 onBind: Servicio=${detalle.nombreServicio} | Producto=${detalle.nombreProducto}")
 
-        // 1. Servicio principal
-        holder.tvTipo.text = detalle.nombreServicio ?: "Sin servicio"
+        // ✅ LOGGING: Verifica que llegan los números reales
+        Log.d("ADAPTER", "📦 Pos:$position -> Precio:${detalle.precio} | Garantia:${detalle.garantia}")
 
-        // 2. Producto e Imagen
-        val nombreProd = detalle.nombreProducto ?: ""
-        if (nombreProd.isNotBlank()) {
-            holder.tvProducto.text = nombreProd
-            holder.tvProducto.visibility = View.VISIBLE
-            holder.ivProductoIcon.setImageResource(getIconForProduct(nombreProd))
-        } else {
-            holder.tvProducto.visibility = View.GONE
-            holder.ivProductoIcon.setImageResource(R.mipmap.readi)
+        val nombreServ = detalle.nombreServicio?.takeIf { it.isNotBlank() }
+        val nombreProd = detalle.nombreProducto?.takeIf { it.isNotBlank() }
+        val esProducto = nombreProd != null || (detalle.idProductos != null && detalle.idProductos!! > 0)
+
+        // 1. Icono
+        holder.ivTipoIcon.setImageResource(getIconForResource(nombreServ, nombreProd, esProducto))
+
+        // 2. Nombre principal
+        holder.tvNombreItem.text = when {
+            nombreServ != null -> nombreServ
+            nombreProd != null -> nombreProd
+            detalle.idServicios != null && detalle.idServicios!! > 0 -> "Servicio #${detalle.idServicios}"
+            detalle.idProductos != null && detalle.idProductos!! > 0 -> "Producto #${detalle.idProductos}"
+            else -> "Detalle sin asignar"
         }
 
-        // 3. Precio
-        holder.tvPrecio.text = if (detalle.precio != null && detalle.precio > 0) {
-            formatoMoneda.format(detalle.precio)
-        } else {
-            "$0"
-        }
+        // 3. Garantía REAL (Int)
+        val garantia = detalle.garantia ?: 0
+        holder.tvCategoriaItem.text = if (garantia > 0) "$garantia días de garantía" else "Sin garantía"
 
-        // 4. Garantía
-        holder.tvGarantia.text = if (detalle.garantia != null && detalle.garantia > 0) {
-            "${detalle.garantia} días"
-        } else {
-            "Sin garantía"
-        }
+        // 4. Precios REALES (Double)
+        val precio = detalle.precio ?: 0.0
+        val precioFormateado = if (precio > 0) formatoMoneda.format(precio) else "$0"
+        holder.tvPrecioUnitario.text = "$precioFormateado / unidad"
+        holder.tvSubtotalItem.text = precioFormateado
     }
 
-    private fun getIconForProduct(productName: String?): Int {
-        val nombre = productName?.lowercase(Locale.getDefault()) ?: ""
+    private fun getIconForResource(nombreServ: String?, nombreProd: String?, esProducto: Boolean): Int {
+        if (!esProducto) return R.mipmap.readi
+        val nombre = nombreProd?.lowercase(Locale.getDefault()) ?: ""
         return when {
             nombre.contains("cadena") -> R.mipmap.cadena
             nombre.contains("filtro") -> R.mipmap.filtro
@@ -76,11 +77,15 @@ class DetalleOrdenAdapter : ListAdapter<Detalles_orden_servicio, DetalleOrdenAda
     }
 
     class DiffCallback : DiffUtil.ItemCallback<Detalles_orden_servicio>() {
-        override fun areItemsTheSame(old: Detalles_orden_servicio, new: Detalles_orden_servicio) =
-            // ✅ CORRECCIÓN: Permite comparar null == null sin fallar
-            old.idDetalleOrden == new.idDetalleOrden
-
-        override fun areContentsTheSame(old: Detalles_orden_servicio, new: Detalles_orden_servicio) =
-            old == new
+        override fun areItemsTheSame(old: Detalles_orden_servicio, new: Detalles_orden_servicio): Boolean {
+            return (old.idDetalleOrden != null && old.idDetalleOrden == new.idDetalleOrden) ||
+                    (old.nombreServicio == new.nombreServicio && old.nombreProducto == new.nombreProducto)
+        }
+        override fun areContentsTheSame(old: Detalles_orden_servicio, new: Detalles_orden_servicio): Boolean {
+            return old.nombreServicio == new.nombreServicio &&
+                    old.nombreProducto == new.nombreProducto &&
+                    old.precio == new.precio &&
+                    old.garantia == new.garantia
+        }
     }
 }
