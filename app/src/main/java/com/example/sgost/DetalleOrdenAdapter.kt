@@ -16,6 +16,7 @@ import java.util.Locale
 
 class DetalleOrdenAdapter : ListAdapter<Detalles_orden_servicio, DetalleOrdenAdapter.ViewHolder>(DiffCallback()) {
 
+    // Formato moneda Colombia: $ 120.000
     private val formatoMoneda = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -33,21 +34,25 @@ class DetalleOrdenAdapter : ListAdapter<Detalles_orden_servicio, DetalleOrdenAda
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val detalle = getItem(position)
+
+        // Log para depurar
         Log.d("ADAPTER", "🎨 Renderizando -> ${detalle.nombreServicio ?: detalle.nombreProducto} | Precio: ${detalle.precio} | Garantia: ${detalle.garantia}")
 
+        // 1. Nombre
         val esServicio = !detalle.nombreServicio.isNullOrEmpty() || (detalle.idServicios != null && detalle.idServicios!! > 0)
         val nombre = if (esServicio) detalle.nombreServicio else detalle.nombreProducto
-
-        holder.tvNombreItem.text = nombre ?: "Detalle"
+        holder.tvNombreItem.text = nombre ?: "Detalle sin nombre"
         holder.ivIcon.setImageResource(if (esServicio) R.mipmap.readi else R.mipmap.readi)
 
+        // 2. Garantía
         val garantia = detalle.garantia ?: 0
         holder.tvGarantia.text = if (garantia > 0) "$garantia días de garantía" else "Sin garantía"
 
+        // 3. Precios
         val precio = detalle.precio ?: 0.0
-        val precioTexto = formatoMoneda.format(precio)
-        holder.tvTotalPrice.text = precioTexto
-        holder.tvPrecioUnitario.text = "$precioTexto / unidad"
+        val precioFormateado = formatoMoneda.format(precio)
+        holder.tvTotalPrice.text = precioFormateado
+        holder.tvPrecioUnitario.text = "$precioFormateado / unidad"
     }
 
     class DiffCallback : DiffUtil.ItemCallback<Detalles_orden_servicio>() {

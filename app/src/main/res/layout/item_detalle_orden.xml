@@ -4,35 +4,37 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="4dp"
-        android:layout_marginBottom="8dp"
+        android:layout_margin="8dp"
         app:cardBackgroundColor="#1E1E1E"
-        app:cardCornerRadius="10dp"
+        app:cardCornerRadius="12dp"
         app:strokeColor="#333333"
         app:strokeWidth="1dp">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="12dp"
-            android:gravity="center_vertical">
+            android:padding="16dp">
 
-        <!-- Ícono -->
+        <!-- Icono -->
         <ImageView
                 android:id="@+id/ivIcon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:src="@mipmap/readi"
-                android:contentDescription="Icono detalle" />
+                android:contentDescription="Icono detalle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Columna Izquierda -->
+        <!-- Columna de Textos (Izquierda) -->
         <LinearLayout
+                android:id="@+id/textColumn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:orientation="vertical"
-                android:layout_marginStart="12dp">
+                android:layout_marginStart="12dp"
+                app:layout_constraintStart_toEndOf="@id/ivIcon"
+                app:layout_constraintEnd_toStartOf="@id/tvTotalPrice"
+                app:layout_constraintTop_toTopOf="parent">
 
             <TextView
                     android:id="@+id/tvNombreItem"
@@ -40,7 +42,7 @@
                     android:layout_height="wrap_content"
                     android:text="Motorex Aceite"
                     android:textColor="#FFFFFF"
-                    android:textSize="15sp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
             <TextView
@@ -48,9 +50,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="35 días de garantía"
-                    android:textColor="#AAAAAA"
-                    android:textSize="12sp"
-                    android:layout_marginTop="2dp" />
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp"
+                    android:layout_marginTop="4dp" />
 
             <TextView
                     android:id="@+id/tvPrecioUnitario"
@@ -58,7 +60,7 @@
                     android:layout_height="wrap_content"
                     android:text="$ 120.000 / unidad"
                     android:textColor="#FF6600"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:layout_marginTop="4dp" />
         </LinearLayout>
@@ -70,8 +72,10 @@
                 android:layout_height="wrap_content"
                 android:text="$ 120.000"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:layout_marginStart="12dp" />
-    </LinearLayout>
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

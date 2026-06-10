@@ -79,11 +79,19 @@ class OrdenDetalleActivity : AppCompatActivity() {
                     return@launch
                 }
 
+                // ✅ CORRECCIÓN: Quitamos el tipo explícito Response<...>
+                // porque tu ApiService devuelve ApiResponse directamente.
                 val resp = ApiAndroid.apiService.obtenerDetallesPorOrden(idOrden.toString())
 
+                // ✅ VERIFICACIÓN: Usamos las propiedades directamente (success, data)
                 if (resp.success && resp.data != null) {
                     val listaRaw = resp.data!!
-                    Log.d("ORDEN_DETALLE", "📥 Registros crudos: ${listaRaw.size}")
+                    Log.d("ORDEN_DETALLE", "📥 Recibidos ${listaRaw.size} detalles de la base de datos")
+
+                    // Imprimir precios en log para verificar
+                    listaRaw.forEach { d ->
+                        Log.d("ORDEN_DETALLE", "📦 Item: ${d.nombreServicio ?: d.nombreProducto} | Precio: ${d.precio} | Garantia: ${d.garantia}")
+                    }
 
                     withContext(Dispatchers.Main) {
                         // Separamos servicio y producto si vienen en la misma fila
