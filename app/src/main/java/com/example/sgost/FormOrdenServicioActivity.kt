@@ -29,7 +29,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// ✅ MODIFICADO: Se agregó 'realName' para guardar el nombre exacto sin el precio
+// ✅ MODIFICADO: Se agregó 'realName.' para guardar el nombre exacto sin el precio
 data class ItemSpinner(
     val displayName: String,
     val id: Int,
