@@ -16,7 +16,6 @@ import java.util.Locale
 
 class DetalleOrdenAdapter : ListAdapter<Detalles_orden_servicio, DetalleOrdenAdapter.ViewHolder>(DiffCallback()) {
 
-    // Formato moneda Colombia: $ 120.000
     private val formatoMoneda = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -35,20 +34,18 @@ class DetalleOrdenAdapter : ListAdapter<Detalles_orden_servicio, DetalleOrdenAda
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val detalle = getItem(position)
 
-        // Log para depurar
-        Log.d("ADAPTER", "🎨 Renderizando -> ${detalle.nombreServicio ?: detalle.nombreProducto} | Precio: ${detalle.precio} | Garantia: ${detalle.garantia}")
-
-        // 1. Nombre
-        val esServicio = !detalle.nombreServicio.isNullOrEmpty() || (detalle.idServicios != null && detalle.idServicios!! > 0)
+        // Detectar si es servicio: por ID o por tener nombre de servicio
+        val esServicio = (detalle.idServicios != null && detalle.idServicios > 0) || (!detalle.nombreServicio.isNullOrEmpty() && detalle.nombreProducto.isNullOrEmpty())
         val nombre = if (esServicio) detalle.nombreServicio else detalle.nombreProducto
-        holder.tvNombreItem.text = nombre ?: "Detalle sin nombre"
+
+        Log.d("ADAPTER", "🎨 Mostrando: $nombre | Precio: ${detalle.precio} | Garantía: ${detalle.garantia}")
+
+        holder.tvNombreItem.text = nombre ?: "Sin nombre"
         holder.ivIcon.setImageResource(if (esServicio) R.mipmap.readi else R.mipmap.readi)
 
-        // 2. Garantía
         val garantia = detalle.garantia ?: 0
         holder.tvGarantia.text = if (garantia > 0) "$garantia días de garantía" else "Sin garantía"
 
-        // 3. Precios
         val precio = detalle.precio ?: 0.0
         val precioFormateado = formatoMoneda.format(precio)
         holder.tvTotalPrice.text = precioFormateado
@@ -56,7 +53,14 @@ class DetalleOrdenAdapter : ListAdapter<Detalles_orden_servicio, DetalleOrdenAda
     }
 
     class DiffCallback : DiffUtil.ItemCallback<Detalles_orden_servicio>() {
-        override fun areItemsTheSame(old: Detalles_orden_servicio, new: Detalles_orden_servicio) = old.idDetalleOrden == new.idDetalleOrden
-        override fun areContentsTheSame(old: Detalles_orden_servicio, new: Detalles_orden_servicio) = old == new
+        override fun areItemsTheSame(old: Detalles_orden_servicio, new: Detalles_orden_servicio): Boolean {
+            // Usar clave compuesta: id + tipo (servicio o producto)
+            // Esto permite que un servicio y un producto del mismo detalle se muestren como filas separadas
+            val oldEsServicio = old.idServicios != null && old.idServicios > 0
+            val newEsServicio = new.idServicios != null && new.idServicios > 0
+            return old.idDetalleOrden == new.idDetalleOrden && oldEsServicio == newEsServicio
+        }
+        override fun areContentsTheSame(old: Detalles_orden_servicio, new: Detalles_orden_servicio) =
+            old == new
     }
 }

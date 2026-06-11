@@ -106,8 +106,8 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                     ItemSpinner("${it.modelo ?: "Moto"} (${it.placa ?: ""})", it.idMotos!!, 0.0, "0", it.modelo ?: "")
                 }
 
-                // ✅ CORREGIDO: Servicios con nombre real
-                listaServicios = servicios.map {
+                // ✅ CORREGIDO: Servicios con nombre real + Opcion Ninguno
+                listaServicios = listOf(ItemSpinner("Ninguno", -1)) + servicios.map {
                     val precio = it.precio ?: 0.0
                     val nombreReal = it.nombre ?: "Servicio"
                     ItemSpinner(
@@ -119,8 +119,8 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                     )
                 }
 
-                // ✅ CORREGIDO: Productos con nombre real
-                listaProductos = productos.map {
+                // ✅ CORREGIDO: Productos con nombre real + Opcion Ninguno
+                listaProductos = listOf(ItemSpinner("Ninguno", -1)) + productos.map {
                     val precio = it.precio ?: 0.0
                     val nombreReal = "${it.marca ?: ""} ${it.nombre ?: ""}".trim()
                     ItemSpinner(
@@ -379,53 +379,40 @@ class FormOrdenServicioActivity : AppCompatActivity() {
             val posServ = spServicio.selectedItemPosition
             val posProd = spProducto.selectedItemPosition
 
-            if (posServ < 0 && posProd < 0) {
+            val selServ = if (posServ > 0) listaServicios[posServ] else null
+            val selProd = if (posProd > 0) listaProductos[posProd] else null
+
+            if (selServ == null && selProd == null) {
                 Toast.makeText(this@FormOrdenServicioActivity, "Selecciona al menos un servicio o producto", Toast.LENGTH_SHORT).show()
                 return@setPositiveButton
             }
 
-            var agregado = false
+            // ✅ COMBINAR EN UNA SOLA FILA
+            val yaExisteServ = selServ != null && listaDetalles.any { it.idServicios == selServ.id }
+            val yaExisteProd = selProd != null && listaDetalles.any { it.idProductos == selProd.id }
 
-            // ✅ AGREGAR SERVICIO SIN DUPLICADOS
-            if (posServ >= 0) {
-                val sel = listaServicios[posServ]
-                if (!listaDetalles.any { it.idServicios == sel.id }) {
-                    listaDetalles.add(
-                        Detalles_orden_servicio(
-                            idDetalleOrden = null, idOrden = null, idServicios = sel.id, idProductos = null,
-                            nombreServicio = sel.realName,
-                            nombreProducto = null,
-                            precio = sel.precio,           // ✅ Envia Double directamente
-                            garantia = sel.garantia.toInt() // ✅ Convierte a Int
-                        )
-                    )
-                    agregado = true
-                }
-                // ... resto del código
+            if (yaExisteServ || yaExisteProd) {
+                Toast.makeText(this@FormOrdenServicioActivity, "⚠️ El servicio o producto ya está en la lista", Toast.LENGTH_SHORT).show()
+                return@setPositiveButton
             }
 
-            if (posProd >= 0) {
-                val sel = listaProductos[posProd]
-                if (!listaDetalles.any { it.idProductos == sel.id }) {
-                    listaDetalles.add(
-                        Detalles_orden_servicio(
-                            idDetalleOrden = null, idOrden = null, idServicios = null, idProductos = sel.id,
-                            nombreServicio = null,
-                            nombreProducto = sel.realName,
-                            precio = sel.precio,           // ✅ Envia Double directamente
-                            garantia = sel.garantia.toInt() // ✅ Convierte a Int
-                        )
-                    )
-                    agregado = true
-                } else {
-                    Toast.makeText(this@FormOrdenServicioActivity, "⚠️ El producto ya está en la lista", Toast.LENGTH_SHORT).show()
-                }
-            }
+            val precioTotal = (selServ?.precio ?: 0.0) + (selProd?.precio ?: 0.0)
+            val garantiaMax = Math.max(selServ?.garantia?.toIntOrNull() ?: 0, selProd?.garantia?.toIntOrNull() ?: 0)
 
-            if (agregado) {
-                detalleAdapter.submitList(listaDetalles.toList())
-                Toast.makeText(this@FormOrdenServicioActivity, "✅ Agregado a la orden", Toast.LENGTH_SHORT).show()
-            }
+            listaDetalles.add(
+                Detalles_orden_servicio(
+                    idDetalleOrden = null, idOrden = null,
+                    idServicios = selServ?.id,
+                    idProductos = selProd?.id,
+                    nombreServicio = selServ?.realName,
+                    nombreProducto = selProd?.realName,
+                    precio = precioTotal,
+                    garantia = garantiaMax
+                )
+            )
+
+            detalleAdapter.submitList(listaDetalles.toList())
+            Toast.makeText(this@FormOrdenServicioActivity, "✅ Agregado a la orden", Toast.LENGTH_SHORT).show()
         }
         builder.setNegativeButton("CANCELAR") { dialog, _ -> dialog.cancel() }
         builder.show()
@@ -485,7 +472,7 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                             Log.d("GUARDAR_ORDEN", "✅ ID recibido correctamente: $idOrdenCreada")
 
                             // ✅ Se asigna el ID a cada detalle y se limpian duplicados por seguridad
-                            val detallesAGuardar = listaDetalles.distinctBy { it.idServicios ?: it.idProductos }
+                            val detallesAGuardar = listaDetalles.distinctBy { "${it.idServicios ?: 0}-${it.idProductos ?: 0}" }
                                 .map { it.copy(idOrden = idOrdenCreada) }
 
                             var detallesFallidos = 0

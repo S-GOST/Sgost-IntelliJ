@@ -17,7 +17,7 @@ import com.example.sgost.api.ApiAndroid
 import com.example.sgost.model.Detalles_orden_servicio
 import com.example.sgost.model.Orden_servicio
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async // ✅ Agregado para peticiones en paralelo
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -88,83 +88,214 @@ class OrdenDetalleActivity : AppCompatActivity() {
 
                 withContext(Dispatchers.Main) { progressBar.visibility = View.VISIBLE }
 
-                // ✅ 1. Descargamos Detalles, Servicios y Productos AL MISMO TIEMPO
+                // Peticiones en paralelo
                 val detallesJob = async { ApiAndroid.apiService.obtenerDetallesPorOrden(idOrden.toString()) }
                 val serviciosJob = async { ApiAndroid.apiService.obtenerServicios() }
                 val productosJob = async { ApiAndroid.apiService.obtenerProductos() }
 
-                val resp = detallesJob.await()
+                val respDetalles = detallesJob.await()
                 val respServicios = serviciosJob.await()
                 val respProductos = productosJob.await()
 
-                if (resp.success && resp.data != null) {
-                    val listaRaw = resp.data!!
+                if (respDetalles.success && respDetalles.data != null) {
+                    val listaRaw = respDetalles.data!!
                     val listaServicios = respServicios.data.orEmpty()
                     val listaProductos = respProductos.data.orEmpty()
 
-                    Log.d("ORDEN_DETALLE", "📥 Registros crudos: ${listaRaw.size}")
+                    // ===== LOGS DE DIAGNÓSTICO =====
+                    Log.d("ORDEN_DETALLE", "========== DIAGNÓSTICO ==========")
+                    Log.d("ORDEN_DETALLE", "📦 Filas crudas del API: ${listaRaw.size}")
+                    listaRaw.forEachIndexed { i, d ->
+                        Log.d("ORDEN_DETALLE", "  RAW[$i] idDetalle=${d.idDetalleOrden} idServ=${d.idServicios} idProd=${d.idProductos} nombreServ=${d.nombreServicio} nombreProd=${d.nombreProducto} precio=${d.precio}")
+                    }
+                    Log.d("ORDEN_DETALLE", "📋 Catálogo servicios: ${listaServicios.size}")
+                    listaServicios.forEach { s ->
+                        Log.d("ORDEN_DETALLE", "  SERV id=${s.idServicios} nombre=${s.nombre} precio=${s.precio}")
+                    }
+                    Log.d("ORDEN_DETALLE", "📋 Catálogo productos: ${listaProductos.size}")
+                    listaProductos.forEach { p ->
+                        Log.d("ORDEN_DETALLE", "  PROD id=${p.idProductos} nombre=${p.nombre} marca=${p.marca} precio=${p.precio}")
+                    }
+                    Log.d("ORDEN_DETALLE", "==================================")
 
-                    withContext(Dispatchers.Main) {
-                        // ✅ 2. Separar servicio y producto si vienen mezclados en la misma fila
-                        val listaSeparada = listaRaw.flatMap { detalle ->
-                            val tieneServicio = detalle.idServicios != null && detalle.idServicios > 0
-                            val tieneProducto = detalle.idProductos != null && detalle.idProductos > 0
+                    // Lista mutable donde guardaremos los elementos finales (servicios y productos separados)
+                    val elementosFinales = mutableListOf<Detalles_orden_servicio>()
 
-                            if (tieneServicio && tieneProducto) {
-                                mutableListOf(
-                                    detalle.copy(nombreProducto = null, idProductos = null),
-                                    detalle.copy(nombreServicio = null, idServicios = null)
+                    for (detalle in listaRaw) {
+                        val tieneServicio = detalle.idServicios != null && detalle.idServicios > 0
+                        val tieneProducto = detalle.idProductos != null && detalle.idProductos > 0
+
+                        Log.d("ORDEN_DETALLE", "🔍 Procesando detalle #${detalle.idDetalleOrden}: tieneServicio=$tieneServicio (id=${detalle.idServicios}), tieneProducto=$tieneProducto (id=${detalle.idProductos})")
+
+                        // Si tiene servicio, crear un elemento copiando los datos del catálogo de servicios
+                        if (tieneServicio) {
+                            val servicio = listaServicios.find { it.idServicios == detalle.idServicios }
+                            Log.d("ORDEN_DETALLE", "  🔧 Servicio encontrado en catálogo: ${servicio != null} (buscando id=${detalle.idServicios})")
+                            if (servicio != null) {
+                                Log.d("ORDEN_DETALLE", "  ✅ Agregando servicio: ${servicio.nombre} precio=${servicio.precio}")
+                                elementosFinales.add(
+                                    Detalles_orden_servicio(
+                                        idDetalleOrden = detalle.idDetalleOrden,
+                                        idOrden = detalle.idOrden,
+                                        idServicios = detalle.idServicios,
+                                        idProductos = null,
+                                        nombreServicio = servicio.nombre,
+                                        nombreProducto = null,
+                                        precio = servicio.precio ?: 0.0,
+                                        garantia = servicio.garantia ?: 0
+                                    )
                                 )
                             } else {
-                                mutableListOf(detalle)
+                                // Si no se encuentra el servicio en catálogo, usar nombreServicio del detalle original
+                                val nombreFallback = detalle.nombreServicio
+                                Log.d("ORDEN_DETALLE", "  ⚠️ Servicio NO encontrado en catálogo, usando fallback: $nombreFallback")
+                                elementosFinales.add(
+                                    Detalles_orden_servicio(
+                                        idDetalleOrden = detalle.idDetalleOrden,
+                                        idOrden = detalle.idOrden,
+                                        idServicios = detalle.idServicios,
+                                        idProductos = null,
+                                        nombreServicio = nombreFallback ?: "Servicio #${detalle.idServicios}",
+                                        nombreProducto = null,
+                                        precio = detalle.precio ?: 0.0,
+                                        garantia = detalle.garantia ?: 0
+                                    )
+                                )
                             }
                         }
 
-                        // ✅ 3. Cruzar los IDs con los catálogos para inyectar precios y nombres reales
-                        val listaMapeada = listaSeparada.map { detalle ->
-                            var nombreReal: String? = null
-                            var precioReal: Double? = detalle.precio
-                            var garantiaReal: Int? = detalle.garantia
+                        // Si tiene producto, crear un elemento con los datos del catálogo de productos
+                        if (tieneProducto) {
+                            val producto = listaProductos.find { it.idProductos == detalle.idProductos }
+                            Log.d("ORDEN_DETALLE", "  📦 Producto encontrado en catálogo: ${producto != null} (buscando id=${detalle.idProductos})")
+                            if (producto != null) {
+                                val nombreProducto = "${producto.marca ?: ""} ${producto.nombre ?: ""}".trim()
+                                Log.d("ORDEN_DETALLE", "  ✅ Agregando producto: $nombreProducto precio=${producto.precio}")
+                                elementosFinales.add(
+                                    Detalles_orden_servicio(
+                                        idDetalleOrden = detalle.idDetalleOrden,
+                                        idOrden = detalle.idOrden,
+                                        idServicios = null,
+                                        idProductos = detalle.idProductos,
+                                        nombreServicio = null,
+                                        nombreProducto = nombreProducto.ifEmpty { producto.nombre },
+                                        precio = producto.precio ?: 0.0,
+                                        garantia = producto.garantia ?: 0
+                                    )
+                                )
+                            } else {
+                                val nombreFallback = detalle.nombreProducto
+                                Log.d("ORDEN_DETALLE", "  ⚠️ Producto NO encontrado en catálogo, usando fallback: $nombreFallback")
+                                elementosFinales.add(
+                                    Detalles_orden_servicio(
+                                        idDetalleOrden = detalle.idDetalleOrden,
+                                        idOrden = detalle.idOrden,
+                                        idServicios = null,
+                                        idProductos = detalle.idProductos,
+                                        nombreServicio = null,
+                                        nombreProducto = nombreFallback ?: "Producto #${detalle.idProductos}",
+                                        precio = detalle.precio ?: 0.0,
+                                        garantia = detalle.garantia ?: 0
+                                    )
+                                )
+                            }
+                        }
 
-                            // Buscar datos del servicio
-                            if (detalle.idServicios != null && detalle.idServicios > 0) {
-                                val servicio = listaServicios.find { it.idServicios == detalle.idServicios }
-                                if (servicio != null) {
-                                    nombreReal = servicio.nombre
-                                    precioReal = servicio.precio ?: 0.0
-                                    garantiaReal = servicio.garantia?.toString()?.toIntOrNull() ?: 0
+                        // Si no tiene IDs, pero puede tener nombres directos del API
+                        if (!tieneServicio && !tieneProducto) {
+                            val tieneNombreServ = !detalle.nombreServicio.isNullOrEmpty()
+                            val tieneNombreProd = !detalle.nombreProducto.isNullOrEmpty()
+
+                            Log.d("ORDEN_DETALLE", "  ❓ Sin IDs. nombreServ=$tieneNombreServ nombreProd=$tieneNombreProd")
+
+                            if (tieneNombreServ && tieneNombreProd) {
+                                // La API devuelve servicio y producto en la MISMA fila sin IDs → separar en dos
+
+                                // Buscar servicio en catálogo por nombre para enriquecer precio/garantía
+                                val servicioCat = listaServicios.find {
+                                    it.nombre.equals(detalle.nombreServicio, ignoreCase = true)
                                 }
-                            }
+                                elementosFinales.add(
+                                    Detalles_orden_servicio(
+                                        idDetalleOrden = detalle.idDetalleOrden,
+                                        idOrden = detalle.idOrden,
+                                        idServicios = servicioCat?.idServicios ?: -1, // -1 para marcar como servicio
+                                        idProductos = null,
+                                        nombreServicio = detalle.nombreServicio,
+                                        nombreProducto = null,
+                                        precio = servicioCat?.precio ?: detalle.precio ?: 0.0,
+                                        garantia = servicioCat?.garantia ?: detalle.garantia ?: 0
+                                    )
+                                )
+                                Log.d("ORDEN_DETALLE", "  ✅ Separado SERVICIO: ${detalle.nombreServicio} (catálogo: ${servicioCat != null})")
 
-                            // Buscar datos del producto
-                            if (detalle.idProductos != null && detalle.idProductos > 0) {
-                                val producto = listaProductos.find { it.idProductos == detalle.idProductos }
-                                if (producto != null) {
-                                    nombreReal = "${producto.marca ?: ""} ${producto.nombre ?: ""}".trim()
-                                    precioReal = producto.precio ?: 0.0
-                                    garantiaReal = producto.garantia?.toString()?.toIntOrNull() ?: 0
+                                // Buscar producto en catálogo por nombre para enriquecer precio/garantía
+                                val productoCat = listaProductos.find {
+                                    it.nombre.equals(detalle.nombreProducto, ignoreCase = true)
                                 }
+                                elementosFinales.add(
+                                    Detalles_orden_servicio(
+                                        idDetalleOrden = detalle.idDetalleOrden,
+                                        idOrden = detalle.idOrden,
+                                        idServicios = null,
+                                        idProductos = productoCat?.idProductos ?: -1,
+                                        nombreServicio = null,
+                                        nombreProducto = detalle.nombreProducto,
+                                        precio = productoCat?.precio ?: detalle.precio ?: 0.0,
+                                        garantia = productoCat?.garantia ?: detalle.garantia ?: 0
+                                    )
+                                )
+                                Log.d("ORDEN_DETALLE", "  ✅ Separado PRODUCTO: ${detalle.nombreProducto} (catálogo: ${productoCat != null})")
+
+                            } else if (tieneNombreServ) {
+                                // Solo tiene servicio (sin ID)
+                                val servicioCat = listaServicios.find {
+                                    it.nombre.equals(detalle.nombreServicio, ignoreCase = true)
+                                }
+                                elementosFinales.add(
+                                    detalle.copy(
+                                        idServicios = servicioCat?.idServicios ?: -1,
+                                        precio = servicioCat?.precio ?: detalle.precio,
+                                        garantia = servicioCat?.garantia ?: detalle.garantia
+                                    )
+                                )
+                            } else if (tieneNombreProd) {
+                                // Solo tiene producto (sin ID)
+                                val productoCat = listaProductos.find {
+                                    it.nombre.equals(detalle.nombreProducto, ignoreCase = true)
+                                }
+                                elementosFinales.add(
+                                    detalle.copy(
+                                        idProductos = productoCat?.idProductos ?: -1,
+                                        precio = productoCat?.precio ?: detalle.precio,
+                                        garantia = productoCat?.garantia ?: detalle.garantia
+                                    )
+                                )
+                            } else {
+                                // No tiene nada, agregar tal cual
+                                elementosFinales.add(detalle)
                             }
-
-                            // Retornar detalle con los valores actualizados
-                            detalle.copy(
-                                nombreServicio = if (detalle.idServicios != null && detalle.idServicios > 0) nombreReal else detalle.nombreServicio,
-                                nombreProducto = if (detalle.idProductos != null && detalle.idProductos > 0) nombreReal else detalle.nombreProducto,
-                                precio = precioReal,
-                                garantia = garantiaReal
-                            )
                         }
+                    }
 
-                        // ✅ 4. Filtrar validando nulos de manera segura
-                        val listaFinal = listaMapeada.filter {
-                            (!it.nombreServicio.isNullOrEmpty() || !it.nombreProducto.isNullOrEmpty()) && (it.precio ?: 0.0) >= 0.0
-                            // Nota: Cambié a >= 0.0 por si tienes servicios gratuitos (precio 0),
-                            // pero si exiges que cuesten algo, puedes ponerlo en > 0.0
-                        }
+                    Log.d("ORDEN_DETALLE", "📊 elementosFinales antes de filtrar: ${elementosFinales.size}")
+                    elementosFinales.forEachIndexed { i, it ->
+                        Log.d("ORDEN_DETALLE", "  [$i] idServ=${it.idServicios} idProd=${it.idProductos} nombreServ=${it.nombreServicio} nombreProd=${it.nombreProducto} precio=${it.precio}")
+                    }
 
+                    // NO filtrar, mostrar todo lo que tenga nombre
+                    val listaFinal = elementosFinales.filter {
+                        !it.nombreServicio.isNullOrEmpty() || !it.nombreProducto.isNullOrEmpty()
+                    }
+
+                    Log.d("ORDEN_DETALLE", "🎯 Elementos a mostrar: ${listaFinal.size}")
+                    listaFinal.forEach {
+                        val tipo = if (it.idServicios != null && it.idServicios > 0) "SERVICIO" else "PRODUCTO"
+                        Log.d("ORDEN_DETALLE", "   [$tipo] ${it.nombreServicio ?: it.nombreProducto} | Precio: ${it.precio} | Garantía: ${it.garantia}")
+                    }
+
+                    withContext(Dispatchers.Main) {
                         adapter.submitList(listaFinal)
-
-                        // ✅ 5. Actualizar UI según resultado
                         if (listaFinal.isNotEmpty()) {
                             rvDetalles.visibility = View.VISIBLE
                             llEmptyState.visibility = View.GONE
@@ -174,7 +305,7 @@ class OrdenDetalleActivity : AppCompatActivity() {
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        showToast("⚠️ ${resp.message ?: "Sin detalles en esta orden"}")
+                        showToast("⚠️ ${respDetalles.message ?: "Sin detalles"}")
                         showEmptyState()
                     }
                 }
