@@ -24,12 +24,10 @@ import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.json.JSONObject
-import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// ✅ MODIFICADO: Se agregó 'realName.' para guardar el nombre exacto sin el precio
 data class ItemSpinner(
     val displayName: String,
     val id: Int,
@@ -71,13 +69,13 @@ class FormOrdenServicioActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        spinnerClientes = findViewById(R.id.spinnerClientes) ?: throw IllegalStateException("Falta spinnerClientes")
-        spinnerMotos = findViewById(R.id.spinnerMotos) ?: throw IllegalStateException("Falta spinnerMotos")
-        btnGuardar = findViewById(R.id.btnGuardar) ?: throw IllegalStateException("Falta btnGuardar")
-        btnAgregarDetalle = findViewById(R.id.btnAgregarDetalle) ?: throw IllegalStateException("Falta btnAgregarDetalle")
-        btnNuevoCliente = findViewById(R.id.btnNuevoCliente) ?: throw IllegalStateException("Falta btnNuevoCliente")
-        btnNuevaMoto = findViewById(R.id.btnNuevaMoto) ?: throw IllegalStateException("Falta btnNuevaMoto")
-        rvOrdenDetalles = findViewById(R.id.rvOrdenDetalles) ?: throw IllegalStateException("Falta rvOrdenDetalles")
+        spinnerClientes = findViewById(R.id.spinnerClientes)
+        spinnerMotos = findViewById(R.id.spinnerMotos)
+        btnGuardar = findViewById(R.id.btnGuardar)
+        btnAgregarDetalle = findViewById(R.id.btnAgregarDetalle)
+        btnNuevoCliente = findViewById(R.id.btnNuevoCliente)
+        btnNuevaMoto = findViewById(R.id.btnNuevaMoto)
+        rvOrdenDetalles = findViewById(R.id.rvOrdenDetalles)
     }
 
     private fun setupRecyclerView() {
@@ -106,29 +104,23 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                     ItemSpinner("${it.modelo ?: "Moto"} (${it.placa ?: ""})", it.idMotos!!, 0.0, "0", it.modelo ?: "")
                 }
 
-                // ✅ CORREGIDO: Servicios con nombre real + Opcion Ninguno
                 listaServicios = listOf(ItemSpinner("Ninguno", -1)) + servicios.map {
-                    val precio = it.precio ?: 0.0
-                    val nombreReal = it.nombre ?: "Servicio"
                     ItemSpinner(
-                        displayName = "$nombreReal - $${it.precio}",
+                        displayName = "${it.nombre ?: "Servicio"} - $${it.precio}",
                         id = it.idServicios ?: -1,
-                        precio = precio,
+                        precio = it.precio ?: 0.0,
                         garantia = it.garantia?.toString() ?: "0",
-                        realName = nombreReal
+                        realName = it.nombre ?: "Servicio"
                     )
                 }
 
-                // ✅ CORREGIDO: Productos con nombre real + Opcion Ninguno
                 listaProductos = listOf(ItemSpinner("Ninguno", -1)) + productos.map {
-                    val precio = it.precio ?: 0.0
-                    val nombreReal = "${it.marca ?: ""} ${it.nombre ?: ""}".trim()
                     ItemSpinner(
-                        displayName = "$nombreReal - $${it.precio}",
+                        displayName = "${it.marca ?: ""} ${it.nombre ?: ""}".trim() + " - $${it.precio}",
                         id = it.idProductos ?: -1,
-                        precio = precio,
+                        precio = it.precio ?: 0.0,
                         garantia = it.garantia?.toString() ?: "0",
-                        realName = nombreReal
+                        realName = "${it.marca ?: ""} ${it.nombre ?: ""}".trim()
                     )
                 }
 
@@ -172,10 +164,7 @@ class FormOrdenServicioActivity : AppCompatActivity() {
             EditText(this@FormOrdenServicioActivity).apply {
                 layout.addView(TextView(this@FormOrdenServicioActivity).apply {
                     text = label; setTextColor(Color.WHITE)
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply { topMargin = 8 }
+                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 8 }
                 })
                 this.hint = hint
                 this.inputType = if (isPass) InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD else inputType
@@ -214,7 +203,11 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                     if (response.isSuccessful && response.body()?.success == true) {
                         val nuevoCliente = response.body()!!.data
                         if (nuevoCliente != null) {
-                            listaClientes = listaClientes + ItemSpinner(nuevoCliente.nombre ?: "Cliente", nuevoCliente.id ?: -1, 0.0, "0", nuevoCliente.nombre ?: "")
+                            // Backend usually returns insertId or id, but we already have the name from 'cliente.nombre'
+                            val nuevoId = nuevoCliente.insertId ?: nuevoCliente.id ?: -1
+                            val nombreCliente = cliente.nombre ?: "Cliente"
+                            
+                            listaClientes = listaClientes + ItemSpinner(nombreCliente, nuevoId, 0.0, "0", nombreCliente)
                             setupSpinner(spinnerClientes, listaClientes)
                             if (spinnerClientes.count > 0) spinnerClientes.setSelection(spinnerClientes.count - 1)
                             Toast.makeText(this@FormOrdenServicioActivity, "✅ Cliente registrado exitosamente", Toast.LENGTH_LONG).show()
@@ -253,10 +246,7 @@ class FormOrdenServicioActivity : AppCompatActivity() {
 
         layout.addView(TextView(this@FormOrdenServicioActivity).apply {
             text = "👤 Dueño (Cliente):"; setTextColor(Color.WHITE)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { topMargin = 8 }
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 8 }
         })
         val spClienteMoto = Spinner(this@FormOrdenServicioActivity).apply {
             setPadding(0, 4, 0, 4)
@@ -268,10 +258,7 @@ class FormOrdenServicioActivity : AppCompatActivity() {
             EditText(this@FormOrdenServicioActivity).apply {
                 layout.addView(TextView(this@FormOrdenServicioActivity).apply {
                     text = label; setTextColor(Color.WHITE)
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply { topMargin = 8 }
+                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 8 }
                 })
                 this.hint = hint; this.inputType = inputType; setTextColor(Color.WHITE); setPadding(0, 4, 0, 4)
                 layout.addView(this)
@@ -316,7 +303,7 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                         val response = ApiAndroid.apiService.crearMoto(moto)
                         if (response.success) {
                             Toast.makeText(this@FormOrdenServicioActivity, "✅ Moto registrada", Toast.LENGTH_LONG).show()
-                            val nuevaId = response.data?.idMotos
+                            val nuevaId = response.data?.insertId ?: response.data?.idMotos
                             if (nuevaId != null) {
                                 listaMotos = listaMotos.toMutableList() + ItemSpinner(displayName = "$modelo ($placa)", id = nuevaId, 0.0, "0", "$modelo ($placa)")
                                 setupSpinner(spinnerMotos, listaMotos)
@@ -387,7 +374,7 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                 return@setPositiveButton
             }
 
-            // ✅ COMBINAR EN UNA SOLA FILA
+            // Validar si ya existe este servicio o producto en la lista (para evitar duplicados)
             val yaExisteServ = selServ != null && listaDetalles.any { it.idServicios == selServ.id }
             val yaExisteProd = selProd != null && listaDetalles.any { it.idProductos == selProd.id }
 
@@ -396,18 +383,24 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                 return@setPositiveButton
             }
 
+            // ✅ CÁLCULO DE PRECIOS Y GARANTÍAS COMBINADOS
             val precioTotal = (selServ?.precio ?: 0.0) + (selProd?.precio ?: 0.0)
-            val garantiaMax = Math.max(selServ?.garantia?.toIntOrNull() ?: 0, selProd?.garantia?.toIntOrNull() ?: 0)
+            val garantiaFinal = Math.max(
+                selServ?.garantia?.toIntOrNull() ?: 0,
+                selProd?.garantia?.toIntOrNull() ?: 0
+            )
 
+            // ✅ CREACIÓN DE UN SOLO OBJETO (GUARDA UNA SOLA FILA)
             listaDetalles.add(
                 Detalles_orden_servicio(
-                    idDetalleOrden = null, idOrden = null,
-                    idServicios = selServ?.id,
-                    idProductos = selProd?.id,
+                    idDetalleOrden = null,
+                    idOrden = null,
+                    idServicios = selServ?.id,      // Se guarda el ID del servicio si existe
+                    idProductos = selProd?.id,      // Se guarda el ID del producto si existe
                     nombreServicio = selServ?.realName,
                     nombreProducto = selProd?.realName,
                     precio = precioTotal,
-                    garantia = garantiaMax
+                    garantia = garantiaFinal
                 )
             )
 
@@ -418,12 +411,9 @@ class FormOrdenServicioActivity : AppCompatActivity() {
         builder.show()
     }
 
-    // 💾 GUARDAR ORDEN COMPLETA
     private fun guardarOrdenCompleta() {
         val posCliente = spinnerClientes.selectedItemPosition
         val posMoto = spinnerMotos.selectedItemPosition
-
-
 
         if (posCliente < 0 || posMoto < 0) {
             Toast.makeText(this, "❌ Selecciona Cliente y Moto", Toast.LENGTH_SHORT).show()
@@ -438,9 +428,7 @@ class FormOrdenServicioActivity : AppCompatActivity() {
         btnGuardar.text = "Guardando..."
 
         lifecycleScope.launch {
-
             try {
-                // 1. Crear el objeto Orden
                 val orden = Orden_servicio(
                     idOrden_servicio = null,
                     idClientes = listaClientes[posCliente].id,
@@ -453,7 +441,6 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                     estado = "PENDIENTE"
                 )
 
-                // 2. Hacer la petición de la Orden
                 val responseOrden = ApiAndroid.apiService.crearOrdenServicio(orden)
 
                 if (responseOrden.isSuccessful) {
@@ -471,21 +458,15 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                         if (idOrdenCreada > 0) {
                             Log.d("GUARDAR_ORDEN", "✅ ID recibido correctamente: $idOrdenCreada")
 
-                            // ✅ Se asigna el ID a cada detalle y se limpian duplicados por seguridad
                             val detallesAGuardar = listaDetalles.distinctBy { "${it.idServicios ?: 0}-${it.idProductos ?: 0}" }
                                 .map { it.copy(idOrden = idOrdenCreada) }
 
                             var detallesFallidos = 0
 
                             detallesAGuardar.forEach { detalle ->
-                                var responseDetalle: ApiResponse<Detalles_orden_servicio>? = null
-
                                 try {
-                                    responseDetalle = ApiAndroid.apiService.crearDetalleOrden(detalle)
-
-                                    if (responseDetalle?.success == true) {
-                                        // Éxito
-                                    } else {
+                                    val responseDetalle = ApiAndroid.apiService.crearDetalleOrden(detalle)
+                                    if (responseDetalle?.success != true) {
                                         detallesFallidos++
                                         Log.w("DETALLES", "Falló detalle (Lógica): ${responseDetalle?.message}")
                                     }
@@ -497,7 +478,7 @@ class FormOrdenServicioActivity : AppCompatActivity() {
 
                             if (detallesFallidos > 0) {
                                 Toast.makeText(this@FormOrdenServicioActivity,
-                                    "⚠️ Orden creada pero $detallesFallidos detalle(s) fallaron. Revisa el logcat.",
+                                    "⚠️ Orden creada pero $detallesFallidos detalle(s) fallaron.",
                                     Toast.LENGTH_LONG).show()
                             } else {
                                 Toast.makeText(this@FormOrdenServicioActivity,

@@ -34,22 +34,39 @@ class DetalleOrdenAdapter : ListAdapter<Detalles_orden_servicio, DetalleOrdenAda
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val detalle = getItem(position)
 
-        // Detectar si es servicio: por ID o por tener nombre de servicio
-        val esServicio = (detalle.idServicios != null && detalle.idServicios > 0) || (!detalle.nombreServicio.isNullOrEmpty() && detalle.nombreProducto.isNullOrEmpty())
-        val nombre = if (esServicio) detalle.nombreServicio else detalle.nombreProducto
+        // 1. Determinar si tiene servicio o producto (o ambos)
+        val tieneServicio = !detalle.nombreServicio.isNullOrEmpty()
+        val tieneProducto = !detalle.nombreProducto.isNullOrEmpty()
 
-        Log.d("ADAPTER", "🎨 Mostrando: $nombre | Precio: ${detalle.precio} | Garantía: ${detalle.garantia}")
+        // ✅ LÓGICA PARA MOSTRAR AMBOS NOMBRES EN UNA SOLA LÍNEA
+        val nombreFinal = when {
+            tieneServicio && tieneProducto -> "${detalle.nombreServicio} + ${detalle.nombreProducto}"
+            tieneServicio -> detalle.nombreServicio!!
+            tieneProducto -> detalle.nombreProducto!!
+            else -> "Detalle sin nombre"
+        }
 
-        holder.tvNombreItem.text = nombre ?: "Sin nombre"
-        holder.ivIcon.setImageResource(if (esServicio) R.mipmap.readi else R.mipmap.readi)
+        holder.tvNombreItem.text = nombreFinal
+        holder.ivIcon.setImageResource(
+            if (tieneServicio) R.mipmap.readi else
+                if (tieneProducto) R.mipmap.readi else
+                    R.mipmap.readi // Asegúrate de tener un icono genérico o usa el mismo
+        )
 
+        // 2. Garantía
         val garantia = detalle.garantia ?: 0
         holder.tvGarantia.text = if (garantia > 0) "$garantia días de garantía" else "Sin garantía"
 
+        // 3. Precio (Ya viene sumado desde la Activity)
         val precio = detalle.precio ?: 0.0
         val precioFormateado = formatoMoneda.format(precio)
         holder.tvTotalPrice.text = precioFormateado
-        holder.tvPrecioUnitario.text = "$precioFormateado / unidad"
+
+        if (tieneServicio && tieneProducto) {
+            holder.tvPrecioUnitario.text = "Precio total combinado"
+        } else {
+            holder.tvPrecioUnitario.text = "$precioFormateado / unidad"
+        }
     }
 
     class DiffCallback : DiffUtil.ItemCallback<Detalles_orden_servicio>() {
