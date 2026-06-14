@@ -1,92 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#0D0D0D">
+        android:background="#0D0D0D"
+        android:fitsSystemWindows="true">
 
-    <!-- Toolbar -->
+    <!-- TOOLBAR KTM -->
     <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:layout_marginTop="8dp"
             android:background="#141414"
-            app:title="Resumen de la Orden"
-            app:titleTextColor="#FFFFFF"
+            android:elevation="4dp"
+            app:contentInsetStart="16dp"
+            app:contentInsetStartWithNavigation="16dp"
             app:navigationIcon="@android:drawable/ic_menu_revert"
             app:navigationIconTint="#FF6600"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:title="Resumen de la Orden"
+            app:titleTextColor="#FFFFFF"
+            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge" />
 
-    <!-- ✅ ID: tvOrdenInfo -->
-    <TextView
-            android:id="@+id/tvOrdenInfo"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="12dp"
-            android:fontFamily="sans-serif-medium"
-            android:text="Orden #1 • Pendiente"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- ✅ ID: rvDetalles -->
-    <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvDetalles"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+    <!-- CONTENIDO SCROLLEABLE -->
+    <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="72dp"
             android:clipToPadding="false"
-            android:padding="8dp"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/tvOrdenInfo"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:fillViewport="true">
 
-    <!-- ✅ ID: llEmptyState -->
-    <LinearLayout
-            android:id="@+id/llEmptyState"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-        <TextView
-                android:layout_width="wrap_content"
+        <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="📋"
-                android:textSize="48sp"
-                android:layout_marginBottom="8dp"/>
+                android:orientation="vertical"
+                android:padding="16dp">
 
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:text="No hay detalles para esta orden"
-                android:textColor="#888888"
-                android:textSize="16sp" />
-    </LinearLayout>
+            <!-- INFO DE LA ORDEN -->
+            <TextView
+                    android:id="@+id/tvOrdenInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Orden #1 • Pendiente"
+                    android:textColor="#FFFFFF"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-    <!-- ✅ ID: progressBar (AGREGADO PARA UX) -->
-    <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:indeterminateTint="#FFFFFF"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            <!-- LOADING -->
+            <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:indeterminateTint="#FF6600"
+                    android:visibility="gone" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- LISTA DE DETALLES -->
+            <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="#1A1A1A"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardUseCompatPadding="true">
+
+                <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvDetalles"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clipToPadding="false"
+                        android:nestedScrollingEnabled="false"
+                        android:padding="8dp"
+                        android:visibility="gone" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- EMPTY STATE -->
+            <LinearLayout
+                    android:id="@+id/llEmptyState"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="32dp"
+                    android:visibility="gone">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="📋"
+                        android:textSize="48sp" />
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="No hay detalles para esta orden"
+                        android:textColor="#888888"
+                        android:textSize="16sp" />
+            </LinearLayout>
+
+            <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

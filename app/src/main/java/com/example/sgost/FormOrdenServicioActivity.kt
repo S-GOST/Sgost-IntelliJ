@@ -3,9 +3,13 @@ package com.example.sgost
 import android.app.Activity
 import android.app.AlertDialog
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -21,6 +25,7 @@ import com.example.sgost.adapter.DetalleOrdenAdapter
 import com.example.sgost.api.ApiAndroid
 import com.example.sgost.model.*
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.appbar.MaterialToolbar
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -59,8 +64,13 @@ class FormOrdenServicioActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_form_orden_servicio)
-        setSupportActionBar(findViewById(R.id.toolbar))
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setDisplayShowHomeEnabled(true)
+        }
 
         initViews()
         setupRecyclerView()
@@ -134,11 +144,36 @@ class FormOrdenServicioActivity : AppCompatActivity() {
         }
     }
 
+    // ✅ ADAPTADOR PERSONALIZADO: TEXTO BLANCO EN CERRADO Y ABIERTO
+    private fun createKtmSpinnerAdapter(items: List<String>): ArrayAdapter<String> {
+        return object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getView(position, convertView, parent)
+                if (view is TextView) {
+                    view.setTextColor(Color.WHITE)
+                    view.setBackgroundColor(Color.parseColor("#252525"))
+                    view.setPadding(12, 12, 48, 12) // Espacio derecho para la flecha
+                    view.textSize = 15f
+                }
+                return view
+            }
+
+            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getDropDownView(position, convertView, parent)
+                if (view is TextView) {
+                    view.setTextColor(Color.WHITE)
+                    view.setBackgroundColor(Color.parseColor("#252525"))
+                    view.setPadding(48, 12, 12, 12) // Espacio izquierdo para el check
+                    view.textSize = 15f
+                }
+                return view
+            }
+        }
+    }
+
     private fun setupSpinner(spinner: Spinner, lista: List<ItemSpinner>) {
         val nombres = lista.map { it.displayName }
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, nombres)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinner.adapter = adapter
+        spinner.adapter = createKtmSpinnerAdapter(nombres)
     }
 
     private fun setupListeners() {
@@ -149,45 +184,92 @@ class FormOrdenServicioActivity : AppCompatActivity() {
         btnGuardar.setOnClickListener { guardarOrdenCompleta() }
     }
 
+    // 🟠 MODAL CLIENTE - TEMA KTM
     private fun mostrarModalNuevoCliente() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("👤 Registrar Nuevo Cliente")
 
-        val scrollView = ScrollView(this).apply { isFillViewport = true }
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(50, 20, 50, 20)
-            setBackgroundColor(Color.parseColor("#1A1A1A"))
+            setPadding(32, 24, 32, 24)
+            background = ColorDrawable(Color.parseColor("#1A1A1A"))
         }
 
-        fun addField(label: String, hint: String, inputType: Int = InputType.TYPE_CLASS_TEXT, isPass: Boolean = false) =
+        val scrollView = ScrollView(this).apply {
+            isFillViewport = true
+            background = ColorDrawable(Color.parseColor("#1A1A1A"))
+        }
+
+        fun addKtmField(label: String, hint: String, initialType: Int = InputType.TYPE_CLASS_TEXT, isPass: Boolean = false) =
             EditText(this@FormOrdenServicioActivity).apply {
                 layout.addView(TextView(this@FormOrdenServicioActivity).apply {
-                    text = label; setTextColor(Color.WHITE)
-                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 8 }
+                    text = label
+                    setTextColor(Color.parseColor("#FF6600"))
+                    textSize = 14f
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 12 }
                 })
-                this.hint = hint
-                this.inputType = if (isPass) InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD else inputType
-                setTextColor(Color.WHITE); setPadding(0, 4, 0, 4)
+                setHint(hint)
+                this.inputType = if (isPass) InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD else initialType
+                setTextColor(Color.WHITE)
+                setHintTextColor(Color.parseColor("#888888"))
+                background = ColorDrawable(Color.parseColor("#252525"))
+                setPadding(12, 12, 12, 12)
+                textSize = 15f
+                textCursorDrawable = ColorDrawable(Color.parseColor("#FF6600"))
                 layout.addView(this)
             }
 
-        val etUbicacion = addField("📍 Ubicación:", "Ej: Bogotá")
-        val etNombre = addField("👤 Nombre completo:", "Ej: Carlos Gómez")
-        val etUsuario = addField("🔑 Usuario:", "Ej: carlos99")
-        val etPassword = addField("🔒 Contraseña:", "Mínimo 6 caracteres", isPass = true)
-        val etTipoDoc = addField("🆔 Tipo Documento:", "Ej: CC, TI, CE")
-        val etCorreo = addField("📧 Correo:", "Ej: carlos@email.com", InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
-        val etTelefono = addField("📱 Teléfono:", "3001234567", InputType.TYPE_CLASS_PHONE)
+        val etUbicacion = addKtmField("📍 Ubicación:", "Ej: Bogotá")
+        val etNombre = addKtmField("👤 Nombre completo:", "Ej: Carlos Gómez")
+        val etUsuario = addKtmField("🔑 Usuario:", "Ej: carlos99")
+        val etPassword = addKtmField("🔒 Contraseña:", "Mínimo 6 caracteres", isPass = true)
+        val etTipoDoc = addKtmField("🆔 Tipo Documento:", "Ej: CC, TI, CE")
+        val etCorreo = addKtmField("📧 Correo:", "Ej: carlos@email.com", InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
+        val etTelefono = addKtmField("📱 Teléfono:", "3001234567", InputType.TYPE_CLASS_PHONE)
 
+        val btnLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, 16, 0, 8)
+            weightSum = 2f
+        }
+
+        val btnCancel = MaterialButton(this).apply {
+            text = "CANCELAR"
+            setTextColor(Color.parseColor("#AAAAAA"))
+            background = ColorDrawable(Color.parseColor("#252525"))
+            setPadding(0, 12, 0, 12)
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = 8 }
+        }
+
+        val btnRegister = MaterialButton(this).apply {
+            text = "REGISTRAR"
+            setTextColor(Color.WHITE)
+            background = ColorDrawable(Color.parseColor("#FF6600"))
+            setPadding(0, 12, 0, 12)
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
+        btnLayout.addView(btnCancel)
+        btnLayout.addView(btnRegister)
+        layout.addView(btnLayout)
         scrollView.addView(layout)
         builder.setView(scrollView)
 
-        builder.setPositiveButton("REGISTRAR") { _, _ ->
+        val dialog = builder.show()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#1A1A1A")))
+        dialog.window?.setDimAmount(0.5f)
+        dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+
+        btnCancel.setOnClickListener { dialog.dismiss() }
+
+        btnRegister.setOnClickListener {
             if (etNombre.text.isNullOrBlank() || etPassword.text.isNullOrBlank()) {
                 Toast.makeText(this@FormOrdenServicioActivity, "Nombre y Contraseña son obligatorios", Toast.LENGTH_SHORT).show()
-                return@setPositiveButton
+                return@setOnClickListener
             }
+
+            dialog.dismiss()
 
             lifecycleScope.launch {
                 try {
@@ -203,10 +285,8 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                     if (response.isSuccessful && response.body()?.success == true) {
                         val nuevoCliente = response.body()!!.data
                         if (nuevoCliente != null) {
-                            // Backend usually returns insertId or id, but we already have the name from 'cliente.nombre'
                             val nuevoId = nuevoCliente.insertId ?: nuevoCliente.id ?: -1
                             val nombreCliente = cliente.nombre ?: "Cliente"
-                            
                             listaClientes = listaClientes + ItemSpinner(nombreCliente, nuevoId, 0.0, "0", nombreCliente)
                             setupSpinner(spinnerClientes, listaClientes)
                             if (spinnerClientes.count > 0) spinnerClientes.setSelection(spinnerClientes.count - 1)
@@ -229,50 +309,100 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                 }
             }
         }
-        builder.setNegativeButton("CANCELAR") { dialog, _ -> dialog.cancel() }
-        builder.show()
     }
 
+    // 🟠 MODAL MOTO - TEMA KTM
     private fun mostrarModalNuevaMoto() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("🏍️ Registrar Nueva Moto")
 
-        val scrollView = ScrollView(this).apply { isFillViewport = true }
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(50, 20, 50, 20)
-            setBackgroundColor(Color.parseColor("#1A1A1A"))
+            setPadding(32, 24, 32, 24)
+            background = ColorDrawable(Color.parseColor("#1A1A1A"))
+        }
+
+        val scrollView = ScrollView(this).apply {
+            isFillViewport = true
+            background = ColorDrawable(Color.parseColor("#1A1A1A"))
         }
 
         layout.addView(TextView(this@FormOrdenServicioActivity).apply {
-            text = "👤 Dueño (Cliente):"; setTextColor(Color.WHITE)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 8 }
+            text = "👤 Dueño (Cliente):"
+            setTextColor(Color.parseColor("#FF6600"))
+            textSize = 14f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 12 }
         })
+
         val spClienteMoto = Spinner(this@FormOrdenServicioActivity).apply {
-            setPadding(0, 4, 0, 4)
-            adapter = ArrayAdapter(this@FormOrdenServicioActivity, android.R.layout.simple_spinner_dropdown_item, listaClientes.map { it.displayName })
+            background = ColorDrawable(Color.parseColor("#252525"))
+            setPadding(12, 12, 12, 12)
+            adapter = createKtmSpinnerAdapter(listaClientes.map { it.displayName })
         }
         layout.addView(spClienteMoto)
 
-        fun addField(label: String, hint: String, inputType: Int = InputType.TYPE_CLASS_TEXT) =
+        fun addKtmField(label: String, hint: String, initialType: Int = InputType.TYPE_CLASS_TEXT) =
             EditText(this@FormOrdenServicioActivity).apply {
                 layout.addView(TextView(this@FormOrdenServicioActivity).apply {
-                    text = label; setTextColor(Color.WHITE)
-                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 8 }
+                    text = label
+                    setTextColor(Color.parseColor("#FF6600"))
+                    textSize = 14f
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 12 }
                 })
-                this.hint = hint; this.inputType = inputType; setTextColor(Color.WHITE); setPadding(0, 4, 0, 4)
+                setHint(hint)
+                this.inputType = initialType
+                setTextColor(Color.WHITE)
+                setHintTextColor(Color.parseColor("#888888"))
+                background = ColorDrawable(Color.parseColor("#252525"))
+                setPadding(12, 12, 12, 12)
+                textSize = 15f
+                textCursorDrawable = ColorDrawable(Color.parseColor("#FF6600"))
                 layout.addView(this)
             }
 
-        val etPlaca = addField("🔢 Placa:", "Ej: BGT657")
-        val etModelo = addField("🏷️ Modelo:", "Ej: 390")
-        val etMarca = addField("🏢 Marca:", "Ej: KTM, Honda")
-        val etRecorrido = addField("🛣️ Recorrido (km):", "0", InputType.TYPE_CLASS_NUMBER)
+        val etPlaca = addKtmField("🔢 Placa:", "Ej: BGT657")
+        val etModelo = addKtmField("🏷️ Modelo:", "Ej: 390")
+        val etMarca = addKtmField("🏢 Marca:", "Ej: KTM, Honda")
+        val etRecorrido = addKtmField("🛣️ Recorrido (km):", "0", InputType.TYPE_CLASS_NUMBER)
 
+        val btnLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, 16, 0, 8)
+            weightSum = 2f
+        }
+
+        val btnCancel = MaterialButton(this).apply {
+            text = "CANCELAR"
+            setTextColor(Color.parseColor("#AAAAAA"))
+            background = ColorDrawable(Color.parseColor("#252525"))
+            setPadding(0, 12, 0, 12)
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = 8 }
+        }
+
+        val btnRegister = MaterialButton(this).apply {
+            text = "REGISTRAR"
+            setTextColor(Color.WHITE)
+            background = ColorDrawable(Color.parseColor("#FF6600"))
+            setPadding(0, 12, 0, 12)
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
+        btnLayout.addView(btnCancel)
+        btnLayout.addView(btnRegister)
+        layout.addView(btnLayout)
         scrollView.addView(layout)
         builder.setView(scrollView)
 
-        builder.setPositiveButton("REGISTRAR") { dialog, _ ->
+        val dialog = builder.show()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#1A1A1A")))
+        dialog.window?.setDimAmount(0.5f)
+        dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+
+        btnCancel.setOnClickListener { dialog.dismiss() }
+
+        btnRegister.setOnClickListener {
             try {
                 val placa = etPlaca.text.toString().trim()
                 val modelo = etModelo.text.toString().trim()
@@ -280,23 +410,24 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                 val recorrido = etRecorrido.text.toString().trim().toDoubleOrNull() ?: 0.0
 
                 if (placa.isEmpty() || modelo.isEmpty() || marca.isEmpty()) {
-                    Toast.makeText(this, "❌ Completa todos los campos", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
+                    Toast.makeText(this@FormOrdenServicioActivity, "❌ Completa todos los campos", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
                 }
 
                 val posCliente = spClienteMoto.selectedItemPosition
                 val idCliente = if (posCliente >= 0 && posCliente < listaClientes.size) listaClientes[posCliente].id
                 else {
-                    Toast.makeText(this, "❌ Selecciona un cliente válido", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
+                    Toast.makeText(this@FormOrdenServicioActivity, "❌ Selecciona un cliente válido", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
                 }
 
                 if (idCliente <= 0) {
-                    Toast.makeText(this, "❌ El cliente seleccionado no tiene un ID válido", Toast.LENGTH_LONG).show()
-                    return@setPositiveButton
+                    Toast.makeText(this@FormOrdenServicioActivity, "❌ El cliente seleccionado no tiene un ID válido", Toast.LENGTH_LONG).show()
+                    return@setOnClickListener
                 }
 
                 val moto = Moto(idMotos = null, idClientes = idCliente, placa = placa, modelo = modelo, marca = marca, recorrido = recorrido)
+                dialog.dismiss()
 
                 lifecycleScope.launch {
                     try {
@@ -308,7 +439,6 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                                 listaMotos = listaMotos.toMutableList() + ItemSpinner(displayName = "$modelo ($placa)", id = nuevaId, 0.0, "0", "$modelo ($placa)")
                                 setupSpinner(spinnerMotos, listaMotos)
                                 if (spinnerMotos.count > 0) spinnerMotos.setSelection(spinnerMotos.count - 1)
-                                dialog.dismiss()
                             } else {
                                 Toast.makeText(this@FormOrdenServicioActivity, "⚠️ Moto creada pero no se recibió su ID. Recarga la app.", Toast.LENGTH_LONG).show()
                             }
@@ -320,11 +450,9 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                     }
                 }
             } catch (e: Exception) {
-                Toast.makeText(this, "❌ Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@FormOrdenServicioActivity, "❌ Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
-        builder.setNegativeButton("CANCELAR") { dialog, _ -> dialog.cancel() }
-        builder.show()
     }
 
     private fun mostrarModalSeleccionDB() {
@@ -337,27 +465,37 @@ class FormOrdenServicioActivity : AppCompatActivity() {
         builder.setTitle("📦 Agregar desde Base de Datos")
         val inputLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(50, 20, 50, 20)
+            setPadding(32, 24, 32, 24)
             setBackgroundColor(Color.parseColor("#1A1A1A"))
         }
 
-        val labelServ = TextView(this).apply { text = "🔧 Servicio:"; setTextColor(Color.WHITE) }
+        val labelServ = TextView(this).apply {
+            text = "🔧 Servicio:"
+            setTextColor(Color.parseColor("#FF6600"))
+            textSize = 14f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
         inputLayout.addView(labelServ)
         val spServicio = Spinner(this).apply {
-            setPadding(0, 10, 0, 10)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            adapter = ArrayAdapter(this@FormOrdenServicioActivity, android.R.layout.simple_spinner_dropdown_item, listaServicios.map { it.displayName })
+            background = ColorDrawable(Color.parseColor("#252525"))
+            setPadding(12, 12, 12, 12)
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 8 }
+            adapter = createKtmSpinnerAdapter(listaServicios.map { it.displayName })
         }
         inputLayout.addView(spServicio)
 
         val labelProd = TextView(this).apply {
-            text = "📦 Producto (Opcional):"; setTextColor(Color.WHITE)
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 10 }
+            text = "📦 Producto (Opcional):"
+            setTextColor(Color.parseColor("#FF6600"))
+            textSize = 14f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 16 }
         }
         inputLayout.addView(labelProd)
         val spProducto = Spinner(this).apply {
-            setPadding(0, 10, 0, 10)
-            adapter = ArrayAdapter(this@FormOrdenServicioActivity, android.R.layout.simple_spinner_dropdown_item, listaProductos.map { it.displayName })
+            background = ColorDrawable(Color.parseColor("#252525"))
+            setPadding(12, 12, 12, 12)
+            adapter = createKtmSpinnerAdapter(listaProductos.map { it.displayName })
         }
         inputLayout.addView(spProducto)
 
@@ -374,7 +512,6 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                 return@setPositiveButton
             }
 
-            // Validar si ya existe este servicio o producto en la lista (para evitar duplicados)
             val yaExisteServ = selServ != null && listaDetalles.any { it.idServicios == selServ.id }
             val yaExisteProd = selProd != null && listaDetalles.any { it.idProductos == selProd.id }
 
@@ -383,20 +520,18 @@ class FormOrdenServicioActivity : AppCompatActivity() {
                 return@setPositiveButton
             }
 
-            // ✅ CÁLCULO DE PRECIOS Y GARANTÍAS COMBINADOS
             val precioTotal = (selServ?.precio ?: 0.0) + (selProd?.precio ?: 0.0)
             val garantiaFinal = Math.max(
                 selServ?.garantia?.toIntOrNull() ?: 0,
                 selProd?.garantia?.toIntOrNull() ?: 0
             )
 
-            // ✅ CREACIÓN DE UN SOLO OBJETO (GUARDA UNA SOLA FILA)
             listaDetalles.add(
                 Detalles_orden_servicio(
                     idDetalleOrden = null,
                     idOrden = null,
-                    idServicios = selServ?.id,      // Se guarda el ID del servicio si existe
-                    idProductos = selProd?.id,      // Se guarda el ID del producto si existe
+                    idServicios = selServ?.id,
+                    idProductos = selProd?.id,
                     nombreServicio = selServ?.realName,
                     nombreProducto = selProd?.realName,
                     precio = precioTotal,

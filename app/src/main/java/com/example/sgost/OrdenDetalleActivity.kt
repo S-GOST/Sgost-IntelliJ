@@ -16,6 +16,7 @@ import com.example.sgost.adapter.DetalleOrdenAdapter
 import com.example.sgost.api.ApiAndroid
 import com.example.sgost.model.Detalles_orden_servicio
 import com.example.sgost.model.Orden_servicio
+import com.google.android.material.appbar.MaterialToolbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -33,7 +34,14 @@ class OrdenDetalleActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_orden_detalle)
 
-        setupToolbar()
+        // ✅ CONFIGURACIÓN ÚNICA Y CORRECTA DEL TOOLBAR
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setDisplayShowHomeEnabled(true)
+        }
+
         initViews()
         setupAdapter()
 
@@ -49,17 +57,15 @@ class OrdenDetalleActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupToolbar() {
-        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-    }
-
+    // ✅ MANEJO CORRECTO DEL BOTÓN DE RETROCESO
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == android.R.id.home) {
-            finish()
-            true
-        } else super.onOptionsItemSelected(item)
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressedDispatcher.onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun initViews() {
@@ -88,7 +94,6 @@ class OrdenDetalleActivity : AppCompatActivity() {
 
                 withContext(Dispatchers.Main) { progressBar.visibility = View.VISIBLE }
 
-                // Peticiones en paralelo
                 val detallesJob = async { ApiAndroid.apiService.obtenerDetallesPorOrden(idOrden.toString()) }
                 val serviciosJob = async { ApiAndroid.apiService.obtenerServicios() }
                 val productosJob = async { ApiAndroid.apiService.obtenerProductos() }
@@ -102,7 +107,6 @@ class OrdenDetalleActivity : AppCompatActivity() {
                     val listaServicios = respServicios.data.orEmpty()
                     val listaProductos = respProductos.data.orEmpty()
 
-                    // ===== LOGS DE DIAGNÓSTICO =====
                     Log.d("ORDEN_DETALLE", "========== DIAGNÓSTICO ==========")
                     Log.d("ORDEN_DETALLE", "📦 Filas crudas del API: ${listaRaw.size}")
                     listaRaw.forEachIndexed { i, d ->
@@ -118,7 +122,6 @@ class OrdenDetalleActivity : AppCompatActivity() {
                     }
                     Log.d("ORDEN_DETALLE", "==================================")
 
-                    // Lista mutable donde guardaremos los elementos finales (servicios y productos separados)
                     val elementosFinales = mutableListOf<Detalles_orden_servicio>()
 
                     for (detalle in listaRaw) {
@@ -127,7 +130,6 @@ class OrdenDetalleActivity : AppCompatActivity() {
 
                         Log.d("ORDEN_DETALLE", "🔍 Procesando detalle #${detalle.idDetalleOrden}: tieneServicio=$tieneServicio (id=${detalle.idServicios}), tieneProducto=$tieneProducto (id=${detalle.idProductos})")
 
-                        // Si tiene servicio, crear un elemento copiando los datos del catálogo de servicios
                         if (tieneServicio) {
                             val servicio = listaServicios.find { it.idServicios == detalle.idServicios }
                             Log.d("ORDEN_DETALLE", "  🔧 Servicio encontrado en catálogo: ${servicio != null} (buscando id=${detalle.idServicios})")
@@ -146,7 +148,6 @@ class OrdenDetalleActivity : AppCompatActivity() {
                                     )
                                 )
                             } else {
-                                // Si no se encuentra el servicio en catálogo, usar nombreServicio del detalle original
                                 val nombreFallback = detalle.nombreServicio
                                 Log.d("ORDEN_DETALLE", "  ⚠️ Servicio NO encontrado en catálogo, usando fallback: $nombreFallback")
                                 elementosFinales.add(
@@ -164,7 +165,6 @@ class OrdenDetalleActivity : AppCompatActivity() {
                             }
                         }
 
-                        // Si tiene producto, crear un elemento con los datos del catálogo de productos
                         if (tieneProducto) {
                             val producto = listaProductos.find { it.idProductos == detalle.idProductos }
                             Log.d("ORDEN_DETALLE", "  📦 Producto encontrado en catálogo: ${producto != null} (buscando id=${detalle.idProductos})")
@@ -201,7 +201,6 @@ class OrdenDetalleActivity : AppCompatActivity() {
                             }
                         }
 
-                        // Si no tiene IDs, pero puede tener nombres directos del API
                         if (!tieneServicio && !tieneProducto) {
                             val tieneNombreServ = !detalle.nombreServicio.isNullOrEmpty()
                             val tieneNombreProd = !detalle.nombreProducto.isNullOrEmpty()
@@ -209,9 +208,6 @@ class OrdenDetalleActivity : AppCompatActivity() {
                             Log.d("ORDEN_DETALLE", "  ❓ Sin IDs. nombreServ=$tieneNombreServ nombreProd=$tieneNombreProd")
 
                             if (tieneNombreServ && tieneNombreProd) {
-                                // La API devuelve servicio y producto en la MISMA fila sin IDs → separar en dos
-
-                                // Buscar servicio en catálogo por nombre para enriquecer precio/garantía
                                 val servicioCat = listaServicios.find {
                                     it.nombre.equals(detalle.nombreServicio, ignoreCase = true)
                                 }
@@ -219,7 +215,7 @@ class OrdenDetalleActivity : AppCompatActivity() {
                                     Detalles_orden_servicio(
                                         idDetalleOrden = detalle.idDetalleOrden,
                                         idOrden = detalle.idOrden,
-                                        idServicios = servicioCat?.idServicios ?: -1, // -1 para marcar como servicio
+                                        idServicios = servicioCat?.idServicios ?: -1,
                                         idProductos = null,
                                         nombreServicio = detalle.nombreServicio,
                                         nombreProducto = null,
@@ -229,7 +225,6 @@ class OrdenDetalleActivity : AppCompatActivity() {
                                 )
                                 Log.d("ORDEN_DETALLE", "  ✅ Separado SERVICIO: ${detalle.nombreServicio} (catálogo: ${servicioCat != null})")
 
-                                // Buscar producto en catálogo por nombre para enriquecer precio/garantía
                                 val productoCat = listaProductos.find {
                                     it.nombre.equals(detalle.nombreProducto, ignoreCase = true)
                                 }
@@ -248,7 +243,6 @@ class OrdenDetalleActivity : AppCompatActivity() {
                                 Log.d("ORDEN_DETALLE", "  ✅ Separado PRODUCTO: ${detalle.nombreProducto} (catálogo: ${productoCat != null})")
 
                             } else if (tieneNombreServ) {
-                                // Solo tiene servicio (sin ID)
                                 val servicioCat = listaServicios.find {
                                     it.nombre.equals(detalle.nombreServicio, ignoreCase = true)
                                 }
@@ -260,7 +254,6 @@ class OrdenDetalleActivity : AppCompatActivity() {
                                     )
                                 )
                             } else if (tieneNombreProd) {
-                                // Solo tiene producto (sin ID)
                                 val productoCat = listaProductos.find {
                                     it.nombre.equals(detalle.nombreProducto, ignoreCase = true)
                                 }
@@ -272,7 +265,6 @@ class OrdenDetalleActivity : AppCompatActivity() {
                                     )
                                 )
                             } else {
-                                // No tiene nada, agregar tal cual
                                 elementosFinales.add(detalle)
                             }
                         }
@@ -283,7 +275,6 @@ class OrdenDetalleActivity : AppCompatActivity() {
                         Log.d("ORDEN_DETALLE", "  [$i] idServ=${it.idServicios} idProd=${it.idProductos} nombreServ=${it.nombreServicio} nombreProd=${it.nombreProducto} precio=${it.precio}")
                     }
 
-                    // NO filtrar, mostrar todo lo que tenga nombre
                     val listaFinal = elementosFinales.filter {
                         !it.nombreServicio.isNullOrEmpty() || !it.nombreProducto.isNullOrEmpty()
                     }

@@ -2,7 +2,6 @@ package com.example.sgost
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
 
@@ -13,14 +12,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // 🔹 Botón Iniciar Sesión
-        findViewById<Button>(R.id.btnLogin).setOnClickListener {
+        findViewById<MaterialButton>(R.id.btnLogin).setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
         }
 
-        // 🔹 Botón Ir a Formulario de Cliente
-        val btnIrForm = findViewById<MaterialButton>(R.id.btnRegistro)
-        btnIrForm.setOnClickListener {
+        // 🔹 Botón Registrarse
+        findViewById<MaterialButton>(R.id.btnRegistro).setOnClickListener {
             startActivity(Intent(this, FormClienteActivity::class.java))
+        }
+
+        // 🔹 Botón Ir al Catálogo
+        findViewById<MaterialButton>(R.id.btnIrCatalogo).setOnClickListener {
+            startActivity(Intent(this, CatalogoActivity::class.java))
         }
     }
 }

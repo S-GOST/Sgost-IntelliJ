@@ -37,7 +37,7 @@
                 android:screenOrientation="portrait"
                 android:parentActivityName=".MainActivity" />
 
-        <!-- 3. ADMIN -->
+        <!-- 3. ADMIN DASHBOARD -->
         <activity
                 android:name=".DasbohadActivityAdmin"
                 android:exported="false"
@@ -121,12 +121,19 @@
                 android:screenOrientation="portrait"
                 android:parentActivityName=".AdministradoresActivity" />
 
-        <!-- 15. CARRITO -->
+        <!-- 15.  CATÁLOGO (AGREGADO) -->
+        <activity
+                android:name=".CatalogoActivity"
+                android:exported="false"
+                android:screenOrientation="portrait"
+                android:parentActivityName=".DashboardActivityClientes" />
+
+        <!-- 16. CARRITO (Padre ajustado para mejor flujo de navegación) -->
         <activity
                 android:name=".CarritoActivity"
                 android:exported="false"
                 android:screenOrientation="portrait"
-                android:parentActivityName=".DashboardActivityClientes" />
+                android:parentActivityName=".CatalogoActivity" />
 
     </application>
 </manifest>
