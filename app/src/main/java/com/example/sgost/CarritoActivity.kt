@@ -3,6 +3,8 @@ package com.example.sgost
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -10,14 +12,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sgost.adapter.CarritoAdapter
 import com.example.sgost.api.ApiAndroid
-import com.example.sgost.CartManager
+import com.example.sgost.data.CartManager
 import com.example.sgost.model.CarritoItem
 import com.example.sgost.model.Orden_servicio
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
-import retrofit2.Response
 import org.json.JSONObject
+import retrofit2.Response
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -25,40 +27,42 @@ import java.util.Locale
 
 class CarritoActivity : AppCompatActivity() {
 
-    // 🔹 Vistas
+    // Vistas
     private lateinit var rvCarrito: RecyclerView
-    private lateinit var tvItemCount: android.widget.TextView
-    private lateinit var llEmptyState: android.widget.LinearLayout
-    private lateinit var tvSubtotal: android.widget.TextView
-    private lateinit var tvTotal: android.widget.TextView
+    private lateinit var tvItemCount: TextView
+    private lateinit var tvSubtotal: TextView
+    private lateinit var tvTotal: TextView
     private lateinit var btnGenerarOrden: MaterialButton
-    private lateinit var btnVaciar: android.widget.ImageButton
+    private lateinit var btnVaciar: ImageButton
+    private lateinit var llEmptyState: View
 
-    // 🔹 Estado del carrito
+    // Datos
     private var listaCarrito = mutableListOf<CarritoItem>()
     private lateinit var adapter: CarritoAdapter
 
     private val formatoMoneda = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
     private val formatoFecha = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale("es", "CO"))
-    // ⚠️ Solo usamos prefs para datos de usuario, NO para el carrito
     private val prefs by lazy { getSharedPreferences("sgost_prefs", MODE_PRIVATE) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_carrito)
 
-        // ✅ Inicialización segura de CartManager (solo una vez en toda la app)
-        if (!::adapter.isInitialized) {
-            CartManager.init(applicationContext)
-        }
+        // Inicializar vistas
+        rvCarrito = findViewById(R.id.rvCarrito)
+        tvItemCount = findViewById(R.id.tvItemCount)
+        tvSubtotal = findViewById(R.id.tvSubtotal)
+        tvTotal = findViewById(R.id.tvTotal)
+        btnGenerarOrden = findViewById(R.id.btnGenerarOrden) // Ajusta el ID según tu layout
+        btnVaciar = findViewById(R.id.btnVaciar)           // Ajusta el ID según tu layout
+        llEmptyState = findViewById(R.id.llEmptyState)
 
         setupToolbar()
-        initViews()
         setupAdapter()
         setupListeners()
 
-        // 🔄 Cargar datos directamente desde CartManager
-        listaCarrito = CartManager.getItems().toMutableList()
+        // Cargar datos del carrito (USANDO CartManager.items)
+        listaCarrito = CartManager.items.toMutableList()
         actualizarUI()
     }
 
@@ -66,29 +70,26 @@ class CarritoActivity : AppCompatActivity() {
         val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = "Carrito"
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == android.R.id.home) {
-            onBackPressedDispatcher.onBackPressed()
-            true
-        } else super.onOptionsItemSelected(item)
-    }
-
-    private fun initViews() {
-        rvCarrito = findViewById(R.id.rvCarrito)
-        tvItemCount = findViewById(R.id.tvItemCount)
-        llEmptyState = findViewById(R.id.llEmptyState)
-        tvSubtotal = findViewById(R.id.tvSubtotal)
-        tvTotal = findViewById(R.id.tvTotal)
-        btnGenerarOrden = findViewById(R.id.btnGenerarOrden)
-        btnVaciar = findViewById(R.id.btnVaciar)
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressedDispatcher.onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun setupAdapter() {
-        rvCarrito.isNestedScrollingEnabled = false
         rvCarrito.layoutManager = LinearLayoutManager(this)
-        adapter = CarritoAdapter(listaCarrito) { index -> eliminarItem(index) }
+        adapter = CarritoAdapter(listaCarrito) { index ->
+            CartManager.removeAt(index)
+            listaCarrito = CartManager.items.toMutableList()
+            actualizarUI()
+        }
         rvCarrito.adapter = adapter
     }
 
@@ -98,30 +99,18 @@ class CarritoActivity : AppCompatActivity() {
             CartManager.clear()
             listaCarrito = mutableListOf()
             actualizarUI()
+            Toast.makeText(this, "🗑️ Carrito vaciado", Toast.LENGTH_SHORT).show()
         }
 
         btnGenerarOrden.setOnClickListener {
             if (listaCarrito.isEmpty()) {
-                showToast("❌ El carrito está vacío")
+                Toast.makeText(this, "❌ El carrito está vacío", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             btnGenerarOrden.isEnabled = false
             btnGenerarOrden.text = "PROCESANDO..."
             generarOrdenServicio()
         }
-    }
-
-    // 🔄 Métodos de gestión del carrito (Unificados con CartManager)
-    fun agregarAlCarrito(item: CarritoItem) {
-        CartManager.addItem(item)
-        listaCarrito = CartManager.getItems().toMutableList()
-        actualizarUI()
-    }
-
-    private fun eliminarItem(index: Int) {
-        CartManager.removeAt(index)
-        listaCarrito = CartManager.getItems().toMutableList()
-        actualizarUI()
     }
 
     private fun actualizarUI() {
@@ -142,27 +131,25 @@ class CarritoActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Sincronización automática al volver de otras pantallas
-        listaCarrito = CartManager.getItems().toMutableList()
+        listaCarrito = CartManager.items.toMutableList()
         actualizarUI()
     }
 
-    // 🌐 Llamada a API (Optimizada y segura)
     private fun generarOrdenServicio() {
         lifecycleScope.launch {
             try {
                 if (!ApiAndroid.isReady) {
-                    showToast("⚠️ Conexión API no disponible")
+                    Toast.makeText(this@CarritoActivity, "⚠️ API no disponible", Toast.LENGTH_SHORT).show()
                     return@launch
                 }
 
                 val userId = prefs.getInt("user_id", 0)
                 if (userId == 0) {
-                    showToast("❌ Error: Usuario no autenticado o ID inválido")
+                    Toast.makeText(this@CarritoActivity, "❌ Usuario no autenticado", Toast.LENGTH_SHORT).show()
                     return@launch
                 }
 
-                val ordenServicio = Orden_servicio(
+                val orden = Orden_servicio(
                     idOrden_servicio = null,
                     idClientes = userId,
                     idAdministrador = null,
@@ -174,7 +161,7 @@ class CarritoActivity : AppCompatActivity() {
                     estado = "PENDIENTE"
                 )
 
-                val response: Response<ResponseBody> = ApiAndroid.apiService.crearOrdenServicio(ordenServicio)
+                val response: Response<ResponseBody> = ApiAndroid.apiService.crearOrdenServicio(orden)
 
                 if (response.isSuccessful) {
                     val jsonString = response.body()?.string() ?: "{}"
@@ -182,35 +169,27 @@ class CarritoActivity : AppCompatActivity() {
                     val success = jsonObject.optBoolean("success", false)
 
                     if (success) {
-                        showToast("✅ Orden generada correctamente")
-                        CartManager.clear() // Vaciar de forma centralizada
+                        Toast.makeText(this@CarritoActivity, "✅ Orden generada", Toast.LENGTH_SHORT).show()
+                        CartManager.clear()
                         listaCarrito = mutableListOf()
                         actualizarUI()
                         finish()
                     } else {
-                        showToast("❌ ${jsonObject.optString("message", "Error desconocido")}")
+                        val msg = jsonObject.optString("message", "Error desconocido")
+                        Toast.makeText(this@CarritoActivity, "❌ $msg", Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    val errorString = response.errorBody()?.string() ?: "Error de conexión"
-                    val errorMsg = try {
-                        JSONObject(errorString).optString("message") ?: JSONObject(errorString).optString("error")
-                    } catch (e: Exception) {
-                        errorString
-                    }
-                    showToast("❌ $errorMsg")
+                    val errorBody = response.errorBody()?.string() ?: "Error de conexión"
+                    Toast.makeText(this@CarritoActivity, "❌ $errorBody", Toast.LENGTH_SHORT).show()
                 }
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                showToast("❌ Error de red: ${e.message}")
+                Toast.makeText(this@CarritoActivity, "❌ Error: ${e.message}", Toast.LENGTH_SHORT).show()
             } finally {
                 btnGenerarOrden.isEnabled = true
                 btnGenerarOrden.text = "GENERAR ORDEN DE SERVICIO"
             }
         }
-    }
-
-    private fun showToast(msg: String) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 }

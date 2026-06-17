@@ -19,12 +19,12 @@ class CarritoAdapter(
     private val formatoMoneda = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvIcono: TextView = view.findViewById(R.id.tvTipoIcon)
         val tvNombre: TextView = view.findViewById(R.id.tvNombreItem)
-        val tvCategoria: TextView = view.findViewById(R.id.tvCategoriaItem)
+        val tvTipo: TextView = view.findViewById(R.id.etTipoDoc)  // o tvCategoriaItem, según tu layout
         val tvPrecio: TextView = view.findViewById(R.id.tvPrecioUnitario)
-        val tvSubtotal: TextView = view.findViewById(R.id.tvSubtotalItem)
-        val btnEliminar: ImageButton = view.findViewById(R.id.btnEliminarItem)
+        val tvCantidad: TextView = view.findViewById(R.id.tvPrecio)
+        val tvSubtotal: TextView = view.findViewById(R.id.tvSubtotal)
+        val btnEliminar: ImageButton = view.findViewById(R.id.btnEliminar)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -35,10 +35,11 @@ class CarritoAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = lista[position]
 
-        holder.tvIcono.text = item.icono
+        // Usamos los campos reales de CarritoItem
         holder.tvNombre.text = item.nombre
-        holder.tvCategoria.text = "${item.categoria} • Cant: ${item.cantidad}"
+        holder.tvTipo.text = item.tipo  // "Producto" o "Servicio"
         holder.tvPrecio.text = "${formatoMoneda.format(item.precioUnitario)} / unidad"
+        holder.tvCantidad.text = "Cant: ${item.cantidad}"
         holder.tvSubtotal.text = formatoMoneda.format(item.subtotal)
 
         holder.btnEliminar.setOnClickListener {
@@ -46,5 +47,5 @@ class CarritoAdapter(
         }
     }
 
-    override fun getItemCount() = lista.size
+    override fun getItemCount(): Int = lista.size
 }

@@ -1,16 +1,15 @@
 package com.example.sgost.model
 
 data class CarritoItem(
-    val id: String,
-    val tipo: String, // "SERVICIO" o "PRODUCTO"
+    val idProducto: Int,
     val nombre: String,
-    val categoria: String,
     val precioUnitario: Double,
-    var cantidad: Int = 1
-) {
-    val subtotal: Double
-        get() = precioUnitario * cantidad
-
-    val icono: String
-        get() = if (tipo == "SERVICIO") "🔧" else "⚙️"
-}
+    var cantidad: Int,
+    var subtotal: Double,
+    val tipo: String,
+    val icono: String = "🛠️",
+    val categoria: String? = null,
+    val garantia: Int? = null,
+    val marca: String? = null,
+    val estado: String? = null
+)
