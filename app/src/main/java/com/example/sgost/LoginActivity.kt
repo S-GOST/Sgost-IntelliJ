@@ -33,11 +33,11 @@ class LoginActivity : AppCompatActivity() {
         btnLogin = findViewById(R.id.btnLogin)
         tvMessage = findViewById(R.id.tvMessage)
 
-        rgTipoUsuario.check(R.id.rbAdmin) // Selecciona Admin por defecto
-        btnLogin.setOnClickListener { iniciarSesionUnificado() }
+        rgTipoUsuario.check(R.id.rbCliente)
+        btnLogin.setOnClickListener { iniciarSesion() }
     }
 
-    private fun iniciarSesionUnificado() {
+    private fun iniciarSesion() {
         val usuario = etUsuario.text.toString().trim()
         val password = etPassword.text.toString().trim()
 
@@ -69,29 +69,36 @@ class LoginActivity : AppCompatActivity() {
                 }
 
                 if (response.success) {
+                    // 🔑 GUARDAR SESIÓN CORRECTAMENTE
                     prefs.edit {
                         putString("auth_token", response.token ?: "")
                         putString("user_nombre", response.nombre ?: "Usuario")
                         putString("user_type", tipoSeleccionado)
+                        putInt("user_id", response.id ?: 1) // ← CLAVE PARA MainActivity
                     }
+
                     Toast.makeText(this@LoginActivity, "✅ Bienvenido ${response.nombre}", Toast.LENGTH_SHORT).show()
 
-                    // ✅ REDIRECCIÓN REAL AL DASHBOARD CORRESPONDIENTE
+                    // 🎯 DETERMINAR DASHBOARD SEGÚN ROL
                     val targetActivity = when(tipoSeleccionado) {
                         "admin"   -> DasbohadActivityAdmin::class.java
                         "tecnico" -> DasbohadActivityTecnicos::class.java
                         "cliente" -> DashboardActivityClientes::class.java
                         else -> throw IllegalStateException("Dashboard no configurado")
                     }
-                    startActivity(Intent(this@LoginActivity, targetActivity))
-                    finish() // Cierra Login para que el botón "Atrás" no lo regrese
+
+                    // 🚀 INICIAR ACTIVIDAD CON FLAGS PARA LIMPIAR PILA
+                    val intent = Intent(this@LoginActivity, targetActivity).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+                    startActivity(intent)
+                    finish()
                 } else {
                     mostrarMensaje("❌ ${response.message ?: "Credenciales incorrectas"}")
                 }
             } catch (e: Exception) {
                 mostrarMensaje("⚠️ Error: ${e.message}")
             } finally {
-                // ✅ RESTAURA EL BOTÓN EN CUALQUIER CASO (ÉXITO O ERROR)
                 btnLogin.isEnabled = true
                 btnLogin.text = "INICIAR SESIÓN"
             }

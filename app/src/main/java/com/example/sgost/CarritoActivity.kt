@@ -27,7 +27,9 @@ import java.util.Locale
 
 class CarritoActivity : AppCompatActivity() {
 
-    // Vistas
+    // ==========================================
+    // 1. VISTAS Y DATOS
+    // ==========================================
     private lateinit var rvCarrito: RecyclerView
     private lateinit var tvItemCount: TextView
     private lateinit var tvSubtotal: TextView
@@ -36,8 +38,8 @@ class CarritoActivity : AppCompatActivity() {
     private lateinit var btnVaciar: ImageButton
     private lateinit var llEmptyState: View
 
-    // Datos
-    private var listaCarrito = mutableListOf<CarritoItem>()
+    // 🔑 ESTA LISTA SE COMPARTIRÁ DIRECTAMENTE CON EL ADAPTER
+    private val listaCarrito = mutableListOf<CarritoItem>()
     private lateinit var adapter: CarritoAdapter
 
     private val formatoMoneda = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
@@ -53,24 +55,29 @@ class CarritoActivity : AppCompatActivity() {
         tvItemCount = findViewById(R.id.tvItemCount)
         tvSubtotal = findViewById(R.id.tvSubtotal)
         tvTotal = findViewById(R.id.tvTotal)
-        btnGenerarOrden = findViewById(R.id.btnGenerarOrden) // Ajusta el ID según tu layout
-        btnVaciar = findViewById(R.id.btnVaciar)           // Ajusta el ID según tu layout
+        btnGenerarOrden = findViewById(R.id.btnGenerarOrden)
+        btnVaciar = findViewById(R.id.btnVaciar)
         llEmptyState = findViewById(R.id.llEmptyState)
 
         setupToolbar()
         setupAdapter()
         setupListeners()
 
-        // Cargar datos del carrito (USANDO CartManager.items)
-        listaCarrito = CartManager.items.toMutableList()
-        actualizarUI()
+        // Cargar datos iniciales
+        sincronizarConCartManager()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 🔁 Cada vez que volvemos a esta pantalla, refrescamos desde CartManager
+        sincronizarConCartManager()
     }
 
     private fun setupToolbar() {
         val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Carrito"
+        supportActionBar?.title = "Mi Carrito"
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -87,8 +94,7 @@ class CarritoActivity : AppCompatActivity() {
         rvCarrito.layoutManager = LinearLayoutManager(this)
         adapter = CarritoAdapter(listaCarrito) { index ->
             CartManager.removeAt(index)
-            listaCarrito = CartManager.items.toMutableList()
-            actualizarUI()
+            sincronizarConCartManager()
         }
         rvCarrito.adapter = adapter
     }
@@ -97,8 +103,7 @@ class CarritoActivity : AppCompatActivity() {
         btnVaciar.setOnClickListener {
             if (listaCarrito.isEmpty()) return@setOnClickListener
             CartManager.clear()
-            listaCarrito = mutableListOf()
-            actualizarUI()
+            sincronizarConCartManager()
             Toast.makeText(this, "🗑️ Carrito vaciado", Toast.LENGTH_SHORT).show()
         }
 
@@ -111,6 +116,13 @@ class CarritoActivity : AppCompatActivity() {
             btnGenerarOrden.text = "PROCESANDO..."
             generarOrdenServicio()
         }
+    }
+
+    // 🔑 MÉTODO CLAVE: Mantiene sincronizada la lista con CartManager SIN cambiar la referencia
+    private fun sincronizarConCartManager() {
+        listaCarrito.clear()
+        listaCarrito.addAll(CartManager.items)
+        actualizarUI()
     }
 
     private fun actualizarUI() {
@@ -127,12 +139,6 @@ class CarritoActivity : AppCompatActivity() {
         val total = listaCarrito.sumOf { it.subtotal }
         tvSubtotal.text = formatoMoneda.format(total)
         tvTotal.text = formatoMoneda.format(total)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        listaCarrito = CartManager.items.toMutableList()
-        actualizarUI()
     }
 
     private fun generarOrdenServicio() {
@@ -169,10 +175,9 @@ class CarritoActivity : AppCompatActivity() {
                     val success = jsonObject.optBoolean("success", false)
 
                     if (success) {
-                        Toast.makeText(this@CarritoActivity, "✅ Orden generada", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@CarritoActivity, "✅ Orden generada correctamente", Toast.LENGTH_LONG).show()
                         CartManager.clear()
-                        listaCarrito = mutableListOf()
-                        actualizarUI()
+                        sincronizarConCartManager()
                         finish()
                     } else {
                         val msg = jsonObject.optString("message", "Error desconocido")

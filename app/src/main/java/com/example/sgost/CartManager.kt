@@ -3,8 +3,9 @@ package com.example.sgost.data
 import com.example.sgost.model.CarritoItem
 
 object CartManager {
+    // Lista mutable única para que Activity y Adapter compartan la misma referencia
     private val _items = mutableListOf<CarritoItem>()
-    val items: List<CarritoItem> get() = _items
+    val items: MutableList<CarritoItem> get() = _items
 
     fun addItem(item: CarritoItem) {
         val existing = _items.find { it.idProducto == item.idProducto }
@@ -27,4 +28,5 @@ object CartManager {
     }
 
     fun total(): Double = _items.sumOf { it.subtotal }
+    fun itemCount(): Int = _items.sumOf { it.cantidad }
 }

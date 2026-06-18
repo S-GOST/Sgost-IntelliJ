@@ -2,6 +2,7 @@ package com.example.sgost
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
@@ -22,16 +23,23 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var adapter: ProductoAdapter
     private lateinit var progressBar: ProgressBar
+    private val TAG = "MainActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val rvCatalogo = findViewById<RecyclerView>(R.id.rvCatalogo)
-        progressBar = findViewById(R.id.progressBar) // Añade un ProgressBar en tu layout
+        progressBar = findViewById(R.id.progressBar)
         rvCatalogo.layoutManager = GridLayoutManager(this, 2)
 
         adapter = ProductoAdapter { producto ->
+            if (!esUsuarioLogueado()) {
+                Toast.makeText(this, "⚠️ Debes iniciar sesión para agregar productos", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, LoginActivity::class.java))
+                return@ProductoAdapter
+            }
+
             val item = CarritoItem(
                 idProducto = producto.idProductos ?: 0,
                 nombre = producto.nombre ?: "Sin nombre",
@@ -50,10 +58,8 @@ class MainActivity : AppCompatActivity() {
         }
         rvCatalogo.adapter = adapter
 
-        // Cargar productos desde la API
         cargarProductos()
 
-        // Botones
         findViewById<MaterialButton>(R.id.btnLogin).setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
         }
@@ -63,16 +69,35 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Refresca el estado de sesión cada vez que vuelves a esta pantalla
+        val esLogueado = esUsuarioLogueado()
+        Log.d(TAG, "🔍 Estado de sesión en onResume: $esLogueado")
+    }
+
+    private fun esUsuarioLogueado(): Boolean {
+        val prefs = getSharedPreferences("sgost_prefs", MODE_PRIVATE)
+        val userId = prefs.getInt("user_id", 0)
+        Log.d(TAG, "🔑 user_id leído de SharedPreferences: $userId")
+        return userId > 0
+    }
+
     private fun cargarProductos() {
         progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
-            val productos = ProductoRepository.obtenerProductosDesdeApi()
-            adapter.actualizarLista(productos)
-            progressBar.visibility = View.GONE
+            try {
+                val productos = ProductoRepository.obtenerProductosDesdeApi()
+                adapter.actualizarLista(productos)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error cargando productos", e)
+                Toast.makeText(this@MainActivity, "❌ Error de conexión", Toast.LENGTH_SHORT).show()
+            } finally {
+                progressBar.visibility = View.GONE
+            }
         }
     }
 
-    // Adaptador interno (sin cambios, solo para referencia)
     inner class ProductoAdapter(
         private val onAgregarClick: (Producto) -> Unit
     ) : RecyclerView.Adapter<ProductoAdapter.ViewHolder>() {
@@ -85,7 +110,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val view = layoutInflater.inflate(R.layout.item_carrito, parent, false)
+            val view = layoutInflater.inflate(R.layout.item_catalogo, parent, false)
             return ViewHolder(view)
         }
 

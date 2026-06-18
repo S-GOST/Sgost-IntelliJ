@@ -61,11 +61,10 @@
                         android:orientation="horizontal"
                         android:gravity="center_vertical">
 
-                    <!-- AVATAR / ICONO -->
                     <ImageView
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:src="@mipmap/iconoadministradores"
+                            android:src="@mipmap/ic_launcher"
                             android:scaleType="centerCrop"
                             android:contentDescription="Icono de usuario"
                             android:layout_marginEnd="12dp" />
@@ -99,13 +98,36 @@
                 </LinearLayout>
 
                 <!-- Datos reales de BD -->
-                <TextView android:id="@+id/tvEmailCliente" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#CCCCCC" android:textSize="13sp" android:layout_marginTop="12dp" android:paddingStart="8dp"/>
-                <TextView android:id="@+id/tvTelefonoCliente" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#CCCCCC" android:textSize="13sp" android:layout_marginTop="4dp" android:paddingStart="8dp"/>
-                <TextView android:id="@+id/tvUbicacionCliente" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#CCCCCC" android:textSize="13sp" android:layout_marginTop="4dp" android:paddingStart="8dp"/>
+                <TextView
+                        android:id="@+id/tvEmailCliente"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#CCCCCC"
+                        android:textSize="13sp"
+                        android:layout_marginTop="12dp"
+                        android:paddingStart="8dp"/>
+
+                <TextView
+                        android:id="@+id/tvTelefonoCliente"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#CCCCCC"
+                        android:textSize="13sp"
+                        android:layout_marginTop="4dp"
+                        android:paddingStart="8dp"/>
+
+                <TextView
+                        android:id="@+id/tvUbicacionCliente"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="#CCCCCC"
+                        android:textSize="13sp"
+                        android:layout_marginTop="4dp"
+                        android:paddingStart="8dp"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ══════════════ GRID DE MENÚ (FLUJO CLIENTE) ══════════════ -->
+        <!-- ══════════════ GRID DE MENÚ (6 CARDS) ══════════════ -->
         <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -115,6 +137,7 @@
                 android:columnOrderPreserved="false"
                 android:layout_marginBottom="24dp">
 
+            <!-- CARD 1: MIS ÓRDENES -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardVerOrdenes"
                     android:layout_width="0dp" android:layout_height="110dp"
@@ -128,6 +151,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- CARD 2: CARRITO -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardCarrito"
                     android:layout_width="0dp" android:layout_height="110dp"
@@ -141,6 +165,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- CARD 3: NOTIFICACIONES -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardNotificaciones"
                     android:layout_width="0dp" android:layout_height="110dp"
@@ -154,6 +179,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- CARD 4: AYUDA -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardAyuda"
                     android:layout_width="0dp" android:layout_height="110dp"
@@ -167,6 +193,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- CARD 5: COMPROBANTES -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardComprobantes"
                     android:layout_width="0dp" android:layout_height="110dp"
@@ -180,6 +207,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- CARD 6: HISTORIAL -->
             <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardHistorialCompras"
                     android:layout_width="0dp" android:layout_height="110dp"
@@ -194,6 +222,23 @@
             </com.google.android.material.card.MaterialCardView>
 
         </GridLayout>
+
+        <!-- ══════════════ BOTÓN IR AL CATÁLOGO ══════════════ -->
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnIrACatalogo"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="IR AL CATÁLOGO DE PRODUCTOS"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05"
+                android:fontFamily="sans-serif-black"
+                android:backgroundTint="#FF6600"
+                android:stateListAnimator="@null"
+                android:elevation="4dp"
+                app:cornerRadius="12dp"
+                android:layout_marginBottom="8dp"/>
 
         <!-- ══════════════ BOTÓN LOGOUT ══════════════ -->
         <com.google.android.material.button.MaterialButton

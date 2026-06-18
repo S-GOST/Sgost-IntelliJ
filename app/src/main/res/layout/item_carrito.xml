@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
@@ -11,78 +11,85 @@
         app:strokeColor="#2A2A2A"
         app:strokeWidth="1dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:minHeight="120dp">
+            android:orientation="horizontal"
+            android:padding="12dp">
 
-        <!-- Icono o emoji según tipo -->
-        <TextView
-                android:id="@+id/tvIcono"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🔧"
-                android:textSize="28sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        <!-- Nombre -->
-        <TextView
-                android:id="@+id/tvNombre"
+        <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Nombre"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:layout_marginStart="8dp"
-                app:layout_constraintStart_toEndOf="@id/tvIcono"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-        <!-- Descripción (opcional) -->
-        <TextView
-                android:id="@+id/tvDescripcion"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Descripción"
-                android:textColor="#AAAAAA"
-                android:textSize="12sp"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:layout_marginTop="4dp"
-                app:layout_constraintStart_toStartOf="@id/tvNombre"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvNombre" />
+            <!-- ID esperado por el Adapter -->
+            <TextView
+                    android:id="@+id/tvNombreItem"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nombre del Servicio/Producto"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
-        <!-- Precio -->
-        <TextView
-                android:id="@+id/tvPrecio"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="$0.00"
-                android:textColor="#FF6600"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginTop="4dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvDescripcion" />
+            <!-- ID esperado por el Adapter -->
+            <TextView
+                    android:id="@+id/etTipoDoc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tipo: Producto"
+                    android:textColor="#FF6600"
+                    android:textSize="12sp"
+                    android:layout_marginTop="2dp" />
 
-        <!-- Botón Agregar -->
-        <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAgregar"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:text="Agregar"
-                android:textSize="11sp"
-                app:backgroundTint="#FF6600"
-                app:cornerRadius="8dp"
-                android:paddingHorizontal="12dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginStart="8dp" />
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.cardview.widget.CardView>
+                <!-- ID esperado por el Adapter -->
+                <TextView
+                        android:id="@+id/tvPrecioUnitario"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="$0.00 / unidad"
+                        android:textColor="#CCCCCC"
+                        android:textSize="13sp" />
+
+                <!-- ID esperado por el Adapter (usa este nombre para no romper el Kotlin) -->
+                <TextView
+                        android:id="@+id/tvPrecio"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cant: 1"
+                        android:textColor="#CCCCCC"
+                        android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- ID esperado por el Adapter -->
+            <TextView
+                    android:id="@+id/tvSubtotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Subtotal: $0.00"
+                    android:textColor="#FF6600"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="6dp" />
+        </LinearLayout>
+
+        <!-- ID esperado por el Adapter -->
+        <ImageButton
+                android:id="@+id/btnEliminar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_vertical"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_delete"
+                android:tint="#FF4444"
+                android:contentDescription="Eliminar" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
