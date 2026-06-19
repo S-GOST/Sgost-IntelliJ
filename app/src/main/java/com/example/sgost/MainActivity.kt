@@ -34,9 +34,10 @@ class MainActivity : AppCompatActivity() {
         rvCatalogo.layoutManager = GridLayoutManager(this, 2)
 
         adapter = ProductoAdapter { producto ->
+            // 🔹 FLUJO 1: Botón "Agregar Producto" en el catálogo
             if (!esUsuarioLogueado()) {
-                Toast.makeText(this, "⚠️ Debes iniciar sesión para agregar productos", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, LoginActivity::class.java))
+                // Redirige AL LOGIN EXCLUSIVO DE CLIENTES
+                startActivity(Intent(this, ClienteLoginActivity::class.java))
                 return@ProductoAdapter
             }
 
@@ -60,10 +61,12 @@ class MainActivity : AppCompatActivity() {
 
         cargarProductos()
 
+        // 🔹 FLUJO 2: Botón "Iniciar Sesión" (Barra superior) → SE MANTIENE NORMAL
         findViewById<MaterialButton>(R.id.btnLogin).setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
         }
 
+        // 🔹 FLUJO 3: Botón "Registrarse" → SE MANTIENE NORMAL
         findViewById<MaterialButton>(R.id.btnRegistro).setOnClickListener {
             startActivity(Intent(this, FormClienteActivity::class.java))
         }
@@ -71,7 +74,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Refresca el estado de sesión cada vez que vuelves a esta pantalla
         val esLogueado = esUsuarioLogueado()
         Log.d(TAG, "🔍 Estado de sesión en onResume: $esLogueado")
     }

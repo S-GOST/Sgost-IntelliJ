@@ -68,5 +68,9 @@
         <!-- 15. FORMULARIO ADMINISTRADORES -->
         <activity android:name=".FormAdministradorActivity" android:exported="false" android:screenOrientation="portrait" />
 
+        <activity android:name=".ClienteLoginActivity" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".WelcomeActivity" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".DashboardClienteActivity" android:exported="false" android:screenOrientation="portrait" />
+
     </application>
 </manifest>
