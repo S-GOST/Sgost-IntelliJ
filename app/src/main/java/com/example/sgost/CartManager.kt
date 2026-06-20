@@ -5,14 +5,20 @@ import com.example.sgost.model.CarritoItem
 object CartManager {
     // Lista mutable única para que Activity y Adapter compartan la misma referencia
     private val _items = mutableListOf<CarritoItem>()
-    val items: MutableList<CarritoItem> get() = _items
+    val items: List<CarritoItem> get() = _items.toList() // 🔒 Retorna copia inmutable para evitar modificaciones externas accidentales
 
     fun addItem(item: CarritoItem) {
-        val existing = _items.find { it.idProducto == item.idProducto }
+        // 🔑 CORRECCIÓN CLAVE: Se compara ID Y TIPO para evitar mezclar productos y servicios con el mismo ID
+        val existing = _items.find {
+            it.idProducto == item.idProducto && it.tipo?.equals(item.tipo, ignoreCase = true) == true
+        }
+
         if (existing != null) {
+            // Ya existe el mismo producto/servicio: aumentamos cantidad y recalculamos subtotal
             existing.cantidad += item.cantidad
             existing.subtotal = existing.cantidad * existing.precioUnitario
         } else {
+            // No existe: lo agregamos como entrada independiente
             _items.add(item)
         }
     }

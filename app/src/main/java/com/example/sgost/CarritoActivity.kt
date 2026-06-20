@@ -1,7 +1,7 @@
 package com.example.sgost
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
@@ -15,6 +15,7 @@ import com.example.sgost.api.ApiAndroid
 import com.example.sgost.data.CartManager
 import com.example.sgost.model.CarritoItem
 import com.example.sgost.model.Orden_servicio
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
@@ -59,7 +60,14 @@ class CarritoActivity : AppCompatActivity() {
         btnVaciar = findViewById(R.id.btnVaciar)
         llEmptyState = findViewById(R.id.llEmptyState)
 
-        setupToolbar()
+        // 🟢 BOTÓN DE RETOCESO (CORREGIDO)
+        // Se usa el nombre exacto que aparece en tu árbol de archivos: DashboardActivityClientes
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        toolbar.setNavigationOnClickListener {
+            startActivity(Intent(this, DashboardActivityClientes::class.java))
+            finish() // Cierra esta actividad para no volver al carrito con el botón atrás del sistema
+        }
+
         setupAdapter()
         setupListeners()
 
@@ -71,23 +79,6 @@ class CarritoActivity : AppCompatActivity() {
         super.onResume()
         // 🔁 Cada vez que volvemos a esta pantalla, refrescamos desde CartManager
         sincronizarConCartManager()
-    }
-
-    private fun setupToolbar() {
-        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Mi Carrito"
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                onBackPressedDispatcher.onBackPressed()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 
     private fun setupAdapter() {

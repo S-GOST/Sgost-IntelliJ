@@ -61,14 +61,19 @@ class MainActivity : AppCompatActivity() {
 
         cargarProductos()
 
-        // 🔹 FLUJO 2: Botón "Iniciar Sesión" (Barra superior) → SE MANTIENE NORMAL
+        // 🔹 FLUJO 2: Botón "Iniciar Sesión" (Barra superior)
         findViewById<MaterialButton>(R.id.btnLogin).setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
         }
 
-        // 🔹 FLUJO 3: Botón "Registrarse" → SE MANTIENE NORMAL
+        // 🔹 FLUJO 3: Botón "Registrarse"
         findViewById<MaterialButton>(R.id.btnRegistro).setOnClickListener {
             startActivity(Intent(this, FormClienteActivity::class.java))
+        }
+
+        // 🔹 FLUJO 4: Botón "Carrito" → Redirige al CarritoActivity
+        findViewById<View>(R.id.ivCarrito).setOnClickListener {
+            startActivity(Intent(this, CarritoActivity::class.java))
         }
     }
 

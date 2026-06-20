@@ -11,9 +11,24 @@
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:paddingTop="32dp">
 
-        <!-- ══════════════ HEADER ══════════════ -->
+        <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginTop="8dp"
+                android:background="#141414"
+                android:elevation="4dp"
+                app:contentInsetStart="16dp"
+                app:contentInsetStartWithNavigation="16dp"
+                app:navigationIcon="@android:drawable/ic_menu_revert"
+                app:navigationIconTint="#FF6600"
+                app:title="Resumen de la Orden"
+                app:titleTextColor="#FFFFFF"
+                app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge" />
+
         <TextView
                 android:id="@+id/tvTitle"
                 android:layout_width="0dp"
@@ -24,9 +39,8 @@
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-black"
                 app:layout_constraintEnd_toStartOf="@id/btnVaciar"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
+                app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="68dp"
+                android:layout_marginEnd="208dp"/>
         <ImageButton
                 android:id="@+id/btnVaciar"
                 android:layout_width="32dp"
@@ -47,26 +61,23 @@
                 android:textColor="#888888"
                 android:textSize="12sp"
                 android:fontFamily="sans-serif-medium"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvTitle"
-                app:layout_constraintBottom_toTopOf="@id/rvCarrito"
                 android:layout_marginTop="4dp"
-                android:layout_marginBottom="8dp"/>
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
-        <!-- ══════════════ LISTA DE CARRITO ══════════════ -->
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvCarrito"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:clipToPadding="false"
                 android:paddingBottom="8dp"
-                app:layout_constraintBottom_toTopOf="@id/cvResumen"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="8dp"
                 app:layout_constraintTop_toBottomOf="@id/tvItemCount"
+                app:layout_constraintBottom_toTopOf="@id/cvResumen"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 tools:listitem="@layout/item_carrito" />
 
-        <!-- ══════════════ ESTADO VACÍO ══════════════ -->
         <LinearLayout
                 android:id="@+id/llEmptyState"
                 android:layout_width="0dp"
@@ -74,17 +85,17 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:visibility="gone"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/tvItemCount"
                 app:layout_constraintBottom_toTopOf="@id/cvResumen"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvItemCount">
+                app:layout_constraintEnd_toEndOf="parent">
 
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🛒" android:textSize="48sp"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tu carrito está vacío" android:textColor="#888888" android:textSize="16sp" android:layout_marginTop="8dp"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Agrega servicios o repuestos para tu moto" android:textColor="#666666" android:textSize="13sp"/>
         </LinearLayout>
 
-        <!-- ══════════════ RESUMEN FIJO EN LA PARTE INFERIOR ══════════════ -->
         <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cvResumen"
                 android:layout_width="0dp"

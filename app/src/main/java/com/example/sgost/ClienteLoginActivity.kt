@@ -2,6 +2,7 @@ package com.example.sgost
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +13,7 @@ import com.example.sgost.model.LoginResponse
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 class ClienteLoginActivity : AppCompatActivity() {
 
@@ -50,25 +52,40 @@ class ClienteLoginActivity : AppCompatActivity() {
                     LoginRequest(usuario = usuario, contrasena = contrasena)
                 )
 
-                val userId = response.id ?: 0
+                Log.d("LoginDebug", "✅ Respuesta: success=${response.success}, id=${response.id}, token=${response.token?.take(10)}...")
 
-                if (response.success == true && userId > 0) {
-                    guardarSesionCliente(userId)
+                // 🟢 SOLUCIÓN: Solo validamos success == true
+                // El backend responde 200 OK con success:true pero NO incluye 'id' en el JSON.
+                if (response.success == true) {
+                    // Extrae el ID del token JWT si el backend no lo envió explícitamente
+                    val userId = response.id ?: extractIdFromJwt(response.token)
 
-                    // 💡 Opcional: Guarda el token para peticiones futuras
-                    getSharedPreferences("sgost_prefs", MODE_PRIVATE)
-                        .edit()
-                        .putInt("user_id", userId)
-                        .commit() // 🔥 Sincrono: evita que MainActivity lea 0 y te envíe de vuelta
+                    // 💾 Guardamos sesión de forma segura y SÍNCRONA
+                    getSharedPreferences("sgost_prefs", MODE_PRIVATE).edit().apply {
+                        putInt("user_id", userId ?: 0)
+                        putString("token", response.token)
+                        putString("nombre", response.nombre)
+                        putString("rol", response.rol)
+                        commit() // commit() es síncrono: garantiza que WelcomeActivity lea los datos inmediatamente
+                    }
 
+                    // 🚀 Redirección inmediata
                     startActivity(Intent(this@ClienteLoginActivity, WelcomeActivity::class.java))
                     finish()
                 } else {
                     val msg = response.message ?: "❌ Credenciales incorrectas"
                     Toast.makeText(this@ClienteLoginActivity, msg, Toast.LENGTH_LONG).show()
                 }
+
             } catch (e: Exception) {
-                Toast.makeText(this@ClienteLoginActivity, "❌ Error de conexión: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("LoginDebug", "❌ Error en red", e)
+                val msg = when (e) {
+                    is retrofit2.HttpException -> "❌ Error HTTP ${e.code()}"
+                    is java.net.SocketTimeoutException -> "⏳ Tiempo de espera agotado"
+                    is java.net.ConnectException -> "🌐 Sin conexión a internet"
+                    else -> "❌ ${e.message}"
+                }
+                Toast.makeText(this@ClienteLoginActivity, msg, Toast.LENGTH_SHORT).show()
             } finally {
                 btnLogin.isEnabled = true
                 btnLogin.text = "Iniciar Sesión"
@@ -76,10 +93,24 @@ class ClienteLoginActivity : AppCompatActivity() {
         }
     }
 
+    // 🆛 Utilidad: Extrae el `id` del payload del JWT sin librerías externas
+    private fun extractIdFromJwt(token: String?): Int? {
+        return try {
+            val parts = token?.split(".")
+            if (parts?.size == 3) {
+                // El payload es la parte central del JWT (base64url)
+                val payload = String(Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_PADDING))
+                val json = JSONObject(payload)
+                if (json.has("id")) json.getInt("id") else null
+            } else null
+        } catch (e: Exception) {
+            Log.e("JwtDecode", "No se pudo leer el ID del token", e)
+            null
+        }
+    }
+
+    // Método mantenido por compatibilidad, pero ya no se usa internamente
     private fun guardarSesionCliente(userId: Int) {
-        getSharedPreferences("sgost_prefs", MODE_PRIVATE)
-            .edit()
-            .putInt("user_id", userId)
-            .apply()
+        // La sesión ahora se guarda directamente en validarClienteAsync con commit()
     }
 }
