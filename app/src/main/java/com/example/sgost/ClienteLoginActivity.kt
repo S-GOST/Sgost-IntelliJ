@@ -63,7 +63,7 @@ class ClienteLoginActivity : AppCompatActivity() {
                     // 💾 Guardamos sesión de forma segura y SÍNCRONA
                     getSharedPreferences("sgost_prefs", MODE_PRIVATE).edit().apply {
                         putInt("user_id", userId ?: 0)
-                        putString("token", response.token)
+                        putString("auth_token", response.token ?: "")
                         putString("nombre", response.nombre)
                         putString("rol", response.rol)
                         commit() // commit() es síncrono: garantiza que WelcomeActivity lea los datos inmediatamente

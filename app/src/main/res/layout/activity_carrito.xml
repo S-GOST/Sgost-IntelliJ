@@ -11,36 +11,42 @@
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="16dp"
-            android:paddingTop="32dp">
+            android:padding="16dp">
 
+        <!-- 1. TOOLBAR CON MARGEN SUPERIOR AÑADIDO -->
         <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="?attr/actionBarSize"
-                android:layout_marginTop="8dp"
-                android:background="#141414"
-                android:elevation="4dp"
-                app:contentInsetStart="16dp"
-                app:contentInsetStartWithNavigation="16dp"
-                app:navigationIcon="@android:drawable/ic_menu_revert"
-                app:navigationIconTint="#FF6600"
-                app:title="Resumen de la Orden"
-                app:titleTextColor="#FFFFFF"
-                app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge" />
+                android:layout_marginTop="16dp"
+        android:background="#141414"
+        android:elevation="4dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:contentInsetStart="16dp"
+        app:contentInsetStartWithNavigation="16dp"
+        app:navigationIcon="@android:drawable/ic_menu_revert"
+        app:navigationIconTint="#FF6600"
+        app:title="Resumen de la Orden"
+        app:titleTextColor="#FFFFFF"
+        app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge" />
 
+        <!-- 2. TITULO "MI CARRITO" -->
         <TextView
                 android:id="@+id/tvTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
                 android:text="MI CARRITO"
                 android:textColor="#FF6600"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-black"
-                app:layout_constraintEnd_toStartOf="@id/btnVaciar"
-                app:layout_constraintTop_toTopOf="parent" android:layout_marginTop="68dp"
-                android:layout_marginEnd="208dp"/>
+                app:layout_constraintTop_toBottomOf="@id/toolbar"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnVaciar" />
+
         <ImageButton
                 android:id="@+id/btnVaciar"
                 android:layout_width="32dp"
@@ -57,14 +63,15 @@
                 android:id="@+id/tvItemCount"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:text="0 artículos en el carrito"
                 android:textColor="#888888"
                 android:textSize="12sp"
                 android:fontFamily="sans-serif-medium"
-                android:layout_marginTop="4dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+                app:layout_constraintTop_toBottomOf="@id/tvTitle"
+                app:layout_constraintStart_toStartOf="parent" />
 
+        <!-- CONTENIDO PRINCIPAL (RecyclerView) -->
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvCarrito"
                 android:layout_width="0dp"
@@ -78,6 +85,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:listitem="@layout/item_carrito" />
 
+        <!-- ESTADO VACIO -->
         <LinearLayout
                 android:id="@+id/llEmptyState"
                 android:layout_width="0dp"
@@ -91,11 +99,27 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🛒" android:textSize="48sp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tu carrito está vacío" android:textColor="#888888" android:textSize="16sp" android:layout_marginTop="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Agrega servicios o repuestos para tu moto" android:textColor="#666666" android:textSize="13sp"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🛒"
+                    android:textSize="48sp"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tu carrito está vacío"
+                    android:textColor="#888888"
+                    android:textSize="16sp"
+                    android:layout_marginTop="8dp"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Agrega servicios o repuestos para tu moto"
+                    android:textColor="#666666"
+                    android:textSize="13sp"/>
         </LinearLayout>
 
+        <!-- TARJETA RESUMEN -->
         <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cvResumen"
                 android:layout_width="0dp"
@@ -116,16 +140,58 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="8dp">
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Subtotal" android:textColor="#AAAAAA" android:textSize="14sp" android:fontFamily="sans-serif-medium"/>
-                    <TextView android:id="@+id/tvSubtotal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$0.00" android:textColor="#FFFFFF" android:textSize="14sp" android:fontFamily="sans-serif-medium"/>
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+                    <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Subtotal"
+                            android:textColor="#AAAAAA"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium"/>
+                    <TextView
+                            android:id="@+id/tvSubtotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="$0.00"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium"/>
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#333333" android:layout_marginBottom="12dp"/>
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#333333"
+                        android:layout_marginBottom="12dp"/>
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="16dp">
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="TOTAL" android:textColor="#FF6600" android:textSize="16sp" android:textStyle="bold" android:fontFamily="sans-serif-black"/>
-                    <TextView android:id="@+id/tvTotal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$0.00" android:textColor="#FF6600" android:textSize="18sp" android:textStyle="bold" android:fontFamily="sans-serif-black"/>
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
+                    <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="TOTAL"
+                            android:textColor="#FF6600"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif-black"/>
+                    <TextView
+                            android:id="@+id/tvTotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="$0.00"
+                            android:textColor="#FF6600"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif-black"/>
                 </LinearLayout>
 
                 <Button
