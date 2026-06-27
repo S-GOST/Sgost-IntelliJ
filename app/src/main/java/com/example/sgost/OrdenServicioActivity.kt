@@ -1,13 +1,12 @@
 package com.example.sgost
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,15 +26,6 @@ class OrdenServicioActivity : AppCompatActivity() {
     private lateinit var adapter: OrdenServicioAdapter
     private var listaCompleta = mutableListOf<Orden_servicio>()
 
-    // ✅ 1. DECLARACIÓN DEL LAUNCHER (Propiedad de la clase)
-    private val crearOrdenLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            cargarOrdenes() // ✅ Refresca la lista automáticamente
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_orden_servicio)
@@ -45,6 +35,14 @@ class OrdenServicioActivity : AppCompatActivity() {
         setupAdapter()
         setupSearch()
         setupFab()
+
+        // Cargar al inicio
+        cargarOrdenes()
+    }
+
+    // Recargar automáticamente al volver de otras pantallas (ej. Carrito, Formulario)
+    override fun onResume() {
+        super.onResume()
         cargarOrdenes()
     }
 
@@ -67,9 +65,11 @@ class OrdenServicioActivity : AppCompatActivity() {
 
     private fun setupAdapter() {
         adapter = OrdenServicioAdapter { orden ->
-            startActivity(Intent(this, OrdenDetalleActivity::class.java).apply {
+            // 🟢 NAVEGACIÓN A DETALLES DE LA ORDEN
+            val intent = Intent(this, OrdenDetalleActivity::class.java).apply {
                 putExtra("orden_extra", orden)
-            })
+            }
+            startActivity(intent)
         }
         rvOrdenes.layoutManager = LinearLayoutManager(this)
         rvOrdenes.adapter = adapter
@@ -86,9 +86,9 @@ class OrdenServicioActivity : AppCompatActivity() {
     }
 
     private fun setupFab() {
-        findViewById<FloatingActionButton>(R.id.fabAgregarOrden).setOnClickListener {
-            // ✅ 2. USAR EL LAUNCHER
-            crearOrdenLauncher.launch(Intent(this, FormOrdenServicioActivity::class.java))
+        findViewById<FloatingActionButton>(R.id.fabAgregarOrden)?.setOnClickListener {
+            // 🟢 NAVEGACIÓN AL FORMULARIO DE NUEVA ORDEN
+            startActivity(Intent(this, FormOrdenServicioActivity::class.java))
         }
     }
 
@@ -96,30 +96,54 @@ class OrdenServicioActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 if (!ApiAndroid.isReady) {
-                    Toast.makeText(this@OrdenServicioActivity, "⚠️ API no disponible", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@OrdenServicioActivity, "API no disponible", Toast.LENGTH_LONG).show()
+                    mostrarVacio()
                     return@launch
                 }
 
-                val resp = ApiAndroid.apiService.obtenerOrdenServicio()
+                val prefs = getSharedPreferences("sgost_prefs", MODE_PRIVATE)
+                val token = prefs.getString("auth_token", "") ?: ""
 
-                if (resp.success && resp.data != null) {
-                    listaCompleta.clear()
-                    listaCompleta.addAll(resp.data)
-                    adapter.submitList(resp.data)
+                if (token.isEmpty()) {
+                    Toast.makeText(this@OrdenServicioActivity, "No hay sesión activa. Inicia sesión nuevamente.", Toast.LENGTH_LONG).show()
+                    mostrarVacio()
+                    return@launch
+                }
 
-                    llEmptyState.visibility = if (resp.data.isEmpty()) LinearLayout.VISIBLE else LinearLayout.GONE
-                    rvOrdenes.visibility = if (resp.data.isEmpty()) RecyclerView.GONE else RecyclerView.VISIBLE
+                val retrofitResponse = ApiAndroid.apiService.getMisOrdenes(token = "Bearer $token")
+                val resp = retrofitResponse.body()
+
+                if (retrofitResponse.isSuccessful && resp != null) {
+                    if (resp.success && resp.data != null) {
+                        listaCompleta.clear()
+                        listaCompleta.addAll(resp.data)
+                        adapter.submitList(resp.data)
+
+                        if (resp.data.isEmpty()) {
+                            mostrarVacio()
+                            Toast.makeText(this@OrdenServicioActivity, "No tienes ordenes aun", Toast.LENGTH_SHORT).show()
+                        } else {
+                            llEmptyState.visibility = View.GONE
+                            rvOrdenes.visibility = View.VISIBLE
+                        }
+                    } else {
+                        Toast.makeText(this@OrdenServicioActivity, resp.message ?: "Error al obtener ordenes", Toast.LENGTH_SHORT).show()
+                        mostrarVacio()
+                    }
                 } else {
-                    Toast.makeText(this@OrdenServicioActivity, resp.message ?: "Sin órdenes", Toast.LENGTH_SHORT).show()
-                    llEmptyState.visibility = LinearLayout.VISIBLE
-                    rvOrdenes.visibility = RecyclerView.GONE
+                    Toast.makeText(this@OrdenServicioActivity, "Error de red: ${retrofitResponse.code()}", Toast.LENGTH_LONG).show()
+                    mostrarVacio()
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@OrdenServicioActivity, "❌ Error: ${e.message}", Toast.LENGTH_LONG).show()
-                llEmptyState.visibility = LinearLayout.VISIBLE
-                rvOrdenes.visibility = RecyclerView.GONE
+                Toast.makeText(this@OrdenServicioActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                mostrarVacio()
             }
         }
+    }
+
+    private fun mostrarVacio() {
+        llEmptyState.visibility = View.VISIBLE
+        rvOrdenes.visibility = View.GONE
     }
 
     private fun filtrarLista(query: String) {

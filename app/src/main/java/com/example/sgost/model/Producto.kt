@@ -14,8 +14,6 @@ data class Producto(
     @SerializedName("Precio") val precioRaw: String? = null,
     @SerializedName("Cantidad") val cantidad: Int? = null,
     @SerializedName("Estado") val estado: String? = null,
-    // Campo extra para diferenciar entre Producto y Servicio (no viene de la API)
-    val tipo: String = "Producto"  // "Producto" o "Servicio"
 ) : Parcelable {
     val garantia: Int? get() = garantiaRaw?.toIntOrNull()
     val precio: Double? get() = precioRaw?.toDoubleOrNull()

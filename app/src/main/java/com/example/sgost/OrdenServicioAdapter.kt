@@ -35,11 +35,19 @@ class OrdenServicioAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val orden = getItem(position)
 
-        // 1. IDs
-        holder.tvOrdenId.text = "Orden #${orden.idOrden_servicio ?: "N/A"}"
-        holder.tvIdMoto.text = "🏍️ ID Moto: ${orden.idMotos ?: "N/A"}"
+        // 🔵 CAMBIO: Mostrar nombre del cliente en lugar de "Orden #X"
+        val clienteNombre = orden.nombreCliente ?: "Cliente sin asignar"
+        holder.tvOrdenId.text = clienteNombre
 
-        // 2. Estado con colores dinámicos
+        // Mantener info de la moto
+        val motoTexto = if (orden.marcaMoto != null && orden.modeloMoto != null) {
+            "🏍️ ${orden.marcaMoto} ${orden.modeloMoto} (${orden.placaMoto ?: "S/P"})"
+        } else {
+            "🏍️ Sin moto asignada"
+        }
+        holder.tvIdMoto.text = motoTexto
+
+        // 2. Estado con colores dinámicos (tu código existente)
         val estado = orden.estado?.uppercase(Locale.getDefault()) ?: "PENDIENTE"
         holder.tvEstado.text = estado
         holder.tvEstado.setTextColor(
@@ -51,7 +59,7 @@ class OrdenServicioAdapter(
             }
         )
 
-        // 3. Fechas formateadas (seguro y sin crashes)
+        // 3. Fechas formateadas (tu código existente)
         holder.tvFechaInicio.text = formatDate(orden.fechaInicio)
         holder.tvFechaEstimada.text = formatDate(orden.fechaEstimada)
         holder.tvFechaFin.text = formatDate(orden.fechaFin)

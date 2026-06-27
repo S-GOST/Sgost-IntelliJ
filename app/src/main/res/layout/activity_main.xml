@@ -8,72 +8,72 @@
         android:background="#0D0D0D"
         tools:context=".MainActivity">
 
+    <!-- ========== HEADER ========== -->
+
     <!-- Logo -->
     <ImageView
             android:id="@+id/ivLogo"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginTop="60dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="48dp"
             android:src="@mipmap/rock"
             android:contentDescription="Logo"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Título -->
-
-    <!-- 🛒 BOTÓN CARRITO -->
     <TextView
             android:id="@+id/tvTitulo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="KTM READY"
             android:textColor="#FFFFFF"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:fontFamily="sans-serif-medium"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="68dp"
+            android:layout_marginTop="56dp"
             app:layout_constraintStart_toEndOf="@id/ivLogo"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/ivCarrito"/>
+            app:layout_constraintEnd_toStartOf="@id/ivCarrito" />
+
+    <!-- Carrito -->
     <ImageView
             android:id="@+id/ivCarrito"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:src="@mipmap/carrito"
             android:contentDescription="Carrito"
-            android:padding="9dp"
+            android:padding="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:layout_marginTop="50dp"
-            android:layout_marginEnd="1dp"
+            android:layout_marginTop="52dp"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btnLogin"
-            app:layout_constraintStart_toEndOf="@id/tvTitulo" />
+            app:layout_constraintEnd_toStartOf="@id/btnLogin" />
 
-    <!-- Botón INICIAR SESIÓN -->
+    <!-- Botón Iniciar Sesión -->
     <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogin"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="36dp"
             android:text="Iniciar"
-            android:textSize="12sp"
+            android:textSize="11sp"
             android:textAllCaps="true"
             app:backgroundTint="#FF6600"
             app:cornerRadius="8dp"
             android:paddingHorizontal="12dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginTop="60dp"
-            app:layout_constraintEnd_toStartOf="@+id/btnRegistro"
+            android:layout_marginEnd="4dp"
+            android:layout_marginTop="56dp"
+            app:layout_constraintEnd_toStartOf="@id/btnRegistro"
             app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Botón REGISTRARSE -->
+    <!-- Botón Registrarse -->
     <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRegistro"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="36dp"
             android:text="Registrar"
-            android:textSize="12sp"
+            android:textSize="11sp"
             android:textAllCaps="true"
             app:backgroundTint="#1A1A1A"
             app:strokeColor="#FF6600"
@@ -81,7 +81,7 @@
             app:cornerRadius="8dp"
             android:paddingHorizontal="12dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="56dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -92,26 +92,28 @@
             android:layout_height="wrap_content"
             android:text="Sistema de Gestión de Órdenes de Servicio Técnico"
             android:textColor="#CCCCCC"
-            android:textSize="12sp"
+            android:textSize="13sp"
             android:gravity="center"
             android:layout_marginTop="12dp"
-            android:layout_marginHorizontal="16dp"
+            android:layout_marginHorizontal="24dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ivLogo" />
 
-    <!-- ProgressBar de carga -->
+    <!-- ========== CONTENIDO PRINCIPAL ========== -->
+
+    <!-- ProgressBar (visible al cargar) -->
     <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             app:layout_constraintTop_toBottomOf="@id/tvSubtitulo"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:visibility="gone" />
 
-    <!-- RecyclerView en Grid (2 columnas) -->
+    <!-- RecyclerView (ocupa el resto del espacio) -->
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvCatalogo"
             android:layout_width="0dp"
@@ -119,11 +121,10 @@
             android:layout_marginTop="16dp"
             android:layout_marginHorizontal="8dp"
             android:clipToPadding="false"
-            android:paddingBottom="8dp"
-            app:layout_constraintTop_toBottomOf="@id/tvSubtitulo"
+            android:paddingBottom="16dp"
+            app:layout_constraintTop_toBottomOf="@id/progressBar"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintVertical_bias="1.0"/>
+            app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

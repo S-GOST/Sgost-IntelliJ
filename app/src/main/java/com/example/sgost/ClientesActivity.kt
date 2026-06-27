@@ -93,38 +93,61 @@ class ClientesActivity : AppCompatActivity() {
     private fun cargarClientes() {
         lifecycleScope.launch {
             try {
-                if (!ApiAndroid.isReady) {
-                    Toast.makeText(this@ClientesActivity, "⚠️ Conexión API no lista", Toast.LENGTH_LONG).show()
-                    return@launch
-                }
+                // 1. Realizar la llamada API
+                val retrofitResponse = ApiAndroid.apiService.obtenerClientes()
 
-                // 👇 Llamada a tu API de Android
-                val resp = ApiAndroid.apiService.obtenerClientes()
+                // 2. Extraer el cuerpo de la respuesta (Tu objeto JSON)
+                val body = retrofitResponse.body()
 
-                if (resp.success && resp.data != null) {
-                    listaCompleta.clear()
-                    listaCompleta.addAll(resp.data)
-                    adapter.submitList(resp.data)
+                // 3. Verificar si la petición HTTP fue exitosa (ej: 200 OK) y si hay datos
+                if (retrofitResponse.isSuccessful && body != null) {
+                    // 4. Verificar la lógica de tu backend (si 'success' es true)
+                    if (body.success && body.data != null) {
+                        listaCompleta.clear()
+                        listaCompleta.addAll(body.data)
+                        adapter.submitList(body.data)
 
-                    // ✅ Mostrar/Ocultar Estado Vacío
-                    if (resp.data.isEmpty()) {
+                        // Mostrar/Ocultar Estado Vacío
+                        if (body.data.isEmpty()) {
+                            llEmptyState.visibility = LinearLayout.VISIBLE
+                            rvClientes.visibility = RecyclerView.GONE
+                        } else {
+                            llEmptyState.visibility = LinearLayout.GONE
+                            rvClientes.visibility = RecyclerView.VISIBLE
+                        }
+                    } else {
+                        // El servidor devolvió un mensaje de error lógico (ej: "No hay registros")
+                        Toast.makeText(
+                            this@ClientesActivity,
+                            body.message ?: "No hay clientes disponibles",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         llEmptyState.visibility = LinearLayout.VISIBLE
                         rvClientes.visibility = RecyclerView.GONE
-                    } else {
-                        llEmptyState.visibility = LinearLayout.GONE
-                        rvClientes.visibility = RecyclerView.VISIBLE
                     }
                 } else {
-                    Toast.makeText(this@ClientesActivity, resp.message ?: "No hay clientes", Toast.LENGTH_SHORT).show()
+                    // Error de red o HTTP (ej: 401 Unauthorized, 500 Server Error)
+                    Toast.makeText(
+                        this@ClientesActivity,
+                        "Error de conexión: ${retrofitResponse.code()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     llEmptyState.visibility = LinearLayout.VISIBLE
                     rvClientes.visibility = RecyclerView.GONE
                 }
+
             } catch (e: Exception) {
-                Toast.makeText(this@ClientesActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                e.printStackTrace()
+                Toast.makeText(
+                    this@ClientesActivity,
+                    "Error inesperado: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                llEmptyState.visibility = LinearLayout.VISIBLE
+                rvClientes.visibility = RecyclerView.GONE
             }
         }
     }
-
     private fun filtrarLista(query: String) {
         val filtrada = listaCompleta.filter { cliente ->
             // Busca en nombre, correo o teléfono

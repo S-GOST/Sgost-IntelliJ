@@ -2,6 +2,7 @@ package com.example.sgost
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
@@ -14,6 +15,7 @@ import com.example.sgost.adapter.CarritoAdapter
 import com.example.sgost.api.ApiAndroid
 import com.example.sgost.data.CartManager
 import com.example.sgost.model.CarritoItem
+import com.example.sgost.model.Detalles_orden_servicio
 import com.example.sgost.model.Orden_servicio
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
@@ -28,9 +30,6 @@ import java.util.Locale
 
 class CarritoActivity : AppCompatActivity() {
 
-    // ==========================================
-    // 1. VISTAS Y DATOS
-    // ==========================================
     private lateinit var rvCarrito: RecyclerView
     private lateinit var tvItemCount: TextView
     private lateinit var tvSubtotal: TextView
@@ -39,7 +38,6 @@ class CarritoActivity : AppCompatActivity() {
     private lateinit var btnVaciar: ImageButton
     private lateinit var llEmptyState: View
 
-    // 🔑 ESTA LISTA SE COMPARTIRÁ DIRECTAMENTE CON EL ADAPTER
     private val listaCarrito = mutableListOf<CarritoItem>()
     private lateinit var adapter: CarritoAdapter
 
@@ -51,7 +49,6 @@ class CarritoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_carrito)
 
-        // Inicializar vistas
         rvCarrito = findViewById(R.id.rvCarrito)
         tvItemCount = findViewById(R.id.tvItemCount)
         tvSubtotal = findViewById(R.id.tvSubtotal)
@@ -60,24 +57,18 @@ class CarritoActivity : AppCompatActivity() {
         btnVaciar = findViewById(R.id.btnVaciar)
         llEmptyState = findViewById(R.id.llEmptyState)
 
-        // 🟢 BOTÓN DE RETOCESO (CORREGIDO)
-        // Se usa el nombre exacto que aparece en tu árbol de archivos: DashboardActivityClientes
-        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
-        toolbar.setNavigationOnClickListener {
+        findViewById<MaterialToolbar>(R.id.toolbar).setNavigationOnClickListener {
             startActivity(Intent(this, DashboardActivityClientes::class.java))
-            finish() // Cierra esta actividad para no volver al carrito con el botón atrás del sistema
+            finish()
         }
 
         setupAdapter()
         setupListeners()
-
-        // Cargar datos iniciales
         sincronizarConCartManager()
     }
 
     override fun onResume() {
         super.onResume()
-        // 🔁 Cada vez que volvemos a esta pantalla, refrescamos desde CartManager
         sincronizarConCartManager()
     }
 
@@ -109,7 +100,6 @@ class CarritoActivity : AppCompatActivity() {
         }
     }
 
-    // 🔑 MÉTODO CLAVE: Mantiene sincronizada la lista con CartManager SIN cambiar la referencia
     private fun sincronizarConCartManager() {
         listaCarrito.clear()
         listaCarrito.addAll(CartManager.items)
@@ -146,37 +136,86 @@ class CarritoActivity : AppCompatActivity() {
                     return@launch
                 }
 
+                // 1. CREAR CABECERA DE LA ORDEN
                 val orden = Orden_servicio(
                     idOrden_servicio = null,
                     idClientes = userId,
-                    idAdministrador = null,
-                    idTecnicos = null,
                     idMotos = null,
+                    idAdministrador = 1,
+                    idTecnicos = 1,
                     fechaInicio = formatoFecha.format(Date()),
-                    fechaEstimada = null,
+                    fechaEstimada = formatoFecha.format(Date(System.currentTimeMillis() + 86400000)),
                     fechaFin = null,
                     estado = "PENDIENTE"
                 )
 
-                val response: Response<ResponseBody> = ApiAndroid.apiService.crearOrdenServicio(orden)
+                val responseOrden: Response<ResponseBody> = ApiAndroid.apiService.crearOrdenServicio(orden)
+                if (!responseOrden.isSuccessful) {
+                    Toast.makeText(this@CarritoActivity, "❌ ${responseOrden.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
 
-                if (response.isSuccessful) {
-                    val jsonString = response.body()?.string() ?: "{}"
-                    val jsonObject = JSONObject(jsonString)
-                    val success = jsonObject.optBoolean("success", false)
+                val jsonOrden = JSONObject(responseOrden.body()?.string() ?: "{}")
+                if (!jsonOrden.optBoolean("success", false)) {
+                    Toast.makeText(this@CarritoActivity, "❌ ${jsonOrden.optString("message", "Error")}", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
 
-                    if (success) {
-                        Toast.makeText(this@CarritoActivity, "✅ Orden generada correctamente", Toast.LENGTH_LONG).show()
-                        CartManager.clear()
-                        sincronizarConCartManager()
-                        finish()
-                    } else {
-                        val msg = jsonObject.optString("message", "Error desconocido")
-                        Toast.makeText(this@CarritoActivity, "❌ $msg", Toast.LENGTH_SHORT).show()
+                val idOrdenNueva = jsonOrden.optJSONObject("data")?.optInt("ID_ORDEN_SERVICIO", 0) ?: 0
+                if (idOrdenNueva == 0) {
+                    Toast.makeText(this@CarritoActivity, "❌ No se recibió ID de orden", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                // 🔑 2. AGREGACIÓN: Todos los ítems del carrito en UNA SOLA FILA
+                var servicioId: Int? = null
+                var productoId: Int? = null
+                val nombresServicios = mutableListOf<String>()
+                val nombresProductos = mutableListOf<String>()
+                var precioTotal = 0.0
+                var garantiaMax = 0
+
+                for (item in listaCarrito) {
+                    precioTotal += item.subtotal
+                    if (item.garantia != null && item.garantia > garantiaMax) {
+                        garantiaMax = item.garantia!!
                     }
+
+                    if (item.idServicio != null) {
+                        if (servicioId == null) servicioId = item.idServicio // Toma el primer servicio
+                        val nombreServ = item.nombre ?: "Servicio"
+                        if (!nombresServicios.contains(nombreServ)) nombresServicios.add(nombreServ)
+                    }
+
+                    if (item.idProducto != null) {
+                        if (productoId == null) productoId = item.idProducto // Toma el primer producto
+                        val nombreProd = item.nombre ?: "Producto"
+                        if (!nombresProductos.contains(nombreProd)) nombresProductos.add(nombreProd)
+                    }
+                }
+
+                // 3. CREAR ÚNICO DETALLE AGREGADO
+                val detalle = Detalles_orden_servicio(
+                    idOrden = idOrdenNueva,
+                    idServicios = servicioId,
+                    idProductos = productoId,
+                    nombreServicio = nombresServicios.joinToString(", "),
+                    nombreProducto = nombresProductos.joinToString(", "),
+                    precio = precioTotal,
+                    garantia = garantiaMax
+                )
+
+                Log.d("CARRITO_DEBUG", "📦 Enviando 1 detalle agregado -> ServicioID: $servicioId | ProductoID: $productoId | PrecioTotal: $precioTotal")
+
+                // 4. ENVIAR UNA SOLA VEZ AL BACKEND
+                val response = ApiAndroid.apiService.crearDetalleOrden(detalle)
+                if (response.success) {
+                    Toast.makeText(this@CarritoActivity, "✅ Orden creada y guardada en 1 fila", Toast.LENGTH_LONG).show()
+                    CartManager.clear()
+                    sincronizarConCartManager()
+                    finish()
                 } else {
-                    val errorBody = response.errorBody()?.string() ?: "Error de conexión"
-                    Toast.makeText(this@CarritoActivity, "❌ $errorBody", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@CarritoActivity, "⚠️ Falló el detalle: ${response.message}", Toast.LENGTH_LONG).show()
                 }
 
             } catch (e: Exception) {

@@ -16,5 +16,10 @@ data class Orden_servicio(
     @SerializedName("Fecha_estimada") val fechaEstimada: String? = null,
     @SerializedName("Fecha_fin") val fechaFin: String? = null,
 
-    @SerializedName("Estado") val estado: String? = null
+    @SerializedName("Estado") val estado: String? = null,
+
+    @SerializedName("NombreCliente") val nombreCliente: String? = null,
+    @SerializedName("PlacaMoto") val placaMoto: String? = null,
+    @SerializedName("MarcaMoto") val marcaMoto: String? = null,
+    @SerializedName("ModeloMoto") val modeloMoto: String? = null
 ) : Parcelable

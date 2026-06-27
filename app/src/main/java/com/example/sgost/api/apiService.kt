@@ -16,6 +16,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -81,7 +82,7 @@ interface ApiService {
     suspend fun registrarCliente(@Body cliente: Cliente): Response<ApiResponse<Cliente>>
 
     @GET("api/clientes/obtener")
-    suspend fun obtenerClientes(): ApiResponse<List<Cliente>>
+    suspend fun obtenerClientes(): Response<ApiResponse<List<Cliente>>>
 
     @GET("api/clientes/buscar/{id}")
     suspend fun obtenerClientePorId(@Path("id") id: String): Response<ApiResponse<Cliente>>
@@ -102,7 +103,7 @@ interface ApiService {
     suspend fun crearMoto(@Body moto: Moto): ApiResponse<Moto>
 
     @GET("api/motos/obtener")
-    suspend fun obtenerMotos(): ApiResponse<List<Moto>>
+    suspend fun obtenerMotos(): Response<ApiResponse<List<Moto>>>
 
     @GET("api/motos/buscar/{id}")
     suspend fun obtenerMotoPorId(@Path("id") id: String): Response<ApiResponse<Moto>>
@@ -123,7 +124,7 @@ interface ApiService {
     suspend fun crearProducto(@Body producto: Producto): ApiResponse<Producto>
 
     @GET("api/productos/obtener")
-    suspend fun obtenerProductos(): ApiResponse<List<Producto>>
+    suspend fun obtenerProductos(): Response<ApiResponse<List<Producto>>>
 
     @GET("api/productos/buscar/{id}")
     suspend fun obtenerProductoPorId(@Path("id") id: String): Response<ApiResponse<Producto>>
@@ -144,7 +145,7 @@ interface ApiService {
     suspend fun crearServicio(@Body servicio: Servicio): ApiResponse<Servicio>
 
     @GET("api/servicios/obtener")
-    suspend fun obtenerServicios(): ApiResponse<List<Servicio>>
+    suspend fun obtenerServicios(): Response<ApiResponse<List<Servicio>>>
 
     @GET("api/servicios/buscar/{id}")
     suspend fun obtenerServicioPorId(@Path("id") id: String): Response<ApiResponse<Servicio>>
@@ -166,6 +167,9 @@ interface ApiService {
 
     @GET("api/ordenes_servicio/obtener")
     suspend fun obtenerOrdenServicio(): ApiResponse<List<Orden_servicio>>
+
+    @GET("api/ordenes_servicio/mis-ordenes")
+    suspend fun getMisOrdenes(@Header("Authorization") token: String): Response<ApiResponse<List<Orden_servicio>>>
 
     @GET("api/Ordenes_servicio/buscar/{id}")
     suspend fun obtenerOrdenServicioPorId(@Path("id") id: String): Response<ApiResponse<Orden_servicio>>
