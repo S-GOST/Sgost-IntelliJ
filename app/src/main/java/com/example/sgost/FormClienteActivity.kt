@@ -1,6 +1,7 @@
 package com.example.sgost
 
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
@@ -9,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.sgost.api.ApiAndroid
 import com.example.sgost.model.Cliente
+import com.example.sgost.model.Moto
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -26,9 +28,13 @@ class FormClienteActivity : AppCompatActivity() {
     private lateinit var etTipoDoc: TextInputEditText
     private lateinit var etUbicacion: TextInputEditText
     private lateinit var layoutPassword: TextInputLayout
-    private lateinit var layoutConfirmPassword: TextInputLayout
     private lateinit var btnGuardar: MaterialButton
     private lateinit var btnCancelar: MaterialButton
+
+    private lateinit var etPlaca: TextInputEditText
+    private lateinit var etModelo: TextInputEditText
+    private lateinit var etMarca: TextInputEditText
+    private lateinit var etRecorrido: TextInputEditText
 
     private var clienteEditar: Cliente? = null
 
@@ -43,14 +49,12 @@ class FormClienteActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar() {
-        val toolbar: MaterialToolbar? = findViewById(R.id.toolbar)
-        toolbar?.let {
+        findViewById<MaterialToolbar>(R.id.toolbar)?.let {
             setSupportActionBar(it)
             supportActionBar?.apply {
                 setDisplayHomeAsUpEnabled(true)
                 title = "Gestión de Cliente"
             }
-            // Dejamos que Android maneje el evento a través de onOptionsItemSelected
         }
     }
 
@@ -64,22 +68,22 @@ class FormClienteActivity : AppCompatActivity() {
         etTipoDoc = findViewById(R.id.etTipoDoc)
         etUbicacion = findViewById(R.id.etUbicacion)
         layoutPassword = findViewById(R.id.layoutPassword)
-        layoutConfirmPassword = findViewById(R.id.layoutConfirmPassword)
         btnGuardar = findViewById(R.id.btnGuardar)
         btnCancelar = findViewById(R.id.btnCancelar)
+
+        etPlaca = findViewById(R.id.etPlaca)
+        etModelo = findViewById(R.id.etModelo)
+        etMarca = findViewById(R.id.etMarca)
+        etRecorrido = findViewById(R.id.etRecorrido)
     }
 
     private fun cargarModoEdicion() {
         clienteEditar = intent.getParcelableExtra("cliente_extra")
-
         if (clienteEditar != null) {
             val c = clienteEditar!!
             tvFormTitle.text = "Editar Cliente"
             btnGuardar.text = "ACTUALIZAR"
-
             layoutPassword.visibility = View.GONE
-            layoutConfirmPassword.visibility = View.GONE
-
             etNombre.setText(c.nombre)
             etUsuario.setText(c.usuario)
             etCorreo.setText(c.correo)
@@ -88,24 +92,20 @@ class FormClienteActivity : AppCompatActivity() {
             etUbicacion.setText(c.ubicacion)
         } else {
             tvFormTitle.text = "Crear Cliente"
-            btnGuardar.text = "GUARDAR"
+            btnGuardar.text = "GUARDAR TODO"
             layoutPassword.visibility = View.VISIBLE
-            layoutConfirmPassword.visibility = View.VISIBLE
         }
     }
 
     private fun setupListeners() {
-        btnGuardar.setOnClickListener { guardarCliente() }
+        btnGuardar.setOnClickListener { guardarDatosIntegrales() }
         btnCancelar.setOnClickListener { finish() }
     }
 
-    private fun guardarCliente() {
+    private fun guardarDatosIntegrales() {
         val nombre = etNombre.text.toString().trim()
-        val usuario = etUsuario.text.toString().trim()
         val correo = etCorreo.text.toString().trim()
-        val telefono = etTelefono.text.toString().trim()
-        val tipoDoc = etTipoDoc.text.toString().trim()
-        val ubicacion = etUbicacion.text.toString().trim()
+        val placa = etPlaca.text.toString().trim()
         val contrasena = etContrasena.text.toString().trim()
 
         if (nombre.isEmpty() || correo.isEmpty()) {
@@ -113,75 +113,104 @@ class FormClienteActivity : AppCompatActivity() {
             return
         }
         if (clienteEditar == null && contrasena.isEmpty()) {
-            Toast.makeText(this, "❌ La contraseña es obligatoria para registrar", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "❌ La contraseña es obligatoria", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (placa.isEmpty()) {
+            Toast.makeText(this, "❌ La placa de la moto es obligatoria", Toast.LENGTH_SHORT).show()
             return
         }
 
         btnGuardar.isEnabled = false
         btnCancelar.isEnabled = false
-        btnGuardar.text = if (clienteEditar != null) "Actualizando..." else "Guardando..."
+        btnGuardar.text = "Guardando..."
 
         lifecycleScope.launch {
             try {
-                if (clienteEditar != null) {
-                    val clienteActualizar = clienteEditar!!.copy(
+                val clienteData = if (clienteEditar != null) {
+                    clienteEditar!!.copy(
                         nombre = nombre,
-                        usuario = usuario,
+                        usuario = etUsuario.text.toString().trim(),
                         correo = correo,
-                        telefono = telefono,
-                        tipoDocumento = tipoDoc,
-                        ubicacion = ubicacion
+                        telefono = etTelefono.text.toString().trim(),
+                        tipoDocumento = etTipoDoc.text.toString().trim(),
+                        ubicacion = etUbicacion.text.toString().trim()
                     )
-                    val response = ApiAndroid.apiService.actualizarCliente(
-                        clienteActualizar.id.toString(),
-                        clienteActualizar
-                    )
-
-                    if (response.isSuccessful && response.body()?.success == true) {
-                        Toast.makeText(this@FormClienteActivity, "✅ Cliente actualizado correctamente", Toast.LENGTH_SHORT).show()
-                        setResult(RESULT_OK)
-                        finish()
-                    } else {
-                        Toast.makeText(this@FormClienteActivity, "❌ ${response.body()?.message ?: "Error al actualizar"}", Toast.LENGTH_SHORT).show()
-                    }
                 } else {
-                    val nuevoCliente = Cliente(
+                    Cliente(
+                        id = null,
+                        ubicacion = etUbicacion.text.toString().trim(),
                         nombre = nombre,
-                        usuario = usuario,
+                        usuario = etUsuario.text.toString().trim(),
                         contrasena = contrasena,
+                        tipoDocumento = etTipoDoc.text.toString().trim(),
                         correo = correo,
-                        telefono = telefono,
-                        tipoDocumento = tipoDoc,
-                        ubicacion = ubicacion
+                        telefono = etTelefono.text.toString().trim()
                     )
-                    val response = ApiAndroid.apiService.registrarCliente(nuevoCliente)
-
-                    if (response.isSuccessful && response.body()?.success == true) {
-                        Toast.makeText(this@FormClienteActivity, "✅ Cliente registrado exitosamente", Toast.LENGTH_SHORT).show()
-                        setResult(RESULT_OK)
-                        finish()
-                    } else {
-                        Toast.makeText(this@FormClienteActivity, "❌ ${response.body()?.message ?: "Error al registrar"}", Toast.LENGTH_SHORT).show()
-                    }
                 }
+
+                val idClienteFinal = if (clienteEditar != null) {
+                    clienteEditar!!.id
+                } else {
+                    val responseCliente = ApiAndroid.apiService.registrarCliente(clienteData)
+                    if (!responseCliente.isSuccessful || responseCliente.body()?.success != true) {
+                        throw Exception("Error al crear el cliente: ${responseCliente.body()?.message}")
+                    }
+
+                    // ✅ CORREGIDO: Extraemos el ID del objeto ya convertido por Retrofit
+                    val data = responseCliente.body()?.data
+                    val insertId = when (data) {
+                        is Map<*, *> -> (data["insertId"] as? Int) ?: (data["id"] as? Int)
+                        is Cliente  -> data.id
+                        else        -> -1
+                    }
+
+                    if (insertId == -1) {
+                        throw Exception("El servidor no devolvió un ID válido para el cliente.")
+                    }
+                    Log.d("API_CLIENTE", "✅ ID extraído correctamente: $insertId")
+                    insertId
+                }
+
+                // 4. Guardar Moto
+                val motoData = Moto(
+                    idMotos = null,
+                    idClientes = idClienteFinal,
+                    placa = placa,
+                    modelo = etModelo.text.toString().trim(),
+                    marca = etMarca.text.toString().trim(),
+                    recorrido = etRecorrido.text.toString().trim() // String como requiere tu modelo
+                )
+
+                Log.d("API_MOTO", "🚀 Creando moto para cliente ID: $idClienteFinal")
+                val responseMoto = ApiAndroid.apiService.crearMoto(motoData)
+
+                if (responseMoto.isSuccessful && responseMoto.body()?.success == true) {
+                    Toast.makeText(this@FormClienteActivity, "✅ Cliente y Moto registrados correctamente", Toast.LENGTH_LONG).show()
+                    setResult(RESULT_OK)
+                    finish()
+                } else {
+                    val msg = responseMoto.body()?.message ?: responseMoto.errorBody()?.string() ?: "Error desconocido"
+                    Toast.makeText(this@FormClienteActivity, "✅ Cliente creado, pero ❌ Error moto: $msg", Toast.LENGTH_LONG).show()
+                }
+
             } catch (e: Exception) {
-                Toast.makeText(this@FormClienteActivity, "❌ Error de red: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("FORM_CLIENTE", "Error crítico: ${e.message}", e)
+                Toast.makeText(this@FormClienteActivity, "❌ Error: ${e.message}", Toast.LENGTH_LONG).show()
             } finally {
                 if (!isFinishing) {
                     btnGuardar.isEnabled = true
                     btnCancelar.isEnabled = true
-                    btnGuardar.text = if (clienteEditar != null) "ACTUALIZAR" else "GUARDAR"
+                    btnGuardar.text = if (clienteEditar != null) "ACTUALIZAR" else "GUARDAR TODO"
                 }
             }
         }
     }
 
-    // ✅ Manejo oficial del botón de retroceso de la Toolbar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
+        return if (item.itemId == android.R.id.home) {
             onBackPressedDispatcher.onBackPressed()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
+            true
+        } else super.onOptionsItemSelected(item)
     }
 }

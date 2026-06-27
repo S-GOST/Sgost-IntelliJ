@@ -7,7 +7,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Cliente(
     @SerializedName("ID_CLIENTES") val id: Int? = null,
-    @SerializedName("insertId") val insertId: Int? = null, // MySQL insert result
+    @SerializedName("insertId") val insertId: String? = null, // MySQL insert result
     @SerializedName("Ubicacion") val ubicacion: String? = null,
     @SerializedName("Nombre") val nombre: String? = null,
     @SerializedName("usuario") val usuario: String? = null,

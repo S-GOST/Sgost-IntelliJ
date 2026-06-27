@@ -79,7 +79,7 @@ interface ApiService {
 
     // CLIENTES
     @POST("api/clientes/insertar")
-    suspend fun registrarCliente(@Body cliente: Cliente): Response<ApiResponse<Cliente>>
+    suspend fun registrarCliente(@Body cliente: Cliente): Response<ApiResponse<Any>>
 
     @GET("api/clientes/obtener")
     suspend fun obtenerClientes(): Response<ApiResponse<List<Cliente>>>
@@ -100,7 +100,7 @@ interface ApiService {
 
     // MOTOS 🔹 NUEVO
     @POST("api/motos/insertar")
-    suspend fun crearMoto(@Body moto: Moto): ApiResponse<Moto>
+    suspend fun crearMoto(@Body moto: Moto): Response<ApiResponse<Moto>>
 
     @GET("api/motos/obtener")
     suspend fun obtenerMotos(): Response<ApiResponse<List<Moto>>>
