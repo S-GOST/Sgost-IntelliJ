@@ -157,11 +157,17 @@ class FormClienteActivity : AppCompatActivity() {
                         throw Exception("Error al crear el cliente: ${responseCliente.body()?.message}")
                     }
 
-                    // ✅ CORREGIDO: Extraemos el ID del objeto ya convertido por Retrofit
+                    // ✅ FIX DEFINITIVO: Extracción robusta del ID (maneja Int, Double, Number o String)
                     val data = responseCliente.body()?.data
-                    val insertId = when (data) {
-                        is Map<*, *> -> (data["insertId"] as? Int) ?: (data["id"] as? Int)
-                        is Cliente  -> data.id
+                    val rawId = when (data) {
+                        is Map<*, *> -> data["insertId"] ?: data["id"]
+                        else -> null
+                    }
+
+                    val insertId = when (rawId) {
+                        is Int      -> rawId
+                        is Number   -> rawId.toInt() // ✅ Captura Double/Float que devuelve Gson/Moshi
+                        is String   -> rawId.toIntOrNull()
                         else        -> -1
                     }
 
@@ -172,17 +178,17 @@ class FormClienteActivity : AppCompatActivity() {
                     insertId
                 }
 
-                // 4. Guardar Moto
+                // 4. Guardar Moto vinculada al cliente
                 val motoData = Moto(
                     idMotos = null,
                     idClientes = idClienteFinal,
                     placa = placa,
                     modelo = etModelo.text.toString().trim(),
                     marca = etMarca.text.toString().trim(),
-                    recorrido = etRecorrido.text.toString().trim() // String como requiere tu modelo
+                    recorrido = etRecorrido.text.toString().trim() // ✅ String para coincidir con tu modelo
                 )
 
-                Log.d("API_MOTO", "🚀 Creando moto para cliente ID: $idClienteFinal")
+                Log.d("API_MOTO", "🚀 Guardando moto para Cliente ID: $idClienteFinal")
                 val responseMoto = ApiAndroid.apiService.crearMoto(motoData)
 
                 if (responseMoto.isSuccessful && responseMoto.body()?.success == true) {
